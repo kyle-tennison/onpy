@@ -2,7 +2,7 @@
 
 import pyshape.api.model as model
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from pyshape.client import Client
@@ -24,3 +24,10 @@ class Document:
         """Deletes the current document"""
 
         self._client._api.endpoints.document_delete(self.id)
+
+    def __eq__(self, other: Any) -> bool:
+
+        if type(other) is type(self) and self.id == getattr(other, "id", None):
+            return True
+        else:
+            return False
