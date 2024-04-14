@@ -102,7 +102,7 @@ class RestApi:
             raise PyshapeInternalError(
                 f"Illegal response type: {response_type.__name__}"
             )
-        
+
     def http_wrap_list[
         T: ApiModel | str
     ](
@@ -130,10 +130,8 @@ class RestApi:
 
         if not isinstance(response_list, list):
             raise PyshapeApiError(f"Endpoint {endpoint} expected list response")
-        
-        
-        return [response_type(**i) for i in response_list]
 
+        return [response_type(**i) for i in response_list]
 
     def post[
         T: ApiModel | str
@@ -202,11 +200,10 @@ class RestApi:
 
         return self.http_wrap(HttpMethod.Delete, endpoint, response_type, payload)
 
-
     def list_post[
         T: ApiModel | str
-    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> T:
-        """Runs a POST request to the specified endpoint. Deserializes into 
+    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> list[T]:
+        """Runs a POST request to the specified endpoint. Deserializes into
         a list of the response_type type
 
         Args:
@@ -218,12 +215,14 @@ class RestApi:
             The response, deserialized into a list of the response_type type
         """
 
-        return self.http_wrap(HttpMethod.Post, endpoint, response_type, payload)
-    
+        return self.http_wrap_list(HttpMethod.Post, endpoint, response_type, payload)
+
     def list_get[
         T: ApiModel | str
-    ](self, endpoint: str, response_type: type[T], payload: ApiModel|None = None) -> T:
-        """Runs a GET request to the specified endpoint. Deserializes into 
+    ](
+        self, endpoint: str, response_type: type[T], payload: ApiModel | None = None
+    ) -> list[T]:
+        """Runs a GET request to the specified endpoint. Deserializes into
         a list of the response_type type
 
         Args:
@@ -235,12 +234,12 @@ class RestApi:
             The response, deserialized into a list of the response_type type
         """
 
-        return self.http_wrap(HttpMethod.Get, endpoint, response_type, payload)
-    
+        return self.http_wrap_list(HttpMethod.Get, endpoint, response_type, payload)
+
     def list_put[
         T: ApiModel | str
-    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> T:
-        """Runs a PUT request to the specified endpoint. Deserializes into 
+    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> list[T]:
+        """Runs a PUT request to the specified endpoint. Deserializes into
         a list of the response_type type
 
         Args:
@@ -252,12 +251,14 @@ class RestApi:
             The response, deserialized into a list of the response_type type
         """
 
-        return self.http_wrap(HttpMethod.Put, endpoint, response_type, payload)
-    
+        return self.http_wrap_list(HttpMethod.Put, endpoint, response_type, payload)
+
     def list_delete[
         T: ApiModel | str
-    ](self, endpoint: str, response_type: type[T], payload: ApiModel|None = None) -> T:
-        """Runs a DELETE request to the specified endpoint. Deserializes into 
+    ](
+        self, endpoint: str, response_type: type[T], payload: ApiModel | None = None
+    ) -> list[T]:
+        """Runs a DELETE request to the specified endpoint. Deserializes into
         a list of the response_type type
 
         Args:
@@ -269,4 +270,4 @@ class RestApi:
             The response, deserialized into a list of the response_type type
         """
 
-        return self.http_wrap(HttpMethod.Delete, endpoint, response_type, payload)
+        return self.http_wrap_list(HttpMethod.Delete, endpoint, response_type, payload)

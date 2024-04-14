@@ -4,6 +4,7 @@ from pyshape.util.credentials import CredentialManager
 from pyshape.api.rest_api import RestApi
 from pyshape.document import Document
 from pyshape.util.exceptions import PyshapeParameterError
+from pyshape.util.misc import find_by_name_or_id
 
 from loguru import logger
 
@@ -36,37 +37,15 @@ class Client:
             A list of Document objects
         """
 
-        if id is None and name is None:
-            raise PyshapeParameterError(
-                "A name or id must be provided to fetch a document"
-            )
+        candidate = find_by_name_or_id(id, name, self.list_documents())
 
-        document_models = self._api.endpoints.documents()
-        model_candidate = None
-
-        if name:
-            name_matches = [model.name == name for model in document_models].count(True)
-            if name_matches > 1:
-                raise PyshapeParameterError(
-                    f"Multiple documents with name {name}. Use document id instead"
-                )
-
-        for model in document_models:
-            if id and model.id == id:
-                model_candidate = model
-                break
-
-            if name and model.name == name:
-                model_candidate = model
-                break
-
-        if model_candidate is None:
+        if candidate is None:
             raise PyshapeParameterError(
                 "Unable to find a document with "
                 + (f"name {name}" if name else f"id {id}")
             )
 
-        return Document(self, model_candidate)
+        return candidate
 
     def create_document(self, name: str, description: str | None = None) -> Document:
         """Creates a new document

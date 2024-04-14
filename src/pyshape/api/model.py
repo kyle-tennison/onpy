@@ -1,7 +1,14 @@
 """Models for OnShape API payloads & responses"""
 
+from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
+from typing import Protocol
+
+
+class NameIdFetchable(Protocol):
+    name: str | None
+    id: str | None
 
 
 class ApiModel(BaseModel):
@@ -17,6 +24,13 @@ class UserReference(ApiModel):
     name: str
 
 
+class Workspace(ApiModel):
+    """Represents an instance of OnShape's workspace versioning"""
+
+    name: str
+    id: str
+
+
 class Document(ApiModel):
     """Represents surface-level document information"""
 
@@ -26,6 +40,7 @@ class Document(ApiModel):
     id: str
     name: str
     owner: UserReference
+    defaultWorkspace: Workspace
 
 
 class DocumentsResponse(ApiModel):
@@ -39,3 +54,16 @@ class DocumentCreateRequest(ApiModel):
 
     name: str
     description: str | None
+
+
+class Element(ApiModel):
+    """Represents an OnShape element"""
+
+    angleUnits: str | None
+    areaUnits: str | None
+    lengthUnits: str | None
+    massUnits: str | None
+    volumeUnits: str | None
+    elementType: str
+    id: str
+    name: str

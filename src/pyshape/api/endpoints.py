@@ -17,9 +17,7 @@ class EndpointContainer:
     def documents(self) -> list[model.Document]:
         """Fetches a list of documents that belong to the current user"""
 
-        r = self.api.get(
-            endpoint="/documents", response_type=model.DocumentsResponse
-        )
+        r = self.api.get(endpoint="/documents", response_type=model.DocumentsResponse)
         return r.items
 
     def document_create(self, name: str, description: str | None) -> model.Document:
@@ -37,12 +35,14 @@ class EndpointContainer:
     def document_delete(self, document_id: str) -> None:
         """Deletes a document"""
 
-        self.api.delete(endpoint=f"/documents/{document_id}", response_type=dict)
+        self.api.delete(endpoint=f"/documents/{document_id}", response_type=str)
 
-    def document_elements(self, document_id: str, version: VersionTarget) -> list:
+    def document_elements(
+        self, document_id: str, version: VersionTarget
+    ) -> list[model.Element]:
         """Fetches all of the elements in the specified document"""
 
         return self.api.list_get(
             endpoint=f"/documents/d/{document_id}/{version.wvm}/{version.wvmid}/elements",
-            response_type=model.Element
+            response_type=model.Element,
         )
