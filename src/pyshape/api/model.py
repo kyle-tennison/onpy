@@ -33,8 +33,9 @@ class DocumentsResponse(ApiModel):
 
     items: list[Document]
 
+
 class DocumentCreateRequest(ApiModel):
     """Request model of POST /documents"""
 
     name: str
-    description: str|None
+    description: str | None

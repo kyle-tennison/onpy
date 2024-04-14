@@ -61,7 +61,7 @@ class PyshapeInternalError(PyshapeException):
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
         return f"\nPyshapeInternalError({self.message})"
-    
+
 
 class PyshapeParameterError(PyshapeException):
 

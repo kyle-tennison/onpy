@@ -66,7 +66,14 @@ class RestApi:
         if isinstance(payload, ApiModel):
             payload_json = payload.model_dump()
 
-        logger.debug(f"Calling {http_method.name} {endpoint} with payload:\n{json.dumps(payload_json, indent=4)}")
+        logger.debug(
+            f"Calling {http_method.name} {endpoint}"
+            + (
+                f"with payload:\n{json.dumps(payload_json, indent=4)}"
+                if payload
+                else ""
+            )
+        )
 
         # TODO: wrap this in a try/except to catch timeouts
         r = requests_func(
@@ -78,7 +85,10 @@ class RestApi:
 
         # deserialize response
         try:
-            response_dict = r.json()
+            if r.text.strip() == "":
+                response_dict: dict = {}  # allow empty responses
+            else:
+                response_dict = r.json()
         except requests.JSONDecodeError as e:
             raise PyshapeApiError("Response is not json", r)
 
@@ -86,7 +96,7 @@ class RestApi:
             return expected_response(**response_dict)
 
         elif issubclass(expected_response, dict):
-            return response_dict
+            return response_dict  # type: ignore
 
         else:
             raise PyshapeInternalError(

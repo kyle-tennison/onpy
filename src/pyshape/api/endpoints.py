@@ -17,12 +17,11 @@ class EndpointContainer:
         """Fetches a list of documents that belong to the current user"""
 
         r = self.api.get(
-            endpoint="/documents", 
-            expected_response=model.DocumentsResponse
-            )
+            endpoint="/documents", expected_response=model.DocumentsResponse
+        )
         return r.items
-    
-    def document_create(self, name: str, description: str|None) -> model.Document:
+
+    def document_create(self, name: str, description: str | None) -> model.Document:
         """Creates a new document"""
 
         if description is None:
@@ -30,10 +29,11 @@ class EndpointContainer:
 
         return self.api.post(
             endpoint="/documents",
-            payload=model.DocumentCreateRequest(
-                name=name,
-                description=description
-            ),
-            expected_response=model.Document
+            payload=model.DocumentCreateRequest(name=name, description=description),
+            expected_response=model.Document,
         )
 
+    def document_delete(self, document_id: str) -> None:
+        """Deletes a document"""
+
+        self.api.delete(f"/documents/{document_id}", expected_response=dict)
