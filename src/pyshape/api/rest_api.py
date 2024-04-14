@@ -33,12 +33,12 @@ class RestApi:
         return HTTPBasicAuth(access_key, secret_key)
 
     def http_wrap[
-        T: ApiModel | dict
+        T: ApiModel | str
     ](
         self,
         http_method: HttpMethod,
         endpoint: str,
-        expected_response: type[T],
+        response_type: type[T],
         payload: ApiModel | None,
     ) -> T:
         """Wraps requests' POST/GET/DELETE with pydantic serializations & deserializations.
@@ -46,11 +46,11 @@ class RestApi:
         Args:
             http_method: The HTTP Method to use, like GET/POST/DELETE.
             endpoint: The endpoint to target. e.g., /documents/
-            expected_response: The ApiModel to deserialize the response into.
+            response_type: The ApiModel to deserialize the response into.
             payload: The optional payload to send with the request
 
         Returns:
-            The response deserialized into the expected_response type
+            The response deserialized into the response_type type
         """
 
         # match method enum to requests function
@@ -92,80 +92,181 @@ class RestApi:
         except requests.JSONDecodeError as e:
             raise PyshapeApiError("Response is not json", r)
 
-        if issubclass(expected_response, ApiModel):
-            return expected_response(**response_dict)
+        if issubclass(response_type, ApiModel):
+            return response_type(**response_dict)
 
-        elif issubclass(expected_response, dict):
-            return response_dict  # type: ignore
+        elif issubclass(response_type, str):
+            return response_type(r.text)
 
         else:
             raise PyshapeInternalError(
-                f"Illegal response type: {expected_response.__name__}"
+                f"Illegal response type: {response_type.__name__}"
             )
+        
+    def http_wrap_list[
+        T: ApiModel | str
+    ](
+        self,
+        http_method: HttpMethod,
+        endpoint: str,
+        response_type: type[T],
+        payload: ApiModel | None,
+    ) -> list[T]:
+        """Interfaces with http_wrap to deserialize into a list of the expected class
+
+        Args:
+            http_method: The HTTP Method to use, like GET/POST/DELETE.
+            endpoint: The endpoint to target. e.g., /documents/
+            response_type: The ApiModel to deserialize the response into.
+            payload: The optional payload to send with the request
+
+        Returns:
+            The response deserialized into the response_type type
+        """
+
+        response_raw = self.http_wrap(http_method, endpoint, str, payload)
+
+        response_list = json.loads(response_raw)
+
+        if not isinstance(response_list, list):
+            raise PyshapeApiError(f"Endpoint {endpoint} expected list response")
+        
+        
+        return [response_type(**i) for i in response_list]
+
 
     def post[
-        T: ApiModel | dict
-    ](self, endpoint: str, expected_response: type[T], payload: ApiModel) -> T:
-        """Runs a POST request to the specified endpoint. Deserializes into expected_response type
+        T: ApiModel | str
+    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> T:
+        """Runs a POST request to the specified endpoint. Deserializes into response_type type
 
         Args:
             endpoint: The endpoint to target. e.g., /documents/
-            expected_response: The ApiModel to deserialize the response into.
+            response_type: The ApiModel to deserialize the response into.
             payload: The payload to send with the request
 
         Returns:
-            The response deserialized into the expected_response type
+            The response deserialized into the response_type type
         """
 
-        return self.http_wrap(HttpMethod.Post, endpoint, expected_response, payload)
+        return self.http_wrap(HttpMethod.Post, endpoint, response_type, payload)
 
     def get[
-        T: ApiModel | dict
+        T: ApiModel | str
     ](
-        self, endpoint: str, expected_response: type[T], payload: ApiModel | None = None
+        self, endpoint: str, response_type: type[T], payload: ApiModel | None = None
     ) -> T:
-        """Runs a GET request to the specified endpoint. Deserializes into expected_response type
+        """Runs a GET request to the specified endpoint. Deserializes into response_type type
 
         Args:
             endpoint: The endpoint to target. e.g., /documents/
-            expected_response: The ApiModel to deserialize the response into.
+            response_type: The ApiModel to deserialize the response into.
 
         Returns:
-            The response deserialized into the expected_response type
+            The response deserialized into the response_type type
         """
 
-        return self.http_wrap(HttpMethod.Get, endpoint, expected_response, payload)
+        return self.http_wrap(HttpMethod.Get, endpoint, response_type, payload)
 
     def put[
-        T: ApiModel | dict
-    ](self, endpoint: str, expected_response: type[T], payload: ApiModel) -> T:
-        """Runs a PUT request to the specified endpoint. Deserializes into expected_response type
+        T: ApiModel | str
+    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> T:
+        """Runs a PUT request to the specified endpoint. Deserializes into response_type type
 
         Args:
             endpoint: The endpoint to target. e.g., /documents/
-            expected_response: The ApiModel to deserialize the response into.
+            response_type: The ApiModel to deserialize the response into.
             payload: The payload to send with the request
 
         Returns:
-            The response deserialized into the expected_response type
+            The response deserialized into the response_type type
         """
 
-        return self.http_wrap(HttpMethod.Put, endpoint, expected_response, payload)
+        return self.http_wrap(HttpMethod.Put, endpoint, response_type, payload)
 
     def delete[
-        T: ApiModel | dict
+        T: ApiModel | str
     ](
-        self, endpoint: str, expected_response: type[T], payload: ApiModel | None = None
+        self, endpoint: str, response_type: type[T], payload: ApiModel | None = None
     ) -> T:
-        """Runs a DELETE request to the specified endpoint. Deserializes into expected_response type
+        """Runs a DELETE request to the specified endpoint. Deserializes into response_type type
 
         Args:
             endpoint: The endpoint to target. e.g., /documents/
-            expected_response: The ApiModel to deserialize the response into.
+            response_type: The ApiModel to deserialize the response into.
             payload: The payload to send with the request
 
         Returns:
-            The response deserialized into the expected_response type
+            The response deserialized into the response_type type
         """
 
-        return self.http_wrap(HttpMethod.Delete, endpoint, expected_response, payload)
+        return self.http_wrap(HttpMethod.Delete, endpoint, response_type, payload)
+
+
+    def list_post[
+        T: ApiModel | str
+    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> T:
+        """Runs a POST request to the specified endpoint. Deserializes into 
+        a list of the response_type type
+
+        Args:
+            endpoint: The endpoint to target. e.g., /documents/
+            response_type: The ApiModel to deserialize the response into.
+            payload: The payload to send with the request
+
+        Returns:
+            The response, deserialized into a list of the response_type type
+        """
+
+        return self.http_wrap(HttpMethod.Post, endpoint, response_type, payload)
+    
+    def list_get[
+        T: ApiModel | str
+    ](self, endpoint: str, response_type: type[T], payload: ApiModel|None = None) -> T:
+        """Runs a GET request to the specified endpoint. Deserializes into 
+        a list of the response_type type
+
+        Args:
+            endpoint: The endpoint to target. e.g., /documents/
+            response_type: The ApiModel to deserialize the response into.
+            payload: The payload to send with the request
+
+        Returns:
+            The response, deserialized into a list of the response_type type
+        """
+
+        return self.http_wrap(HttpMethod.Get, endpoint, response_type, payload)
+    
+    def list_put[
+        T: ApiModel | str
+    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> T:
+        """Runs a PUT request to the specified endpoint. Deserializes into 
+        a list of the response_type type
+
+        Args:
+            endpoint: The endpoint to target. e.g., /documents/
+            response_type: The ApiModel to deserialize the response into.
+            payload: The payload to send with the request
+
+        Returns:
+            The response, deserialized into a list of the response_type type
+        """
+
+        return self.http_wrap(HttpMethod.Put, endpoint, response_type, payload)
+    
+    def list_delete[
+        T: ApiModel | str
+    ](self, endpoint: str, response_type: type[T], payload: ApiModel|None = None) -> T:
+        """Runs a DELETE request to the specified endpoint. Deserializes into 
+        a list of the response_type type
+
+        Args:
+            endpoint: The endpoint to target. e.g., /documents/
+            response_type: The ApiModel to deserialize the response into.
+            payload: The payload to send with the request
+
+        Returns:
+            The response, deserialized into a list of the response_type type
+        """
+
+        return self.http_wrap(HttpMethod.Delete, endpoint, response_type, payload)
