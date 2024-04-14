@@ -108,7 +108,11 @@ class CredentialManager:
     @staticmethod
     def fetch_or_prompt() -> tuple[str, str]:
         """Fetches the dev and secret tokens if available, prompts user
-        through CLI otherwise."""
+        through CLI otherwise.
+        
+        Returns:    
+            A tuple of the (access_key, secret_key)
+        """
 
         tokens =  CredentialManager.fetch_dev_tokens()
         if tokens:
