@@ -7,7 +7,7 @@ import sys
 from loguru import logger
 
 
-class PyshapeException(Exception): 
+class PyshapeException(Exception):
 
     def __init__(self, message: str):
         self.message = message
@@ -18,15 +18,17 @@ class PyshapeException(Exception):
         """Display the exception as a user-friendly string"""
         ...
 
-class PyshapeAuthError(PyshapeException): 
+
+class PyshapeAuthError(PyshapeException):
 
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
         return f"\nPyshapeAuthError({self.message})"
 
-class PyshapeApiError(PyshapeException): 
 
-    def __init__(self, message: str, response: Response|None) -> None:
+class PyshapeApiError(PyshapeException):
+
+    def __init__(self, message: str, response: Response | None) -> None:
         self.response = response
         super().__init__(message)
 
@@ -53,12 +55,12 @@ class PyshapeApiError(PyshapeException):
             f")"
         )
 
-class PyshapeInternalError(PyshapeException): 
-    
+
+class PyshapeInternalError(PyshapeException):
+
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
-        return f"\nPyshapeInternalError({self.message})"    
-
+        return f"\nPyshapeInternalError({self.message})"
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):

@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Callable
 if TYPE_CHECKING:
     from pyshape.client import Client
 
+
 class RestApi:
     """Interface for OnShape API Requests"""
 
@@ -30,9 +31,17 @@ class RestApi:
         access_key, secret_key = self.client._credentials
         return HTTPBasicAuth(access_key, secret_key)
 
-    def http_wrap[T: ApiModel|dict](self, http_method: HttpMethod, endpoint: str, expected_response: type[T], payload: ApiModel|None) -> T:
-        """Wraps requests' POST/GET/DELETE with pydantic serializations & deserializations. 
-        
+    def http_wrap[
+        T: ApiModel | dict
+    ](
+        self,
+        http_method: HttpMethod,
+        endpoint: str,
+        expected_response: type[T],
+        payload: ApiModel | None,
+    ) -> T:
+        """Wraps requests' POST/GET/DELETE with pydantic serializations & deserializations.
+
         Args:
             http_method: The HTTP Method to use, like GET/POST/DELETE.
             endpoint: The endpoint to target. e.g., /documents/
@@ -45,13 +54,13 @@ class RestApi:
 
         # match method enum to requests function
         requests_func: Callable[..., requests.Response] = {
-            HttpMethod.Post : requests.post,
-            HttpMethod.Get : requests.get,
-            HttpMethod.Delete : requests.delete,
-            HttpMethod.Put : requests.put
+            HttpMethod.Post: requests.post,
+            HttpMethod.Get: requests.get,
+            HttpMethod.Delete: requests.delete,
+            HttpMethod.Put: requests.put,
         }[http_method]
 
-        payload_json = None 
+        payload_json = None
 
         if isinstance(payload, ApiModel):
             payload_json = payload.model_dump_json(indent=4)
@@ -60,34 +69,35 @@ class RestApi:
 
         # TODO: wrap this in a try/except to catch timeouts
         r = requests_func(
-            url=self.BASE_URL + endpoint,
-            data=payload_json,
-            auth=self.get_auth()
+            url=self.BASE_URL + endpoint, data=payload_json, auth=self.get_auth()
         )
 
         if not r.ok:
             raise PyshapeApiError(f"Bad response {r.status_code}", r)
-        
+
         # deserialize response
         try:
             response_dict = r.json()
             pprint(response_dict)
         except requests.JSONDecodeError as e:
             raise PyshapeApiError("Response is not json", r)
-        
+
         if issubclass(expected_response, ApiModel):
             return expected_response(**response_dict)
-        
+
         elif issubclass(expected_response, dict):
             return response_dict
-        
-        else:
-            raise PyshapeInternalError(f"Illegal response type: {expected_response.__name__}")
-        
 
-    def post[T: ApiModel|dict](self, endpoint: str, expected_response: type[T], payload: ApiModel) -> T:
+        else:
+            raise PyshapeInternalError(
+                f"Illegal response type: {expected_response.__name__}"
+            )
+
+    def post[
+        T: ApiModel | dict
+    ](self, endpoint: str, expected_response: type[T], payload: ApiModel) -> T:
         """Runs a POST request to the specified endpoint. Deserializes into expected_response type
-        
+
         Args:
             endpoint: The endpoint to target. e.g., /documents/
             expected_response: The ApiModel to deserialize the response into.
@@ -98,10 +108,14 @@ class RestApi:
         """
 
         return self.http_wrap(HttpMethod.Post, endpoint, expected_response, payload)
-    
-    def get[T: ApiModel|dict](self, endpoint: str, expected_response: type[T], payload: ApiModel|None = None) -> T:
+
+    def get[
+        T: ApiModel | dict
+    ](
+        self, endpoint: str, expected_response: type[T], payload: ApiModel | None = None
+    ) -> T:
         """Runs a GET request to the specified endpoint. Deserializes into expected_response type
-        
+
         Args:
             endpoint: The endpoint to target. e.g., /documents/
             expected_response: The ApiModel to deserialize the response into.
@@ -111,10 +125,12 @@ class RestApi:
         """
 
         return self.http_wrap(HttpMethod.Get, endpoint, expected_response, payload)
-    
-    def put[T: ApiModel|dict](self, endpoint: str, expected_response: type[T], payload: ApiModel) -> T:
+
+    def put[
+        T: ApiModel | dict
+    ](self, endpoint: str, expected_response: type[T], payload: ApiModel) -> T:
         """Runs a PUT request to the specified endpoint. Deserializes into expected_response type
-        
+
         Args:
             endpoint: The endpoint to target. e.g., /documents/
             expected_response: The ApiModel to deserialize the response into.
@@ -125,10 +141,14 @@ class RestApi:
         """
 
         return self.http_wrap(HttpMethod.Put, endpoint, expected_response, payload)
-    
-    def delete[T: ApiModel|dict](self, endpoint: str, expected_response: type[T], payload: ApiModel|None=None) -> T:
+
+    def delete[
+        T: ApiModel | dict
+    ](
+        self, endpoint: str, expected_response: type[T], payload: ApiModel | None = None
+    ) -> T:
         """Runs a DELETE request to the specified endpoint. Deserializes into expected_response type
-        
+
         Args:
             endpoint: The endpoint to target. e.g., /documents/
             expected_response: The ApiModel to deserialize the response into.
@@ -139,5 +159,3 @@ class RestApi:
         """
 
         return self.http_wrap(HttpMethod.Delete, endpoint, expected_response, payload)
-    
-

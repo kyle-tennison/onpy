@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pyshape.api.rest_api import RestApi
 
-class EndpointContainer: 
+
+class EndpointContainer:
 
     def __init__(self, rest_api: "RestApi") -> None:
         self.api = rest_api
 
-    
     def documents(self) -> list[model.Document]:
         """Fetches a list of documents that belong to the current user"""
 
