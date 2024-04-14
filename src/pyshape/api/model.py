@@ -29,6 +29,13 @@ class Document(ApiModel):
 
 
 class DocumentsResponse(ApiModel):
-    """Response model of /documents"""
+    """Response model of GET /documents"""
 
     items: list[Document]
+
+
+class DocumentCreateRequest(ApiModel):
+    """Request model of POST /documents"""
+
+    name: str
+    description: str | None
