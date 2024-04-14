@@ -1,5 +1,6 @@
 """Rest Api interface to OnShape server"""
 
+import json
 from pprint import pprint
 from pyshape.api.endpoints import EndpointContainer
 from pyshape.api.model import ApiModel
@@ -63,13 +64,13 @@ class RestApi:
         payload_json = None
 
         if isinstance(payload, ApiModel):
-            payload_json = payload.model_dump_json(indent=4)
+            payload_json = payload.model_dump()
 
-        logger.trace(f"Calling {endpoint} with payload:\n{payload_json}")
+        logger.debug(f"Calling {http_method.name} {endpoint} with payload:\n{json.dumps(payload_json, indent=4)}")
 
         # TODO: wrap this in a try/except to catch timeouts
         r = requests_func(
-            url=self.BASE_URL + endpoint, data=payload_json, auth=self.get_auth()
+            url=self.BASE_URL + endpoint, json=payload_json, auth=self.get_auth()
         )
 
         if not r.ok:
@@ -78,7 +79,6 @@ class RestApi:
         # deserialize response
         try:
             response_dict = r.json()
-            pprint(response_dict)
         except requests.JSONDecodeError as e:
             raise PyshapeApiError("Response is not json", r)
 
