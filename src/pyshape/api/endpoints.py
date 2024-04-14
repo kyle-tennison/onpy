@@ -1,6 +1,7 @@
 """Contains different endpoints exposed to the RestApi object"""
 
 import pyshape.api.model as model
+from pyshape.api.versioning import VersionTarget
 
 from typing import TYPE_CHECKING
 
@@ -17,7 +18,7 @@ class EndpointContainer:
         """Fetches a list of documents that belong to the current user"""
 
         r = self.api.get(
-            endpoint="/documents", expected_response=model.DocumentsResponse
+            endpoint="/documents", response_type=model.DocumentsResponse
         )
         return r.items
 
@@ -30,10 +31,18 @@ class EndpointContainer:
         return self.api.post(
             endpoint="/documents",
             payload=model.DocumentCreateRequest(name=name, description=description),
-            expected_response=model.Document,
+            response_type=model.Document,
         )
 
     def document_delete(self, document_id: str) -> None:
         """Deletes a document"""
 
-        self.api.delete(f"/documents/{document_id}", expected_response=dict)
+        self.api.delete(endpoint=f"/documents/{document_id}", response_type=dict)
+
+    def document_elements(self, document_id: str, version: VersionTarget) -> list:
+        """Fetches all of the elements in the specified document"""
+
+        return self.api.list_get(
+            endpoint=f"/documents/d/{document_id}/{version.wvm}/{version.wvmid}/elements",
+            response_type=model.Element
+        )
