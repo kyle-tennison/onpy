@@ -74,6 +74,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, PyshapeException):
         logger.trace(str(exc_traceback))
         logger.error(exc_value.display())
+        sys.exit(1)
 
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
