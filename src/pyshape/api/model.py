@@ -1,30 +1,29 @@
 """Models for OnShape API payloads & responses"""
 
-from pydantic import BaseModel, field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 
-class ApiModel(BaseModel): ...
+class ApiModel(BaseModel): 
+
+    model_config = ConfigDict(extra='ignore')
 
 class UserReference(ApiModel):
     """Represents a reference to a user"""
     href: str 
     id: str 
     name: str 
-    viewRef: str 
-    image: str 
-    state: int 
-    jsonType: str
 
 
 class Document(ApiModel):
-    canMove: bool
+    """Represents surface-level document information"""
     createdAt: datetime
     createdBy: UserReference
-    description: str 
     href: str 
     id: str 
     name: str 
     owner: UserReference
-    projectId: str 
 
+class DocumentsResponse(ApiModel):
+    """Response model of /documents"""
+    items: list[Document]
     

@@ -53,7 +53,11 @@ class PyshapeApiError(PyshapeException):
             f")"
         )
 
-class PyshapeInternalError(PyshapeException): ...
+class PyshapeInternalError(PyshapeException): 
+    
+    def display(self) -> str:
+        """Display the exception as a user-friendly string"""
+        return f"\nPyshapeInternalError({self.message})"    
 
 
 
@@ -61,7 +65,8 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, PyshapeException):
         logger.trace(str(exc_traceback))
         logger.error(exc_value.display())
-        sys.exit(1)
+
+    sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 
 sys.excepthook = handle_exception

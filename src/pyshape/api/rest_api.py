@@ -1,11 +1,13 @@
 """Rest Api interface to OnShape server"""
 
+from pprint import pprint
 from pyshape.api.endpoints import EndpointContainer
 from pyshape.api.model import ApiModel
 from pyshape.util.model import HttpMethod
 from pyshape.util.exceptions import PyshapeApiError, PyshapeInternalError
 
 import requests
+from requests.auth import HTTPBasicAuth
 import inspect
 from loguru import logger
 from typing import TYPE_CHECKING, Callable
@@ -18,25 +20,15 @@ class RestApi:
 
     BASE_URL = "https://cad.onshape.com/api/v6"
 
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: "Client") -> None:
         self.endpoints = EndpointContainer(self)
         self.client = client
 
-
-    def get_headers(self) -> dict:
-        """Creates the headers for each request
-        
-        Returns:    
-            The headers as a dictionary
-        """
+    def get_auth(self) -> HTTPBasicAuth:
+        """Returns the authentication object"""
 
         access_key, secret_key = self.client._credentials
-
-        headers = {
-            "authorization" : f"{access_key}:{secret_key}"
-        }
-
-        return headers
+        return HTTPBasicAuth(access_key, secret_key)
 
     def http_wrap[T: ApiModel|dict](self, http_method: HttpMethod, endpoint: str, expected_response: type[T], payload: ApiModel|None) -> T:
         """Wraps requests' POST/GET/DELETE with pydantic serializations & deserializations. 
@@ -70,7 +62,7 @@ class RestApi:
         r = requests_func(
             url=self.BASE_URL + endpoint,
             data=payload_json,
-            headers=self.get_headers()
+            auth=self.get_auth()
         )
 
         if not r.ok:
@@ -78,15 +70,16 @@ class RestApi:
         
         # deserialize response
         try:
-            r.json()
+            response_dict = r.json()
+            pprint(response_dict)
         except requests.JSONDecodeError as e:
             raise PyshapeApiError("Response is not json", r)
         
         if issubclass(expected_response, ApiModel):
-            return expected_response.model_validate_json(json_data=r.text) # type: ignore
+            return expected_response(**response_dict)
         
         elif issubclass(expected_response, dict):
-            return r.json() 
+            return response_dict
         
         else:
             raise PyshapeInternalError(f"Illegal response type: {expected_response.__name__}")

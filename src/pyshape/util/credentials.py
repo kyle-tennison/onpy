@@ -1,7 +1,7 @@
 """Manages OnShape credentials"""
 
 
-from pyshape.util.exceptions import OnshapeAuthError
+from pyshape.util.exceptions import PyshapeAuthError
 
 import re
 import os
@@ -55,12 +55,8 @@ class CredentialManager:
         dev_secret = os.environ.get("ONSHAPE_DEV_SECRET")
         dev_access = os.environ.get("ONSHAPE_DEV_ACCESS")
 
-        print(dev_secret)
-        print(dev_access)
-
         # look in file if no env var set
         if not dev_secret or not dev_access:
-            print("looking in file")
 
             if not os.path.exists(CredentialManager.credential_path):
                 return None
@@ -71,10 +67,9 @@ class CredentialManager:
                 dev_access = str(data["dev_access"])
 
         if not CredentialManager.is_access_key(dev_access):
-            raise OnshapeAuthError("Dev access key does not follow expected pattern")
+            raise PyshapeAuthError("Dev access key does not follow expected pattern")
         if not CredentialManager.is_secret_key(dev_secret):
-            print("secretkey:", dev_secret)
-            raise OnshapeAuthError("Dev secret key does not follow expected pattern")
+            raise PyshapeAuthError("Dev secret key does not follow expected pattern")
         
         return (dev_access, dev_secret)
     
@@ -89,10 +84,10 @@ class CredentialManager:
 
         # verify before adding
         if not CredentialManager.is_access_key(access_token):
-            raise OnshapeAuthError(f"Cannot add token {access_token} to credentials file. "
+            raise PyshapeAuthError(f"Cannot add token {access_token} to credentials file. "
                                     "Not a valid access key.")
         if not CredentialManager.is_secret_key(secret_token):
-            raise OnshapeAuthError(f"Cannot add token {secret_token} to credentials file. "
+            raise PyshapeAuthError(f"Cannot add token {secret_token} to credentials file. "
                                     "Not a valid secret key.")
         
 
