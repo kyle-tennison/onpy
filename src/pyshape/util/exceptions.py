@@ -1,10 +1,28 @@
-"""Exception Definitions"""
+"""Exception definitions and excepthook injection"""
 
+import json
 from requests import Response
+from abc import abstractmethod
+import sys
+from loguru import logger
 
-class PyshapeException(Exception): ...
 
-class OnshapeAuthError(PyshapeException): ...
+class PyshapeException(Exception): 
+
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(message)
+
+    @abstractmethod
+    def display(self) -> str:
+        """Display the exception as a user-friendly string"""
+        ...
+
+class PyshapeAuthError(PyshapeException): 
+
+    def display(self) -> str:
+        """Display the exception as a user-friendly string"""
+        return f"\nPyshapeAuthError({self.message})"
 
 class PyshapeApiError(PyshapeException): 
 
@@ -12,4 +30,38 @@ class PyshapeApiError(PyshapeException):
         self.response = response
         super().__init__(message)
 
+    def display(self) -> str:
+        """Display the exception as a user-friendly string"""
+
+        response_pretty = ""
+        url = "None"
+
+        if self.response is not None:
+            url = self.response.url
+            try:
+                response_pretty = json.dumps(self.response.json(), indent=4)
+            except json.JSONDecodeError:
+                response_pretty = self.response.text
+        else:
+            response_pretty = "Undefined"
+
+        return (
+            f"\nPyshapeApiError: (\n"
+            f"  message: {self.message}\n"
+            f"  url: {url}\n"
+            f"  response: {response_pretty}\n"
+            f")"
+        )
+
 class PyshapeInternalError(PyshapeException): ...
+
+
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, PyshapeException):
+        logger.trace(str(exc_traceback))
+        logger.error(exc_value.display())
+        sys.exit(1)
+
+
+sys.excepthook = handle_exception
