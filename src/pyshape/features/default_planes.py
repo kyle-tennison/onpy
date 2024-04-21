@@ -2,7 +2,7 @@
 
 from enum import Enum
 from textwrap import dedent
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 from pyshape.features.base import Feature
 from pyshape.features.plane import Plane
 from pyshape.api.versioning import WorkspaceWVM
@@ -28,14 +28,17 @@ class DefaultPlane(Plane):
         self._id = self._load_plane_id()
 
     @property
+    @override
     def partstudio(self) -> "PartStudio":
         return self._partstudio
 
     @property
+    @override
     def id(self) -> str:
         return self._id
 
     @property
+    @override
     def name(self) -> str:
         return f"{self.orientation.value} Plane"
 
@@ -67,6 +70,10 @@ class DefaultPlane(Plane):
         # TODO: proper error handling
         plane_id = response.result["value"][0]["value"]
         return plane_id
+    
+    @override 
+    def _to_model(self):
+        raise NotImplementedError("Default planes cannot be converted to a model")
 
     def __repr__(self) -> str:
         return f"[ {self.name} ]"

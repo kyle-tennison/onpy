@@ -11,9 +11,9 @@ document = client.create_document("my example")
 part_studio = document.create_partstudio("Part Studio 1", units="inch")
 
 # Add sketch
-base_sketch = Sketch(plane=part_studio.features.front_plane, name="Base Sketch")
-base_sketch.add_component(Circle(center=(0, 1, 1), radius=5))
-base_sketch.add_component(Circle(center=(0, 1, 1), radius=2))
+base_sketch = Sketch(part_studio=part_studio, plane=part_studio.features.front_plane, name="Base Sketch")
+base_sketch.add_circle(center=(0, 1), radius=5)
+base_sketch.add_circle(Circle(center=(0, 1), radius=2))
 
 part_studio.add_feature(base_sketch)
 

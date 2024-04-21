@@ -70,14 +70,37 @@ class Element(ApiModel):
     name: str
 
 
+class FeatureParameter(ApiModel):
+    """Represents a feature parameter"""
+    btType: str
+    queries: list[dict|ApiModel]
+    parameterId: str
+
+class FeatureParameterQueryList(FeatureParameter):
+    """Represents a BTMParameterQueryList-148"""
+    btType: str = "BTMParameterQueryList-148"
+
+class FeatureEntity(ApiModel):
+    """Represents a feature entity"""
+
+    btType: Optional[str] = None
+    entityId: str 
+
+class SketchCurveEntity(FeatureEntity):
+    """Represents a sketch's curve"""
+    geometry: dict
+    centerId: str
+
 class Feature(ApiModel):
     """Represents an OnShape feature"""
 
     name: str
     namespace: str
-    nodeId: str
+    # nodeId: str
     featureType: str
     suppressed: bool
+    parameters: Optional[list[FeatureParameter]] = []
+    entities: Optional[list[FeatureEntity]]
 
 
 class FeaturescriptUpload(ApiModel):
@@ -88,3 +111,12 @@ class FeaturescriptUpload(ApiModel):
 
 class FeaturescriptResponse(ApiModel):
     result: dict
+
+
+
+class Sketch(Feature):
+    """Represents a Sketch Feature"""
+
+    btType: str = "BTMSketch-151"
+    featureType: str = "featureType"
+    constraints: Optional[list[dict]] = []

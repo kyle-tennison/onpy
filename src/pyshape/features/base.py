@@ -43,6 +43,11 @@ class Feature(ABC):
         """The name of the feature"""
         ...
 
+    @property 
+    @abstractmethod
+    def _to_model(self) -> model.ApiModel:
+        """Converts the feature into the corresponding api model"""
+
 
 class FeatureList:
 
