@@ -2,6 +2,5 @@
 
 from pyshape.features.base import Feature
 
-class Plane(Feature):
 
-    ...
+class Plane(Feature): ...

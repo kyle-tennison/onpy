@@ -85,5 +85,6 @@ class FeaturescriptUpload(ApiModel):
 
     script: str
 
+
 class FeaturescriptResponse(ApiModel):
     result: dict

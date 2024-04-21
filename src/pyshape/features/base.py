@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class Feature(ABC):
     """An abstract base class for OnShape elements"""
 
-    @property 
+    @property
     @abstractmethod
     def partstudio(self) -> "PartStudio":
         """A reference to the owning PartStudio"""
@@ -33,7 +33,7 @@ class Feature(ABC):
 
     @property
     @abstractmethod
-    def id(self) -> str|None:
+    def id(self) -> str | None:
         """The id of the feature"""
         ...
 
@@ -45,14 +45,14 @@ class Feature(ABC):
 
 
 class FeatureList:
-    
+
     def __init__(self, features: list[Feature]):
         self._features = features
 
     def __len__(self) -> int:
         """Returns the number of items"""
         return len(self._features)
-    
+
     def __getitem__(self, name: str) -> Feature:
         """Gets an item by its name"""
 
@@ -63,8 +63,8 @@ class FeatureList:
         elif len(matches) > 1:
             raise PyshapeParameterError(f"Multiple '{name}' features. Use .get(id=...)")
         else:
-            return matches[0] # type: ignore
-    
+            return matches[0]  # type: ignore
+
     def __str__(self) -> str:
         msg = "FeatureList(\n"
         for f in self._features:
@@ -72,18 +72,14 @@ class FeatureList:
         msg += ")"
         return msg
 
-
     @property
     def front_plane(self) -> "Plane":
-        return self["Front Plane"] # type: ignore
-    
+        return self["Front Plane"]  # type: ignore
+
     @property
     def top_plane(self) -> "Plane":
-        return self["Top Plane"] # type: ignore
-    
+        return self["Top Plane"]  # type: ignore
+
     @property
     def right_plane(self) -> "Plane":
-        return self["Right Plane"] # type: ignore
-
-        
-    
+        return self["Right Plane"]  # type: ignore

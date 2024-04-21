@@ -32,7 +32,7 @@ class PartStudio(Element):
     def name(self) -> str:
         """The name of the PartStudio"""
         return self._model.name
-    
+
     @property
     def features(self) -> FeatureList:
         """A list of the partstudio's features"""

@@ -30,18 +30,18 @@ class DefaultPlane(Plane):
     @property
     def partstudio(self) -> "PartStudio":
         return self._partstudio
-    
+
     @property
     def id(self) -> str:
         return self._id
-    
+
     @property
     def name(self) -> str:
         return f"{self.orientation.value} Plane"
 
     def _load_plane_id(self) -> str:
         """Loads the plane id
-        
+
         Returns:
             The plane ID
         """
@@ -61,7 +61,7 @@ class DefaultPlane(Plane):
             version=WorkspaceWVM(self.document.default_workspace.id),
             element_id=self.partstudio.id,
             script=plane_script,
-            return_type=model.FeaturescriptResponse
+            return_type=model.FeaturescriptResponse,
         )
 
         # TODO: proper error handling
@@ -70,6 +70,6 @@ class DefaultPlane(Plane):
 
     def __repr__(self) -> str:
         return f"[ {self.name} ]"
-    
+
     def __str__(self) -> str:
         return repr(self)
