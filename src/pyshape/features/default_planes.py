@@ -4,6 +4,7 @@ from enum import Enum
 from textwrap import dedent
 from typing import TYPE_CHECKING
 from pyshape.features.base import Feature
+from pyshape.features.plane import Plane
 from pyshape.api.versioning import WorkspaceWVM
 import pyshape.api.model as model
 
@@ -18,17 +19,17 @@ class DefaultPlaneOrientation(Enum):
     RIGHT = "Right"
 
 
-class DefaultPlane(Feature):
+class DefaultPlane(Plane):
 
     def __init__(self, partstudio: "PartStudio", orientation: DefaultPlaneOrientation):
-        self.partstudio = partstudio
+        self._partstudio = partstudio
         self.orientation = orientation
 
         self._id = self._load_plane_id()
 
     @property
-    def document(self) -> "Document":
-        return super().document
+    def partstudio(self) -> "PartStudio":
+        return self._partstudio
     
     @property
     def id(self) -> str:

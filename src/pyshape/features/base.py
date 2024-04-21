@@ -10,17 +10,18 @@ if TYPE_CHECKING:
     from pyshape.client import Client
     from pyshape.document import Document
     from pyshape.elements.partstudio import PartStudio
+    from pyshape.features.plane import Plane
 
 
 class Feature(ABC):
     """An abstract base class for OnShape elements"""
 
-    def __init__(self, partstudio: "PartStudio", model: model.ApiModel) -> None:
-        self._model = model
-        self.partstudio = partstudio
+    @property 
+    @abstractmethod
+    def partstudio(self) -> "PartStudio":
+        """A reference to the owning PartStudio"""
 
     @property
-    @abstractmethod
     def document(self) -> "Document":
         """A reference to the owning document"""
         return self.partstudio.document
@@ -32,7 +33,7 @@ class Feature(ABC):
 
     @property
     @abstractmethod
-    def id(self) -> str:
+    def id(self) -> str|None:
         """The id of the feature"""
         ...
 
@@ -62,7 +63,7 @@ class FeatureList:
         elif len(matches) > 1:
             raise PyshapeParameterError(f"Multiple '{name}' features. Use .get(id=...)")
         else:
-            return matches[0]
+            return matches[0] # type: ignore
     
     def __str__(self) -> str:
         msg = "FeatureList(\n"
@@ -73,16 +74,16 @@ class FeatureList:
 
 
     @property
-    def front_plane(self) -> Feature:
-        return self["Front Plane"]
+    def front_plane(self) -> "Plane":
+        return self["Front Plane"] # type: ignore
     
     @property
-    def top_plane(self) -> Feature:
-        return self["Top Plane"]
+    def top_plane(self) -> "Plane":
+        return self["Top Plane"] # type: ignore
     
     @property
-    def right_plane(self) -> Feature:
-        return self["Right Plane"]
+    def right_plane(self) -> "Plane":
+        return self["Right Plane"] # type: ignore
 
         
     
