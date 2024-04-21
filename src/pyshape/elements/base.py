@@ -37,3 +37,10 @@ class Element(ABC, model.NameIdFetchable):
 
     def __str__(self) -> str:
         return repr(self)
+    
+    def __eq__(self, other) -> bool:
+
+        if hasattr(other, "id"):
+            return other.id == self.id and type(other) is type(self)
+        else:
+            return False

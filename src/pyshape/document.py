@@ -76,6 +76,8 @@ class Document(model.NameIdFetchable):
                 "Unable to find a partstudio with "
                 + (f"name {name}" if name else f"id {id}")
             )
+        
+        return match
 
     def __eq__(self, other: Any) -> bool:
 

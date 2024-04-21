@@ -53,8 +53,5 @@ def test_elements():
 
         assert main_ps == document.get_partstudio(id=main_ps.id)
         assert main_ps in document.elements
-    
-    except:
-        ...
-
-    document.delete()
+    finally:
+        document.delete()
