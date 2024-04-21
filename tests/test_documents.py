@@ -2,7 +2,10 @@
 
 from pyshape import Client
 
+import pytest
 import uuid
+
+from pyshape.util.exceptions import PyshapeParameterError
 
 client = Client()
 
@@ -24,4 +27,34 @@ def test_lifecycle():
     assert new_document != document
 
     new_document.delete()
+    document.delete()
+
+
+def test_exceptions():
+    """Tests exertions relating to documents"""
+
+    with pytest.raises(PyshapeParameterError) as _:
+        client.get_document(id="not a id")
+
+    with pytest.raises(PyshapeParameterError) as _:
+        client.get_document()
+
+    with pytest.raises(PyshapeParameterError) as _:
+        client.get_document(id="123", name="123")
+
+
+def test_elements():
+    """Tests element fetching"""
+
+    document = client.create_document("test_documents::test_elements")
+
+    try:
+        main_ps = document.get_partstudio(name="Part Studio 1")
+
+        assert main_ps == document.get_partstudio(id=main_ps.id)
+        assert main_ps in document.elements
+    
+    except:
+        ...
+
     document.delete()
