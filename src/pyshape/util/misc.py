@@ -24,6 +24,9 @@ def find_by_name_or_id[
 
     if name is None and id is None:
         raise PyshapeParameterError("A name or id is required to fetch")
+    
+    if len(items) == 0:
+        return None
 
     candidate: T | None = None
 
@@ -33,6 +36,8 @@ def find_by_name_or_id[
             raise PyshapeParameterError(
                 f"Duplicate names '{name}'. Use id instead to fetch."
             )
+        if len(filtered) == 0:
+            return None
 
         candidate = filtered[0]
 

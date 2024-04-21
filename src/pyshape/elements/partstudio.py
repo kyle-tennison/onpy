@@ -27,3 +27,6 @@ class PartStudio(Element):
     def name(self) -> str:
         """The name of the PartStudio"""
         return self._model.name
+
+    def __repr__(self) -> str:
+        return super().__repr__()

@@ -1,7 +1,6 @@
 """Rest Api interface to OnShape server"""
 
 import json
-from pprint import pprint
 from pyshape.api.endpoints import EndpointContainer
 from pyshape.api.model import ApiModel
 from pyshape.util.model import HttpMethod
@@ -69,7 +68,7 @@ class RestApi:
         logger.debug(
             f"Calling {http_method.name} {endpoint}"
             + (
-                f"with payload:\n{json.dumps(payload_json, indent=4)}"
+                f" with payload:\n{json.dumps(payload_json, indent=4)}"
                 if payload
                 else ""
             )

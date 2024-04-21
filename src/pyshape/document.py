@@ -5,6 +5,7 @@ from pyshape.elements.partstudio import PartStudio
 from pyshape.elements.assembly import Assembly
 from pyshape.util.misc import find_by_name_or_id
 from pyshape.api.versioning import WorkspaceWVM
+from pyshape.util.exceptions import PyshapeParameterError
 
 from typing import TYPE_CHECKING, Any
 from functools import cache
@@ -60,13 +61,21 @@ class Document(model.NameIdFetchable):
 
         self._client._api.endpoints.document_delete(self.id)
 
-    # def list_partstudios(self) -> list[PartStudio]:
-    #     """Gets a list of PartStudios that belong to this document"""
+    def list_partstudios(self) -> list[PartStudio]:
+        """Gets a list of PartStudios that belong to this document"""
 
-    # def get_partstudio(self, id: str|None = None, name: str|None = None) -> PartStudio:
-    #     """Fetches a partstudio by name or id"""
+        return [e for e in self.elements if isinstance(e, PartStudio)]
 
-    #     find_by_name_or_id(id, name, self.list_partstudios())
+    def get_partstudio(self, id: str|None = None, name: str|None = None) -> PartStudio:
+        """Fetches a partstudio by name or id"""
+
+        match = find_by_name_or_id(id, name, self.list_partstudios())
+
+        if match is None:
+            raise PyshapeParameterError(
+                "Unable to find a partstudio with "
+                + (f"name {name}" if name else f"id {id}")
+            )
 
     def __eq__(self, other: Any) -> bool:
 

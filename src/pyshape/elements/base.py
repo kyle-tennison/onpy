@@ -30,3 +30,10 @@ class Element(ABC, model.NameIdFetchable):
     def name(self) -> str:
         """The name of the element"""
         ...
+
+    @abstractmethod
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(id={self.id})"
+
+    def __str__(self) -> str:
+        return repr(self)
