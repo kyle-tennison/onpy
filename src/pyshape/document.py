@@ -49,10 +49,10 @@ class Document(model.NameIdFetchable):
         for element in elements_model_list:
 
             if element.elementType == "PARTSTUDIO":
-                element_objects.append(PartStudio(self._client, element, self))
+                element_objects.append(PartStudio(self, element))
 
             if element.elementType == "ASSEMBLY":
-                element_objects.append(Assembly(self._client, element, self))
+                element_objects.append(Assembly(self, element))
 
         return element_objects
 

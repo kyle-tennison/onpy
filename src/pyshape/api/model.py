@@ -72,35 +72,65 @@ class Element(ApiModel):
 
 class FeatureParameter(ApiModel):
     """Represents a feature parameter"""
+
     btType: str
-    queries: list[dict|ApiModel]
+    queries: list[dict | ApiModel]
     parameterId: str
+
 
 class FeatureParameterQueryList(FeatureParameter):
     """Represents a BTMParameterQueryList-148"""
+
     btType: str = "BTMParameterQueryList-148"
+
 
 class FeatureEntity(ApiModel):
     """Represents a feature entity"""
 
     btType: Optional[str] = None
-    entityId: str 
+    entityId: str
+
 
 class SketchCurveEntity(FeatureEntity):
     """Represents a sketch's curve"""
+
     geometry: dict
     centerId: str
+    btType: str = "BTMSketchCurve-4"
+
 
 class Feature(ApiModel):
     """Represents an OnShape feature"""
 
     name: str
-    namespace: str
+    namespace: Optional[str] = None
     # nodeId: str
     featureType: str
     suppressed: bool
-    parameters: Optional[list[FeatureParameter]] = []
-    entities: Optional[list[FeatureEntity]]
+    parameters: Optional[list[dict]] = []  # dict is FeatureParameter
+    entities: Optional[list[dict]]  # dict is FeatureEntity
+
+    # TODO: is there any way to use inheritance in pydantic w/o filtering off attributes
+
+
+class FeatureState(ApiModel):
+    """Contains information about the health of a feature"""
+
+    featureStatus: str
+    inactive: bool
+
+
+class FeatureAddRequest(ApiModel):
+    """API Request to add a feature"""
+
+    feature: dict
+
+
+class FeatureAddResponse(ApiModel):
+    """API Response after adding a feature"""
+
+    feature: Feature
+    featureState: FeatureState
 
 
 class FeaturescriptUpload(ApiModel):
@@ -111,7 +141,6 @@ class FeaturescriptUpload(ApiModel):
 
 class FeaturescriptResponse(ApiModel):
     result: dict
-
 
 
 class Sketch(Feature):

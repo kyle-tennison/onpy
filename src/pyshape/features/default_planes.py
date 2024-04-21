@@ -70,8 +70,8 @@ class DefaultPlane(Plane):
         # TODO: proper error handling
         plane_id = response.result["value"][0]["value"]
         return plane_id
-    
-    @override 
+
+    @override
     def _to_model(self):
         raise NotImplementedError("Default planes cannot be converted to a model")
 

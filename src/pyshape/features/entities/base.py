@@ -1,6 +1,5 @@
 """Abstract base class for feature entities"""
 
-
 from abc import ABC, abstractmethod
 import pyshape.api.model as model
 

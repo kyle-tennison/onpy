@@ -35,10 +35,10 @@ class Sketch(Feature):
     @property
     def name(self) -> str:
         return self._name
-    
+
     def add_circle(self, center: tuple[float, float], radius: float) -> None:
         """Adds a circle to the sketch
-        
+
         Args:
             center: An (x,y) pair of the center of the circle
             radius: The radius of the circle
@@ -51,21 +51,24 @@ class Sketch(Feature):
     def _to_model(self) -> model.Sketch:
         return model.Sketch(
             name=self.name,
-            namespace="",
+            # namespace="",
             featureType="newSketch",
-            suppressed=False, 
+            suppressed=False,
             parameters=[
                 model.FeatureParameterQueryList(
-                    queries=[{
-                        "btType" : "BTMIndividualQuery-138",
-                        "deterministicIds" : self.plane.id
-                    }],
-                    parameterId="sketchPlane"
-                )
+                    queries=[
+                        {
+                            "btType": "BTMIndividualQuery-138",
+                            "deterministicIds": [self.plane.id],
+                        }
+                    ],
+                    parameterId="sketchPlane",
+                ).model_dump(exclude_none=True)
             ],
-            entities=[e.to_model() for e in self._entities]
+            entities=[
+                e.to_model().model_dump(exclude_none=True) for e in self._entities
+            ],
         )
-
 
     def __str__(self) -> str:
         return repr(self)

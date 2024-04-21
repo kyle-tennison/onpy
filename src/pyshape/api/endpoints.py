@@ -64,3 +64,20 @@ class EndpointContainer:
             response_type=return_type,
             payload=model.FeaturescriptUpload(script=script),
         )
+
+    def add_feature(
+        self,
+        document_id: str,
+        version: VersionTarget,
+        element_id: str,
+        feature: model.Feature,
+    ) -> model.FeatureAddResponse:
+        """Adds a feature to the partstudio"""
+
+        return self.api.post(
+            endpoint=f"/partstudios/d/{document_id}/{version.wvm}/{version.wvmid}/e/{element_id}/features",
+            response_type=model.FeatureAddResponse,
+            payload=model.FeatureAddRequest(
+                feature=feature.model_dump(exclude_none=True)
+            ),
+        )
