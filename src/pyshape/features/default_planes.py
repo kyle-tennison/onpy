@@ -33,6 +33,10 @@ class DefaultPlane(Feature):
     @property
     def id(self) -> str:
         return self._id
+    
+    @property
+    def name(self) -> str:
+        return f"{self.orientation.value} Plane"
 
     def _load_plane_id(self) -> str:
         """Loads the plane id
@@ -62,3 +66,9 @@ class DefaultPlane(Feature):
         # TODO: proper error handling
         plane_id = response.result["value"][0]["value"]
         return plane_id
+
+    def __repr__(self) -> str:
+        return f"[ {self.name} ]"
+    
+    def __str__(self) -> str:
+        return repr(self)

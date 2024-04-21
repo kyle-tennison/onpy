@@ -2,7 +2,7 @@
 
 from pyshape.elements.base import Element
 import pyshape.api.model as model
-from pyshape.features.base import Feature
+from pyshape.features.base import Feature, FeatureList
 from pyshape.features.default_planes import DefaultPlane, DefaultPlaneOrientation
 
 from typing import TYPE_CHECKING
@@ -19,7 +19,9 @@ class PartStudio(Element):
     ) -> None:
         super().__init__(client, model, document)
         self._model = model
-        self.features: list[Feature] = []
+        self._features: list[Feature] = []
+
+        self._features.extend(self._get_default_planes())
 
     @property
     def id(self) -> str:
@@ -30,6 +32,11 @@ class PartStudio(Element):
     def name(self) -> str:
         """The name of the PartStudio"""
         return self._model.name
+    
+    @property
+    def features(self) -> FeatureList:
+        """A list of the partstudio's features"""
+        return FeatureList(self._features)
 
     def _get_default_planes(self) -> list[DefaultPlane]:
         """Gets the default planes from the PartStudio"""
