@@ -27,6 +27,6 @@ class Assembly(Element):
     def name(self) -> str:
         """The name of the Assembly"""
         return self._model.name
-    
+
     def __repr__(self) -> str:
         return super().__repr__()

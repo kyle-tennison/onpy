@@ -66,7 +66,9 @@ class Document(model.NameIdFetchable):
 
         return [e for e in self.elements if isinstance(e, PartStudio)]
 
-    def get_partstudio(self, id: str|None = None, name: str|None = None) -> PartStudio:
+    def get_partstudio(
+        self, id: str | None = None, name: str | None = None
+    ) -> PartStudio:
         """Fetches a partstudio by name or id"""
 
         match = find_by_name_or_id(id, name, self.list_partstudios())
@@ -76,7 +78,7 @@ class Document(model.NameIdFetchable):
                 "Unable to find a partstudio with "
                 + (f"name {name}" if name else f"id {id}")
             )
-        
+
         return match
 
     def __eq__(self, other: Any) -> bool:

@@ -1,9 +1,9 @@
-"""Abstract base element class"""
+"""Abstract base class for OnShape elements (i.e., PartStudios, Assemblies, etc.)"""
 
 import pyshape.api.model as model
 
 from abc import abstractmethod, ABC
-from typing import Self, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pyshape.client import Client
@@ -18,6 +18,7 @@ class Element(ABC, model.NameIdFetchable):
     ) -> None:
         self._client = client
         self._model = model
+        self.document = document
 
     @property
     @abstractmethod
@@ -37,7 +38,7 @@ class Element(ABC, model.NameIdFetchable):
 
     def __str__(self) -> str:
         return repr(self)
-    
+
     def __eq__(self, other) -> bool:
 
         if hasattr(other, "id"):

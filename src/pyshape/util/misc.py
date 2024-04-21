@@ -24,7 +24,7 @@ def find_by_name_or_id[
 
     if name is None and id is None:
         raise PyshapeParameterError("A name or id is required to fetch")
-    
+
     if len(items) == 0:
         return None
 

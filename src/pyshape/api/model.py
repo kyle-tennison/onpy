@@ -3,7 +3,7 @@
 from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
-from typing import Protocol
+from typing import Optional, Protocol
 
 
 class NameIdFetchable(Protocol):
@@ -54,7 +54,7 @@ class DocumentCreateRequest(ApiModel):
 
     name: str
     description: str | None
-    isPublic: bool = Field(True)
+    isPublic: Optional[bool] = False
 
 
 class Element(ApiModel):
@@ -68,3 +68,22 @@ class Element(ApiModel):
     elementType: str
     id: str
     name: str
+
+
+class Feature(ApiModel):
+    """Represents an OnShape feature"""
+
+    name: str
+    namespace: str
+    nodeId: str
+    featureType: str
+    suppressed: bool
+
+
+class FeaturescriptUpload(ApiModel):
+    """Request model of POST /partstudio/DWE/featurescript"""
+
+    script: str
+
+class FeaturescriptResponse(ApiModel):
+    result: dict
