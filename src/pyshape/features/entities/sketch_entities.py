@@ -21,8 +21,7 @@ class SketchCircle(Entity):
         self.center = center
         self.dir = dir
         self.clockwise = clockwise
-        self.entity_id = str(uuid.uuid4()).replace("-","")
-
+        self.entity_id = str(uuid.uuid4()).replace("-", "")
 
     @override
     def to_model(self) -> model.SketchCurveEntity:
