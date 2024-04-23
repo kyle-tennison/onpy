@@ -76,7 +76,7 @@ class DefaultPlane(Plane):
         raise NotImplementedError("Default planes cannot be converted to a model")
 
     def __repr__(self) -> str:
-        return f"[ {self.name} ]"
+        return f'Plane("{self.name}")'
 
     def __str__(self) -> str:
         return repr(self)

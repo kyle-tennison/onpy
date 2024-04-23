@@ -54,7 +54,7 @@ class DocumentCreateRequest(ApiModel):
 
     name: str
     description: str | None
-    isPublic: Optional[bool] = False
+    isPublic: Optional[bool] = True
 
 
 class Element(ApiModel):

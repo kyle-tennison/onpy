@@ -80,4 +80,4 @@ class Sketch(Feature):
         return repr(self)
 
     def __repr__(self) -> str:
-        return f"<Sketch on {self.plane}>"
+        return f'Sketch("{self.name}")'

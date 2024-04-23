@@ -82,6 +82,8 @@ class PartStudio(Element):
             feature=feature._to_model(),
         )
 
+        self._features.append(feature)
+
         if response.featureState.featureStatus != "OK":
             if response.featureState.featureStatus == "WARNING":
                 logger.warning("Feature loaded with warning")
