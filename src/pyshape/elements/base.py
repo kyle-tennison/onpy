@@ -1,23 +1,34 @@
-"""Abstract base element class"""
+"""Abstract base class for OnShape elements (i.e., PartStudios, Assemblies, etc.)"""
 
 import pyshape.api.model as model
 
 from abc import abstractmethod, ABC
-from typing import Self, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pyshape.client import Client
     from pyshape.document import Document
+    from pyshape.api.rest_api import RestApi
 
 
 class Element(ABC, model.NameIdFetchable):
     """An abstract base class for OnShape elements"""
 
-    def __init__(
-        self, client: "Client", model: model.ApiModel, document: "Document"
-    ) -> None:
-        self._client = client
-        self._model = model
+    @property
+    @abstractmethod
+    def document(self) -> "Document":
+        """A reference to the current document"""
+        ...
+
+    @property
+    def _client(self) -> "Client":
+        """A reference tot he current client"""
+        return self.document._client
+
+    @property
+    def _api(self) -> "RestApi":
+        """A reference tot he current api"""
+        return self._client._api
 
     @property
     @abstractmethod
@@ -37,7 +48,7 @@ class Element(ABC, model.NameIdFetchable):
 
     def __str__(self) -> str:
         return repr(self)
-    
+
     def __eq__(self, other) -> bool:
 
         if hasattr(other, "id"):

@@ -1,13 +1,14 @@
 """Exception definitions and excepthook injection"""
 
 import json
+from typing import override
 from requests import Response
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 import sys
 from loguru import logger
 
 
-class PyshapeException(Exception):
+class PyshapeException(Exception, ABC):
 
     def __init__(self, message: str):
         self.message = message
@@ -21,6 +22,7 @@ class PyshapeException(Exception):
 
 class PyshapeAuthError(PyshapeException):
 
+    @override
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
         return f"\nPyshapeAuthError({self.message})"
@@ -32,6 +34,7 @@ class PyshapeApiError(PyshapeException):
         self.response = response
         super().__init__(message)
 
+    @override
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
 
@@ -58,6 +61,7 @@ class PyshapeApiError(PyshapeException):
 
 class PyshapeInternalError(PyshapeException):
 
+    @override
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
         return f"\nPyshapeInternalError({self.message})"
@@ -65,9 +69,18 @@ class PyshapeInternalError(PyshapeException):
 
 class PyshapeParameterError(PyshapeException):
 
+    @override
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
         return f"\nPyshapeParameterError({self.message})"
+
+
+class PyshapeFeatureError(PyshapeException):
+
+    @override
+    def display(self) -> str:
+        """Display the exception as a user-friendly string"""
+        return f"\nPyshapeFeatureError({self.message})"
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):

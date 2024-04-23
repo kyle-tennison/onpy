@@ -52,6 +52,10 @@ class RestApi:
             The response deserialized into the response_type type
         """
 
+        # check endpoint formatting
+        if not endpoint.startswith("/"):
+            raise PyshapeInternalError(f"Endpoint '{endpoint}' missing '/' prefix")
+
         # match method enum to requests function
         requests_func: Callable[..., requests.Response] = {
             HttpMethod.Post: requests.post,
@@ -63,7 +67,7 @@ class RestApi:
         payload_json = None
 
         if isinstance(payload, ApiModel):
-            payload_json = payload.model_dump()
+            payload_json = payload.model_dump(exclude_none=True)
 
         logger.debug(
             f"Calling {http_method.name} {endpoint}"
@@ -88,6 +92,10 @@ class RestApi:
                 response_dict: dict = {}  # allow empty responses
             else:
                 response_dict = r.json()
+            logger.debug(
+                f"{http_method.name} {endpoint} responded with:\n"
+                f"{json.dumps(response_dict, indent=4)}"
+            )
         except requests.JSONDecodeError as e:
             raise PyshapeApiError("Response is not json", r)
 
