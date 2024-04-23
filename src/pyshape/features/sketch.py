@@ -44,6 +44,12 @@ class Sketch(Feature):
             radius: The radius of the circle
         """
 
+        # TODO: Add a unit definition system. I'm converting to inches
+        # temporarily
+
+        center = (center[0]/39.37, center[1]/39.37)
+        radius /= 39.37
+
         entity = SketchCircle(radius, center)
         self._entities.append(entity)
 

@@ -2,6 +2,7 @@
 
 from enum import Enum
 from typing import override
+import uuid
 from pyshape.features.entities.base import Entity
 import pyshape.api.model as model
 
@@ -20,6 +21,8 @@ class SketchCircle(Entity):
         self.center = center
         self.dir = dir
         self.clockwise = clockwise
+        self.entity_id = str(uuid.uuid4()).replace("-","")
+
 
     @override
     def to_model(self) -> model.SketchCurveEntity:
@@ -34,6 +37,6 @@ class SketchCircle(Entity):
                 "ydir": self.dir[1],
                 "clockwise": self.clockwise,
             },
-            centerId="circle-entity.center",
-            entityId="circle-entity",
+            centerId=f"{self.entity_id}.center",
+            entityId=f"{self.entity_id}",
         )

@@ -83,7 +83,10 @@ class PartStudio(Element):
         )
 
         if response.featureState.featureStatus != "OK":
-            raise PyshapeFeatureError("Feature has error")
+            if response.featureState.featureStatus == "WARNING":
+                logger.warning("Feature loaded with warning")
+            else:
+                raise PyshapeFeatureError("Feature has error")
         else:
             logger.info(f"Successfully added feature '{feature.name}'")
 
