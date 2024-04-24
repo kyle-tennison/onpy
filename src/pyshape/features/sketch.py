@@ -74,27 +74,26 @@ class Sketch(Feature, Extrudable):
                 e.to_model().model_dump(exclude_none=True) for e in self._entities
             ],
         )
-    
+
     @override
     def _load_response(self, response: model.FeatureAddResponse) -> None:
         """Loads the feature id from the response"""
         self._id = unwrap(response.feature.featureId)
 
     @property
-    @override 
+    @override
     def _extrusion_query(self) -> str:
-        return unwrap(self.id, "Unable to extrude sketch before adding as a feature") 
+        return unwrap(self.id, "Unable to extrude sketch before adding as a feature")
 
     @property
     @override
     def _extrusion_parameter_bt_type(self) -> str:
         return "BTMIndividualSketchRegionQuery-140"
-    
+
     @property
-    @override 
+    @override
     def _extrusion_query_key(self) -> str:
         return "featureId"
-    
 
     def __str__(self) -> str:
         return repr(self)

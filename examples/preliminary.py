@@ -33,6 +33,6 @@ print(partstudio.features)
 
 # Extrude Sketch
 
-extrude_region = base_sketch.query_region(point=(0,0))
+extrude_region = base_sketch.query_region(point=(0, 0))
 
 base_extrusion = Extrude(base_sketch.extrude_region, type="BLIND", distance=0.5)

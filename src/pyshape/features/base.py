@@ -33,7 +33,7 @@ class Feature(ABC):
 
     @property
     @abstractmethod
-    def id(self) -> str|None:
+    def id(self) -> str | None:
         """The id of the feature"""
         ...
 

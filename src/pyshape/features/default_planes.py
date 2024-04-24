@@ -74,7 +74,7 @@ class DefaultPlane(Plane):
     @override
     def _to_model(self):
         raise NotImplementedError("Default planes cannot be converted to a model")
-    
+
     @override
     def _load_response(self, response: model.FeatureAddResponse) -> None:
         raise NotImplementedError("DefaultPlane should not receive a response object")

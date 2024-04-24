@@ -107,7 +107,9 @@ class Feature(ApiModel):
     # nodeId: str
     featureType: str
     suppressed: bool
-    parameters: Optional[list[dict]] = []  # dict is FeatureParameter TODO: use the actual models again
+    parameters: Optional[list[dict]] = (
+        []
+    )  # dict is FeatureParameter TODO: use the actual models again
     featureId: Optional[str] = None
 
     # TODO: is there any way to use inheritance in pydantic w/o filtering off attributes
@@ -150,6 +152,7 @@ class Sketch(Feature):
     featureType: str = "newSketch"
     constraints: Optional[list[dict]] = []
     entities: Optional[list[dict]]  # dict is FeatureEntity
+
 
 class Extrude(Feature):
     """Represents an Extrude Feature"""
