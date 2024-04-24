@@ -92,5 +92,7 @@ class PartStudio(Element):
         else:
             logger.info(f"Successfully added feature '{feature.name}'")
 
+        feature._load_response(response)
+
     def __repr__(self) -> str:
         return super().__repr__()

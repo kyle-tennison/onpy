@@ -33,7 +33,7 @@ class Feature(ABC):
 
     @property
     @abstractmethod
-    def id(self) -> str | None:
+    def id(self) -> str|None:
         """The id of the feature"""
         ...
 
@@ -46,6 +46,12 @@ class Feature(ABC):
     @abstractmethod
     def _to_model(self) -> model.Feature:
         """Converts the feature into the corresponding api model"""
+        ...
+
+    @abstractmethod
+    def _load_response(self, response: model.FeatureAddResponse) -> None:
+        """Load the feature add response to the feature metadata"""
+        ...
 
 
 class FeatureList:

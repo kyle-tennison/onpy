@@ -107,8 +107,9 @@ class Feature(ApiModel):
     # nodeId: str
     featureType: str
     suppressed: bool
-    parameters: Optional[list[dict]] = []  # dict is FeatureParameter
+    parameters: Optional[list[dict]] = []  # dict is FeatureParameter TODO: use the actual models again
     entities: Optional[list[dict]]  # dict is FeatureEntity
+    featureId: Optional[str] = None
 
     # TODO: is there any way to use inheritance in pydantic w/o filtering off attributes
 

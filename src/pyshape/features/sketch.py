@@ -5,6 +5,7 @@ from pyshape.features.base import Feature
 from pyshape.features.entities.base import Entity
 from pyshape.features.entities.sketch_entities import SketchCircle
 import pyshape.api.model as model
+from pyshape.util.misc import unwrap_type, unwrap
 
 if TYPE_CHECKING:
     from pyshape.elements.partstudio import PartStudio
@@ -75,6 +76,10 @@ class Sketch(Feature):
                 e.to_model().model_dump(exclude_none=True) for e in self._entities
             ],
         )
+    
+    @override
+    def _load_response(self, response: model.FeatureAddResponse) -> None:
+        self._id = unwrap(response.feature.featureId)
 
     def __str__(self) -> str:
         return repr(self)
