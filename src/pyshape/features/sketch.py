@@ -20,7 +20,7 @@ class Sketch(Feature, Extrudable):
         self.plane = plane
         self._partstudio = partstudio
         self._name = name
-        self._sketch_id: str | None = None
+        self._id: str | None = None
         self._entities: list[Entity] = []
 
     @property
@@ -31,7 +31,7 @@ class Sketch(Feature, Extrudable):
     @property
     @override
     def id(self) -> str | None:
-        return self._sketch_id
+        return self._id
 
     @property
     def name(self) -> str:
@@ -58,8 +58,6 @@ class Sketch(Feature, Extrudable):
     def _to_model(self) -> model.Sketch:
         return model.Sketch(
             name=self.name,
-            # namespace="",
-            featureType="newSketch",
             suppressed=False,
             parameters=[
                 model.FeatureParameterQueryList(
@@ -91,6 +89,11 @@ class Sketch(Feature, Extrudable):
     @override
     def _extrusion_parameter_bt_type(self) -> str:
         return "BTMIndividualSketchRegionQuery-140"
+    
+    @property
+    @override 
+    def _extrusion_query_key(self) -> str:
+        return "featureId"
     
 
     def __str__(self) -> str:

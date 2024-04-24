@@ -101,11 +101,17 @@ class Extrudable(Protocol):
     @property
     @abstractmethod
     def _extrusion_query(self) -> str:
-        """Gets the query used for extrusion"""
+        """The query used for extrusion"""
+        ...
+
+    @property
+    @abstractmethod
+    def _extrusion_query_key(self) -> str:
+        """The JSON filed that points to the _extrusion_query"""
         ...
 
     @property
     @abstractmethod
     def _extrusion_parameter_bt_type(self) -> str:
-        """Gets the btType of the extrudable region. e.g., BTMIndividualSketchRegionQuery-140"""
+        """The btType of the extrudable region. e.g., BTMIndividualSketchRegionQuery-140"""
         ...
