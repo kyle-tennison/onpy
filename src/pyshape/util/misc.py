@@ -58,9 +58,21 @@ def unwrap_type[T](object: object, expected_type: type[T]) -> T:
     else:
         raise TypeError("Failed to unwrap type. Got %s, expected %s" % (type(object).__name__, expected_type.__name__))
     
-def unwrap[T](object: T|None, default: T|None=None) -> T:
-    """Takes the object out of an Option[T]. Returns default value if the
-    object is None; will raise TypeError if default is unbound.""" 
+def unwrap[T](object: T|None, message: str|None=None, default: T|None=None) -> T:
+    """Takes the object out of an Option[T]. 
+    
+    Args:   
+        object: The object to unwrap
+        message: An optional message to show on error
+        default: An optional value to use instead of throwing an error
+
+    Returns:
+        The object of the value, if it is not None. Returns the default if the 
+        object is None and a default value is provided
+
+    Raises
+        TypeError if the object is None and no default value is provided.
+    """ 
 
     if object is not None:
         return object
@@ -68,4 +80,4 @@ def unwrap[T](object: T|None, default: T|None=None) -> T:
         if default is not None:
             return default 
         else:
-            raise TypeError("Failed to unwrap")
+            raise TypeError(message if message else "Failed to unwrap")

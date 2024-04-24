@@ -4,7 +4,7 @@ import pyshape.api.model as model
 from pyshape.util.exceptions import PyshapeParameterError
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any, Iterator, Protocol
 
 if TYPE_CHECKING:
     from pyshape.client import Client
@@ -93,3 +93,19 @@ class FeatureList:
     @property
     def right_plane(self) -> "Plane":
         return self["Right Plane"]  # type: ignore
+
+
+class Extrudable(Protocol):
+    """Marks an object that can be extruded"""
+
+    @property
+    @abstractmethod
+    def _extrusion_query(self) -> str:
+        """Gets the query used for extrusion"""
+        ...
+
+    @property
+    @abstractmethod
+    def _extrusion_parameter_bt_type(self) -> str:
+        """Gets the btType of the extrudable region. e.g., BTMIndividualSketchRegionQuery-140"""
+        ...
