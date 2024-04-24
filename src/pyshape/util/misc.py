@@ -50,34 +50,40 @@ def find_by_name_or_id[
     return candidate
 
 
-# if id is None and name is None:
-#     raise PyshapeParameterError(
-#         "A name or id must be provided to fetch a document"
-#     )
+def unwrap_type[T](object: object, expected_type: type[T]) -> T:
+    """Returns the object if the type matches. Raises error otherwise."""
 
-# document_models = self._api.endpoints.documents()
-# model_candidate = None
+    if isinstance(object, expected_type):
+        return object
+    else:
+        raise TypeError(
+            "Failed to unwrap type. Got %s, expected %s"
+            % (type(object).__name__, expected_type.__name__)
+        )
 
-# if name:
-#     name_matches = [model.name == name for model in document_models].count(True)
-#     if name_matches > 1:
-#         raise PyshapeParameterError(
-#             f"Multiple documents with name {name}. Use document id instead"
-#         )
 
-# for model in document_models:
-#     if id and model.id == id:
-#         model_candidate = model
-#         break
+def unwrap[
+    T
+](object: T | None, message: str | None = None, default: T | None = None) -> T:
+    """Takes the object out of an Option[T].
 
-#     if name and model.name == name:
-#         model_candidate = model
-#         break
+    Args:
+        object: The object to unwrap
+        message: An optional message to show on error
+        default: An optional value to use instead of throwing an error
 
-# if model_candidate is None:
-#     raise PyshapeParameterError(
-#         "Unable to find a document with "
-#         + (f"name {name}" if name else f"id {id}")
-#     )
+    Returns:
+        The object of the value, if it is not None. Returns the default if the
+        object is None and a default value is provided
 
-# return Document(self, model_candidate)
+    Raises
+        TypeError if the object is None and no default value is provided.
+    """
+
+    if object is not None:
+        return object
+    else:
+        if default is not None:
+            return default
+        else:
+            raise TypeError(message if message else "Failed to unwrap")

@@ -4,7 +4,7 @@ import pyshape.api.model as model
 from pyshape.util.exceptions import PyshapeParameterError
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any, Iterator, Protocol
 
 if TYPE_CHECKING:
     from pyshape.client import Client
@@ -46,6 +46,12 @@ class Feature(ABC):
     @abstractmethod
     def _to_model(self) -> model.Feature:
         """Converts the feature into the corresponding api model"""
+        ...
+
+    @abstractmethod
+    def _load_response(self, response: model.FeatureAddResponse) -> None:
+        """Load the feature add response to the feature metadata"""
+        ...
 
 
 class FeatureList:
@@ -87,3 +93,25 @@ class FeatureList:
     @property
     def right_plane(self) -> "Plane":
         return self["Right Plane"]  # type: ignore
+
+
+class Extrudable(Protocol):
+    """Marks an object that can be extruded"""
+
+    @property
+    @abstractmethod
+    def _extrusion_query(self) -> str:
+        """The query used for extrusion"""
+        ...
+
+    @property
+    @abstractmethod
+    def _extrusion_query_key(self) -> str:
+        """The JSON filed that points to the _extrusion_query"""
+        ...
+
+    @property
+    @abstractmethod
+    def _extrusion_parameter_bt_type(self) -> str:
+        """The btType of the extrudable region. e.g., BTMIndividualSketchRegionQuery-140"""
+        ...

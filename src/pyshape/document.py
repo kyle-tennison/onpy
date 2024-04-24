@@ -71,6 +71,9 @@ class Document(model.NameIdFetchable):
     ) -> PartStudio:
         """Fetches a partstudio by name or id"""
 
+        if name is None and id is None:
+            return self.list_partstudios()[0]
+
         match = find_by_name_or_id(id, name, self.list_partstudios())
 
         if match is None:

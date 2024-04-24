@@ -54,7 +54,7 @@ class DocumentCreateRequest(ApiModel):
 
     name: str
     description: str | None
-    isPublic: Optional[bool] = False
+    isPublic: Optional[bool] = True
 
 
 class Element(ApiModel):
@@ -107,8 +107,10 @@ class Feature(ApiModel):
     # nodeId: str
     featureType: str
     suppressed: bool
-    parameters: Optional[list[dict]] = []  # dict is FeatureParameter
-    entities: Optional[list[dict]]  # dict is FeatureEntity
+    parameters: Optional[list[dict]] = (
+        []
+    )  # dict is FeatureParameter TODO: use the actual models again
+    featureId: Optional[str] = None
 
     # TODO: is there any way to use inheritance in pydantic w/o filtering off attributes
 
@@ -147,5 +149,13 @@ class Sketch(Feature):
     """Represents a Sketch Feature"""
 
     btType: str = "BTMSketch-151"
-    featureType: str = "featureType"
+    featureType: str = "newSketch"
     constraints: Optional[list[dict]] = []
+    entities: Optional[list[dict]]  # dict is FeatureEntity
+
+
+class Extrude(Feature):
+    """Represents an Extrude Feature"""
+
+    btType: str = "BTMFeature-134"
+    featureType: str = "extrude"

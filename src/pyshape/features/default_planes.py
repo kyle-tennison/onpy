@@ -75,8 +75,12 @@ class DefaultPlane(Plane):
     def _to_model(self):
         raise NotImplementedError("Default planes cannot be converted to a model")
 
+    @override
+    def _load_response(self, response: model.FeatureAddResponse) -> None:
+        raise NotImplementedError("DefaultPlane should not receive a response object")
+
     def __repr__(self) -> str:
-        return f"[ {self.name} ]"
+        return f'Plane("{self.name}")'
 
     def __str__(self) -> str:
         return repr(self)
