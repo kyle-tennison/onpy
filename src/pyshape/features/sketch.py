@@ -96,7 +96,6 @@ class Sketch(Feature, Extrudable):
     @override
     def _extrusion_query_key(self) -> str:
         return "featureId"
-    
 
     def query_point(self, point: tuple[float, float, float]) -> "SketchRegionQuery":
         """Gets the sketch region at a specific point"""
@@ -110,32 +109,28 @@ class Sketch(Feature, Extrudable):
         return f'Sketch("{self.name}")'
 
 
-
 class SketchRegionQuery(Extrudable):
 
     def __init__(self, sketch: Sketch, point: tuple[float, float, float]) -> None:
-        self.point = point 
+        self.point = point
         self.sketch = sketch
 
     @property
     @override
     def _extrusion_query(self) -> str:
         return (
-            f"query = qContainsPoint(qSketchRegion(makeId(\"{self.sketch.id}\"), false), "
+            f'query = qContainsPoint(qSketchRegion(makeId("{self.sketch.id}"), false), '
             f" vector([{self.point[0]},{self.point[1]},{self.point[2]}])"
-            + ("* inch" if self.sketch._client.units is UnitSystem.INCH else "") +
-            ");"
+            + ("* inch" if self.sketch._client.units is UnitSystem.INCH else "")
+            + ");"
         )
-    
+
     @property
-    @override 
+    @override
     def _extrusion_parameter_bt_type(self) -> str:
         return "BTMIndividualQuery-138"
-    
+
     @property
-    @override 
+    @override
     def _extrusion_query_key(self) -> str:
         return "queryString"
-
-
-    

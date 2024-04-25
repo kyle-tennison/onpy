@@ -27,6 +27,7 @@ def test_sketch_extrude():
 
     doc.delete()
 
+
 def test_sketch_point_query():
     """Test the ability to extrude from a select point in a sketch region"""
 
@@ -35,14 +36,20 @@ def test_sketch_point_query():
     document = client.create_document("test_features::test_sketch_point_query")
     partstudio = document.get_partstudio()
 
-    sketch = Sketch(partstudio=partstudio, plane=partstudio.features.top_plane, name="Overlapping Sketch")
+    sketch = Sketch(
+        partstudio=partstudio,
+        plane=partstudio.features.top_plane,
+        name="Overlapping Sketch",
+    )
 
     sketch.add_circle(center=(-0.5, 0), radius=1)
     sketch.add_circle(center=(0.5, 0), radius=1)
 
     partstudio.add_feature(sketch)
 
-    extrude = Extrude(partstudio=partstudio, targets=[sketch.query_point((0.6,0,0))], distance=1)
+    extrude = Extrude(
+        partstudio=partstudio, targets=[sketch.query_point((0.6, 0, 0))], distance=1
+    )
     partstudio.add_feature(extrude)
 
     document.delete()
