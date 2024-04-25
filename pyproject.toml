@@ -19,5 +19,12 @@ classifiers = [
   "Programming Language :: Python"
 ]
 dependencies = [
-    "loguru"
+    "loguru",
+    "requests",
+    "pydantic"
+]
+[project.optional-dependencies]
+dev = [
+    "black",
+    "pytest"
 ]
