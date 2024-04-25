@@ -51,7 +51,9 @@ class Sketch(Feature, Extrudable):
             center_point *= 0.0254
             radius *= 0.0254
 
-        entity = SketchCircle(radius=radius, center=center_point, units=self._client.units)
+        entity = SketchCircle(
+            radius=radius, center=center_point, units=self._client.units
+        )
         self._entities.append(entity)
 
     @override

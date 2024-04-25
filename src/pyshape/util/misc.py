@@ -99,8 +99,8 @@ class UnitSystem(Enum):
     @classmethod
     def from_string(cls, string: str) -> Self:
         """Gets corresponding enum variant from string
-        
-        Raises: 
+
+        Raises:
             TypeError if the string does not match the expected type
         """
 
@@ -110,28 +110,24 @@ class UnitSystem(Enum):
             raise TypeError(f"'{string}' is not a valid unit system")
         else:
             return cls(string)
-        
+
     @property
     def extension(self) -> str:
         """Gets the extension of the unit; e.g., 'in' for inches."""
 
-        return {
-            UnitSystem.INCH : "in",
-            UnitSystem.METRIC : "m"
-        }[self]
+        return {UnitSystem.INCH: "in", UnitSystem.METRIC: "m"}[self]
+
 
 @dataclass
 class Point2D:
     """Represents a 2D point"""
+
     x: float
     y: float
 
     def __mul__(self, value: float) -> "Point2D":
-        return Point2D(
-            x = self.x * value,
-            y = self.y * value
-        )
-    
+        return Point2D(x=self.x * value, y=self.y * value)
+
     @classmethod
     def from_pair(cls, tuple: tuple[float, float]) -> Self:
         return cls(*tuple)
