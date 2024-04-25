@@ -5,7 +5,7 @@ from pyshape.features.base import Feature, Extrudable
 from pyshape.features.entities.base import Entity
 from pyshape.features.entities.sketch_entities import SketchCircle
 import pyshape.api.model as model
-from pyshape.util.misc import unwrap_type, unwrap
+from pyshape.util.misc import unwrap_type, unwrap, Point2D, UnitSystem
 
 if TYPE_CHECKING:
     from pyshape.elements.partstudio import PartStudio
@@ -44,14 +44,16 @@ class Sketch(Feature, Extrudable):
             center: An (x,y) pair of the center of the circle
             radius: The radius of the circle
         """
+        center_point = Point2D.from_pair(center)
 
-        # TODO: Add a unit definition system. I'm converting to inches
-        # temporarily
+        # API expects metric values
+        if self._client.units is UnitSystem.INCH:
+            center_point *= 0.0254
+            radius *= 0.0254
 
-        center = (center[0] / 39.37, center[1] / 39.37)
-        radius /= 39.37
-
-        entity = SketchCircle(radius, center)
+        entity = SketchCircle(
+            radius=radius, center=center_point, units=self._client.units
+        )
         self._entities.append(entity)
 
     @override

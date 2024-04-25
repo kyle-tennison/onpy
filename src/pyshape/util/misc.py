@@ -1,5 +1,8 @@
 """Miscellaneous tools"""
 
+from dataclasses import dataclass
+from enum import Enum
+from typing import Self
 from pyshape.api.model import NameIdFetchable
 from pyshape.util.exceptions import PyshapeParameterError
 
@@ -87,3 +90,44 @@ def unwrap[
             return default
         else:
             raise TypeError(message if message else "Failed to unwrap")
+
+
+class UnitSystem(Enum):
+    INCH = "inch"
+    METRIC = "metric"
+
+    @classmethod
+    def from_string(cls, string: str) -> Self:
+        """Gets corresponding enum variant from string
+
+        Raises:
+            TypeError if the string does not match the expected type
+        """
+
+        string = string.lower()
+
+        if string not in UnitSystem:
+            raise TypeError(f"'{string}' is not a valid unit system")
+        else:
+            return cls(string)
+
+    @property
+    def extension(self) -> str:
+        """Gets the extension of the unit; e.g., 'in' for inches."""
+
+        return {UnitSystem.INCH: "in", UnitSystem.METRIC: "m"}[self]
+
+
+@dataclass
+class Point2D:
+    """Represents a 2D point"""
+
+    x: float
+    y: float
+
+    def __mul__(self, value: float) -> "Point2D":
+        return Point2D(x=self.x * value, y=self.y * value)
+
+    @classmethod
+    def from_pair(cls, tuple: tuple[float, float]) -> Self:
+        return cls(*tuple)

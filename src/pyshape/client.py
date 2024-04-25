@@ -4,7 +4,7 @@ from pyshape.util.credentials import CredentialManager
 from pyshape.api.rest_api import RestApi
 from pyshape.document import Document
 from pyshape.util.exceptions import PyshapeParameterError
-from pyshape.util.misc import find_by_name_or_id
+from pyshape.util.misc import find_by_name_or_id, UnitSystem
 
 from loguru import logger
 
@@ -12,8 +12,12 @@ from loguru import logger
 class Client:
     """Handles project management, authentication, and other related items"""
 
-    def __init__(self) -> None:
-
+    def __init__(self, units: str = "inch") -> None:
+        """
+        Args:
+            units: The unit system to use. Supports 'inch' and 'metric'
+        """
+        self.units = UnitSystem.from_string(units)
         self._credentials = CredentialManager.fetch_or_prompt()
         self._api = RestApi(self)
 
