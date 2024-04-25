@@ -20,7 +20,8 @@ classifiers = [
 ]
 dependencies = [
     "loguru",
-    "requests"
+    "requests",
+    "pydantic"
 ]
 [project.optional-dependencies]
 dev = [
