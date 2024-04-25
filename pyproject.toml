@@ -19,7 +19,8 @@ classifiers = [
   "Programming Language :: Python"
 ]
 dependencies = [
-    "loguru"
+    "loguru",
+    "requests"
 ]
 [project.optional-dependencies]
 dev = [
