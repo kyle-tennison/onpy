@@ -85,7 +85,7 @@ class Extrude(Feature):
                 },
                 {
                     "btType": "BTMParameterQuantity-147",
-                    "expression": f"{self.distance} in",  # TODO: Add a unit system
+                    "expression": f"{self.distance} {self._client.units.extension}",
                     "parameterId": "depth",
                 },
             ],

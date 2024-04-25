@@ -110,6 +110,15 @@ class UnitSystem(Enum):
             raise TypeError(f"'{string}' is not a valid unit system")
         else:
             return cls(string)
+        
+    @property
+    def extension(self) -> str:
+        """Gets the extension of the unit; e.g., 'in' for inches."""
+
+        return {
+            UnitSystem.INCH : "in",
+            UnitSystem.METRIC : "m"
+        }[self]
 
 @dataclass
 class Point2D:
