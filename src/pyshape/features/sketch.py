@@ -73,8 +73,16 @@ class Sketch(Feature, Extrudable):
 
         self._entities.append(entity)
 
-    def trace_points(self, *points: tuple[float, float]) -> None:
-        """Traces a series of points"""
+    def trace_points(
+        self, *points: tuple[float, float], end_connect: bool = True
+    ) -> None:
+        """Traces a series of points
+
+        Args:
+            points: A list of points to trace. Uses list order for line
+            end_connect: Connects end points of the trace with an extra segment
+                to create a closed loop. Defaults to True.
+        """
 
         segments: list[tuple[Point2D, Point2D]] = []
 
@@ -85,12 +93,28 @@ class Sketch(Feature, Extrudable):
 
             segments.append((p1, p2))
 
-        segments.append((Point2D.from_pair(points[0]), Point2D.from_pair(points[-1])))
-
-        logger.critical(f"segments: \n{segments}")
+        if end_connect:
+            segments.append(
+                (Point2D.from_pair(points[0]), Point2D.from_pair(points[-1]))
+            )
 
         for p1, p2 in segments:
             self.add_line(p1.as_tuple, p2.as_tuple)
+
+    def add_corner_rectangle(
+        self, corner_1: tuple[float, float], corner_2: tuple[float, float]
+    ) -> None:
+        """Adds a corner rectangle to the sketch
+
+        Args:
+            corner_1: The point of the first corner
+            corner_2: The point of the corner opposite to corner 1
+        """
+
+        p1 = Point2D.from_pair(corner_1)
+        p2 = Point2D.from_pair(corner_2)
+
+        self.trace_points((p1.x, p1.y), (p2.x, p1.y), (p2.x, p2.y), (p1.x, p2.y))
 
     @override
     def _to_model(self) -> model.Sketch:
