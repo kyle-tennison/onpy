@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING, override
 from pyshape.features.base import Feature, Extrudable
 from pyshape.features.entities.base import Entity
-from pyshape.features.entities.sketch_entities import SketchCircle
+from pyshape.features.entities.sketch_entities import SketchCircle, SketchLine
 import pyshape.api.model as model
 from pyshape.util.misc import unwrap_type, unwrap, Point2D, UnitSystem
 
@@ -55,6 +55,26 @@ class Sketch(Feature, Extrudable):
             radius=radius, center=center_point, units=self._client.units
         )
         self._entities.append(entity)
+
+    def add_line(self, start: tuple[float, float], end: tuple[float, float]) -> None:
+        """Adds a line to the sketch
+        
+        Args:
+            start: The starting point of the line
+            end: The ending point of the line
+        """
+
+        start_point = Point2D.from_pair(start)
+        end_point = Point2D.from_pair(end)
+
+        entity = SketchLine(
+            start_point,
+            end_point,
+            self._client.units
+        )
+
+        self._entities.append(entity)
+            
 
     @override
     def _to_model(self) -> model.Sketch:

@@ -122,6 +122,7 @@ class UnitSystem(Enum):
 class Point2D:
     """Represents a 2D point"""
 
+    
     x: float
     y: float
 

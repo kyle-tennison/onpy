@@ -98,6 +98,17 @@ class SketchCurveEntity(FeatureEntity):
     centerId: str
     btType: str = "BTMSketchCurve-4"
 
+class SketchCurveSegmentEntity(FeatureEntity):
+    """Represents a sketch curve segment"""
+
+    btType: str = "BTMSketchCurveSegment-155"
+    startPointId: str 
+    endPointId: str 
+    startParam: float 
+    endParam: float 
+    geometry: dict 
+
+
 
 class Feature(ApiModel):
     """Represents an OnShape feature"""
