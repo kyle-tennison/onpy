@@ -121,10 +121,15 @@ class Sketch(Feature, Extrudable):
 
         self.trace_points((p1.x, p1.y), (p2.x, p1.y), (p2.x, p2.y), (p1.x, p2.y))
 
-
-    def add_centerpoint_arc(self, centerpoint: tuple[float, float], radius: float, start_angle: float, end_angle: float) -> None:
+    def add_centerpoint_arc(
+        self,
+        centerpoint: tuple[float, float],
+        radius: float,
+        start_angle: float,
+        end_angle: float,
+    ) -> None:
         """Adds a centerpoint arc to the sketch
-        
+
         Args:
             centerpoint: The centerpoint of the arc
             radius: The radius of the arc
@@ -136,9 +141,9 @@ class Sketch(Feature, Extrudable):
 
         entity = SketchArc(
             radius=radius,
-            center=center, 
+            center=center,
             theta_interval=(start_angle, end_angle),
-            units=self._client.units
+            units=self._client.units,
         )
 
         self._entities.append(entity)

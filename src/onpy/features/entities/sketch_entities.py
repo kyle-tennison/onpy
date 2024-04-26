@@ -94,16 +94,17 @@ class SketchLine(Entity):
     def __repr__(self) -> str:
         return f"Line(start={self.start}, end={self.end})"
 
+
 class SketchArc(Entity):
-    def __init__(        
+    def __init__(
         self,
         radius: float,
         center: Point2D,
         theta_interval: tuple[float, float],
         units: UnitSystem,
         dir: tuple[float, float] = (1, 0),
-        clockwise: bool = False
-        ):
+        clockwise: bool = False,
+    ):
         """
         Args:
             radius: The radius of the arc
@@ -114,17 +115,16 @@ class SketchArc(Entity):
             clockwise: Whether or not the arc is clockwise. Defaults to false
         """
 
-        self.radius = radius 
-        self.center = center 
+        self.radius = radius
+        self.center = center
         self.theta_interval = tuple(math.radians(i) for i in theta_interval)
-        self.dir = Point2D.from_pair(dir) 
+        self.dir = Point2D.from_pair(dir)
         self.clockwise = clockwise
         self.entity_id = self.generate_entity_id()
 
         if units is UnitSystem.INCH:
             self.radius *= 0.0254
             self.center *= 0.0254
-
 
     @override
     def to_model(self) -> model.SketchCurveSegmentEntity:
@@ -137,14 +137,14 @@ class SketchArc(Entity):
             entityId=f"{self.entity_id}",
             geometry={
                 "btType": "BTCurveGeometryCircle-115",
-                "radius" : self.radius,
+                "radius": self.radius,
                 "xcenter": self.center.x,
                 "ycenter": self.center.y,
                 "xdir": self.dir.x,
                 "ydir": self.dir.y,
-            }
+            },
         )
-    
+
     @override
     def __repr__(self) -> str:
         return f"Arc(center={self.center}, radius={self.radius}, interval={self.theta_interval[0]}<θ<{self.theta_interval[1]})"
