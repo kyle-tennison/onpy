@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Self
-from pyshape.api.model import NameIdFetchable
-from pyshape.util.exceptions import PyshapeParameterError
+from onpy.api.model import NameIdFetchable
+from onpy.util.exceptions import PyshapeParameterError
 
 
 def find_by_name_or_id[

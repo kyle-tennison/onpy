@@ -1,18 +1,18 @@
 """PartStudio element interface"""
 
 from loguru import logger
-from pyshape.elements.base import Element
-import pyshape.api.model as model
-from pyshape.features.base import Feature, FeatureList
-from pyshape.features.default_planes import DefaultPlane, DefaultPlaneOrientation
-from pyshape.api.versioning import WorkspaceWVM
-from pyshape.util.exceptions import PyshapeFeatureError
+from onpy.elements.base import Element
+import onpy.api.model as model
+from onpy.features.base import Feature, FeatureList
+from onpy.features.default_planes import DefaultPlane, DefaultPlaneOrientation
+from onpy.api.versioning import WorkspaceWVM
+from onpy.util.exceptions import PyshapeFeatureError
 
 from typing import TYPE_CHECKING, override
 
 if TYPE_CHECKING:
-    from pyshape.client import Client
-    from pyshape.document import Document
+    from onpy.client import Client
+    from onpy.document import Document
 
 
 class PartStudio(Element):

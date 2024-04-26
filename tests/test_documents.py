@@ -1,11 +1,11 @@
 """Tests document management"""
 
-from pyshape import Client
+from onpy import Client
 
 import pytest
 import uuid
 
-from pyshape.util.exceptions import PyshapeParameterError
+from onpy.util.exceptions import PyshapeParameterError
 
 client = Client()
 

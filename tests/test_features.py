@@ -1,5 +1,5 @@
-from pyshape import Client
-from pyshape.features import Sketch, Extrude
+from onpy import Client
+from onpy.features import Sketch, Extrude
 
 
 def test_sketch_extrude():

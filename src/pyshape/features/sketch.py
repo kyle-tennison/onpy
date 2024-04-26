@@ -3,15 +3,15 @@
 from typing import TYPE_CHECKING, override
 
 from loguru import logger
-from pyshape.features.base import Feature, Extrudable
-from pyshape.features.entities.base import Entity
-from pyshape.features.entities.sketch_entities import SketchCircle, SketchLine
-import pyshape.api.model as model
-from pyshape.util.misc import unwrap_type, unwrap, Point2D, UnitSystem
+from onpy.features.base import Feature, Extrudable
+from onpy.features.entities.base import Entity
+from onpy.features.entities.sketch_entities import SketchCircle, SketchLine
+import onpy.api.model as model
+from onpy.util.misc import unwrap_type, unwrap, Point2D, UnitSystem
 
 if TYPE_CHECKING:
-    from pyshape.elements.partstudio import PartStudio
-    from pyshape.features.plane import Plane
+    from onpy.elements.partstudio import PartStudio
+    from onpy.features.plane import Plane
 
 
 class Sketch(Feature, Extrudable):

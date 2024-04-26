@@ -3,9 +3,9 @@
 from enum import Enum
 import math
 from typing import override
-from pyshape.features.entities.base import Entity
-import pyshape.api.model as model
-from pyshape.util.misc import UnitSystem, Point2D
+from onpy.features.entities.base import Entity
+import onpy.api.model as model
+from onpy.util.misc import UnitSystem, Point2D
 
 
 class SketchCircle(Entity):
