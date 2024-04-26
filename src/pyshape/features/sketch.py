@@ -56,6 +56,9 @@ class Sketch(Feature, Extrudable):
         entity = SketchCircle(
             radius=radius, center=center_point, units=self._client.units
         )
+
+        logger.info(f"Added circle to sketch: {entity}")
+
         self._entities.append(entity)
 
     def add_line(self, start: tuple[float, float], end: tuple[float, float]) -> None:
@@ -70,6 +73,8 @@ class Sketch(Feature, Extrudable):
         end_point = Point2D.from_pair(end)
 
         entity = SketchLine(start_point, end_point, self._client.units)
+
+        logger.info(f"Added line to sketch: {entity}")
 
         self._entities.append(entity)
 

@@ -1,6 +1,7 @@
 """Rest Api interface to OnShape server"""
 
 import json
+import sys
 from pyshape.api.endpoints import EndpointContainer
 from pyshape.api.model import ApiModel
 from pyshape.util.model import HttpMethod
@@ -69,7 +70,8 @@ class RestApi:
         if isinstance(payload, ApiModel):
             payload_json = payload.model_dump(exclude_none=True)
 
-        logger.debug(
+        logger.debug(f"{http_method.name} {endpoint}")
+        logger.trace(
             f"Calling {http_method.name} {endpoint}"
             + (
                 f" with payload:\n{json.dumps(payload_json, indent=4)}"
@@ -92,7 +94,7 @@ class RestApi:
                 response_dict: dict = {}  # allow empty responses
             else:
                 response_dict = r.json()
-            logger.debug(
+            logger.trace(
                 f"{http_method.name} {endpoint} responded with:\n"
                 f"{json.dumps(response_dict, indent=4)}"
             )

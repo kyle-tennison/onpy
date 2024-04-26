@@ -114,7 +114,7 @@ class CredentialManager:
         if tokens:
             return tokens
 
-        print(
+        logger.error(
             "pyshape needs your OnShape credentials. \n"
             "navagate to https://dev-portal.onshape.com/keys and generate a pair of "
             "access & secret keys. Paste them here when prompted:"
@@ -125,7 +125,7 @@ class CredentialManager:
             secret_key = input("secret key: ")
 
             if not CredentialManager.is_secret_key(secret_key):
-                print(
+                logger.error(
                     "the key you entered does not match the expected pattern of a secret key. please try again."
                 )
                 continue
@@ -133,7 +133,7 @@ class CredentialManager:
             access_key = input("access key: ")
 
             if not CredentialManager.is_access_key(access_key):
-                print(
+                logger.error(
                     "the key you entered does not match the expected pattern of a access key. please try again."
                 )
                 continue

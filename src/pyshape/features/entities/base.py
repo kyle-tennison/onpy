@@ -15,3 +15,9 @@ class Entity(ABC):
     def generate_entity_id(self) -> str:
         """Generates a random entity id"""
         return str(uuid.uuid4()).replace("-", "")
+
+    def __str__(self) -> str:
+        return repr(self)
+    
+    @abstractmethod
+    def __repr__(self) -> str: ...
