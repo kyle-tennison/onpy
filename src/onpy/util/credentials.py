@@ -95,7 +95,7 @@ class CredentialManager:
                 "Not a valid secret key."
             )
 
-        os.makedirs(CredentialManager.credential_path, exist_ok=True)
+        os.makedirs(os.path.dirname(CredentialManager.credential_path), exist_ok=True)
 
         with open(CredentialManager.credential_path, "w") as f:
             contents = {"dev_access": access_token, "dev_secret": secret_token}
@@ -114,7 +114,7 @@ class CredentialManager:
         if tokens:
             return tokens
 
-        logger.error(
+        print(
             "onpy needs your OnShape credentials. \n"
             "navagate to https://dev-portal.onshape.com/keys and generate a pair of "
             "access & secret keys. Paste them here when prompted:"
