@@ -42,7 +42,7 @@ class SketchCircle(Entity):
             centerId=f"{self.entity_id}.center",
             entityId=f"{self.entity_id}",
         )
-    
+
     @override
     def __repr__(self) -> str:
         return f"Circle(radius={self.radius}, center={self.center})"

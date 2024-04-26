@@ -8,6 +8,7 @@ from pyshape.util.misc import find_by_name_or_id, UnitSystem
 
 from loguru import logger
 
+
 class Client:
     """Handles project management, authentication, and other related items"""
 
