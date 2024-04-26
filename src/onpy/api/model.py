@@ -108,6 +108,7 @@ class SketchCurveSegmentEntity(FeatureEntity):
     startParam: float
     endParam: float
     geometry: dict
+    centerId: str|None = None
 
 
 class Feature(ApiModel):
