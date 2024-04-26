@@ -1,16 +1,16 @@
 """Base class for sketches"""
 
-import pyshape.api.model as model
-from pyshape.util.exceptions import PyshapeParameterError
+import onpy.api.model as model
+from onpy.util.exceptions import PyshapeParameterError
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Iterator, Protocol
 
 if TYPE_CHECKING:
-    from pyshape.client import Client
-    from pyshape.document import Document
-    from pyshape.elements.partstudio import PartStudio
-    from pyshape.features.plane import Plane
+    from onpy.client import Client
+    from onpy.document import Document
+    from onpy.elements.partstudio import PartStudio
+    from onpy.features.plane import Plane
 
 
 class Feature(ABC):

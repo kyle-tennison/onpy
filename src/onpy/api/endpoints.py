@@ -1,12 +1,12 @@
 """Contains different endpoints exposed to the RestApi object"""
 
-import pyshape.api.model as model
-from pyshape.api.versioning import VersionTarget
+import onpy.api.model as model
+from onpy.api.versioning import VersionTarget
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pyshape.api.rest_api import RestApi
+    from onpy.api.rest_api import RestApi
 
 
 class EndpointContainer:
@@ -24,7 +24,7 @@ class EndpointContainer:
         """Creates a new document"""
 
         if description is None:
-            description = "Created with pyshape"
+            description = "Created with onpy"
 
         return self.api.post(
             endpoint="/documents",

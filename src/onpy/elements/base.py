@@ -1,14 +1,14 @@
 """Abstract base class for OnShape elements (i.e., PartStudios, Assemblies, etc.)"""
 
-import pyshape.api.model as model
+import onpy.api.model as model
 
 from abc import abstractmethod, ABC
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pyshape.client import Client
-    from pyshape.document import Document
-    from pyshape.api.rest_api import RestApi
+    from onpy.client import Client
+    from onpy.document import Document
+    from onpy.api.rest_api import RestApi
 
 
 class Element(ABC, model.NameIdFetchable):

@@ -1,17 +1,17 @@
 """Interface to managing OnShape documents"""
 
-import pyshape.api.model as model
-from pyshape.elements.partstudio import PartStudio
-from pyshape.elements.assembly import Assembly
-from pyshape.util.misc import find_by_name_or_id
-from pyshape.api.versioning import WorkspaceWVM
-from pyshape.util.exceptions import PyshapeParameterError
+import onpy.api.model as model
+from onpy.elements.partstudio import PartStudio
+from onpy.elements.assembly import Assembly
+from onpy.util.misc import find_by_name_or_id
+from onpy.api.versioning import WorkspaceWVM
+from onpy.util.exceptions import PyshapeParameterError
 
 from typing import TYPE_CHECKING, Any
 from functools import cache
 
 if TYPE_CHECKING:
-    from pyshape.client import Client
+    from onpy.client import Client
 
 
 class Document(model.NameIdFetchable):

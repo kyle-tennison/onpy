@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 import uuid
-import pyshape.api.model as model
+import onpy.api.model as model
 
 
 class Entity(ABC):

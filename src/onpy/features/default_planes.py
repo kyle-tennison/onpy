@@ -3,14 +3,14 @@
 from enum import Enum
 from textwrap import dedent
 from typing import TYPE_CHECKING, override
-from pyshape.features.base import Feature
-from pyshape.features.plane import Plane
-from pyshape.api.versioning import WorkspaceWVM
-import pyshape.api.model as model
+from onpy.features.base import Feature
+from onpy.features.plane import Plane
+from onpy.api.versioning import WorkspaceWVM
+import onpy.api.model as model
 
 if TYPE_CHECKING:
-    from pyshape.document import Document
-    from pyshape.elements.partstudio import PartStudio
+    from onpy.document import Document
+    from onpy.elements.partstudio import PartStudio
 
 
 class DefaultPlaneOrientation(Enum):
