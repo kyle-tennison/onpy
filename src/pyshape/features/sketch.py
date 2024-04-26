@@ -1,9 +1,11 @@
 """Interface to OnShape Sketches"""
 
 from typing import TYPE_CHECKING, override
+
+from loguru import logger
 from pyshape.features.base import Feature, Extrudable
 from pyshape.features.entities.base import Entity
-from pyshape.features.entities.sketch_entities import SketchCircle
+from pyshape.features.entities.sketch_entities import SketchCircle, SketchLine
 import pyshape.api.model as model
 from pyshape.util.misc import unwrap_type, unwrap, Point2D, UnitSystem
 
@@ -55,6 +57,64 @@ class Sketch(Feature, Extrudable):
             radius=radius, center=center_point, units=self._client.units
         )
         self._entities.append(entity)
+
+    def add_line(self, start: tuple[float, float], end: tuple[float, float]) -> None:
+        """Adds a line to the sketch
+
+        Args:
+            start: The starting point of the line
+            end: The ending point of the line
+        """
+
+        start_point = Point2D.from_pair(start)
+        end_point = Point2D.from_pair(end)
+
+        entity = SketchLine(start_point, end_point, self._client.units)
+
+        self._entities.append(entity)
+
+    def trace_points(
+        self, *points: tuple[float, float], end_connect: bool = True
+    ) -> None:
+        """Traces a series of points
+
+        Args:
+            points: A list of points to trace. Uses list order for line
+            end_connect: Connects end points of the trace with an extra segment
+                to create a closed loop. Defaults to True.
+        """
+
+        segments: list[tuple[Point2D, Point2D]] = []
+
+        for idx in range(1, len(points)):
+
+            p1 = Point2D.from_pair(points[idx - 1])
+            p2 = Point2D.from_pair(points[idx])
+
+            segments.append((p1, p2))
+
+        if end_connect:
+            segments.append(
+                (Point2D.from_pair(points[0]), Point2D.from_pair(points[-1]))
+            )
+
+        for p1, p2 in segments:
+            self.add_line(p1.as_tuple, p2.as_tuple)
+
+    def add_corner_rectangle(
+        self, corner_1: tuple[float, float], corner_2: tuple[float, float]
+    ) -> None:
+        """Adds a corner rectangle to the sketch
+
+        Args:
+            corner_1: The point of the first corner
+            corner_2: The point of the corner opposite to corner 1
+        """
+
+        p1 = Point2D.from_pair(corner_1)
+        p2 = Point2D.from_pair(corner_2)
+
+        self.trace_points((p1.x, p1.y), (p2.x, p1.y), (p2.x, p2.y), (p1.x, p2.y))
 
     @override
     def _to_model(self) -> model.Sketch:

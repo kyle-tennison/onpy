@@ -131,3 +131,7 @@ class Point2D:
     @classmethod
     def from_pair(cls, tuple: tuple[float, float]) -> Self:
         return cls(*tuple)
+
+    @property
+    def as_tuple(self) -> tuple[float, float]:
+        return (self.x, self.y)
