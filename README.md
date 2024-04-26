@@ -1,6 +1,6 @@
 # OnPy
 
-A comprehensive API for creating [OnShape](https://onshape.com) models entirely
+An interface for creating [OnShape](https://onshape.com) models entirely
 through Python.
 
 [![Integration Tests](https://github.com/kyle-tennison/onpy/actions/workflows/validate.yml/badge.svg)](https://github.com/kyle-tennison/onpy/actions/workflows/validate.yml)
@@ -12,19 +12,20 @@ through Python.
 Pyshape is a python-based, high level interface to building 3D models in [Onshape](https://onshape.com)—a cloud based CAD system.
 
 In Pyshape you can:
+
 - Build 2D sketches
 - Extrude to create 3D geometries
 - Interface with other OnShape features
 
 ## Installation & Authentication
 
-You can install onpy with pip:
+You can install OnPy with pip:
 
 ```
 pip install onpy
 ```
 
-The first time you run onpy, you will need to load your [OnShape developer keys](https://dev-portal.onshape.com/keys). onpy will automatically prompt you the first time it runs. You can trigger this dialogue with:
+The first time you run OnPy, you will need to load your [OnShape developer keys](https://dev-portal.onshape.com/keys). OnPy will automatically prompt you the first time it runs. You can trigger this dialogue with:
 
 ```
 $ python -c "from onpy import Client;Client()"
@@ -35,10 +36,10 @@ Then, you can provide your keys:
 ```
 $ python -c "from onpy import Client;Client()"
 
-OnPy needs your OnShape credentials. 
+OnPy needs your OnShape credentials.
 navagate to https://dev-portal.onshape.com/keys and generate a pair of access & secret keys. Paste them here when prompted:
 
-secret key: ...                        
+secret key: ...
 access key: ...
 ```
 
@@ -51,14 +52,14 @@ Alternatively, you can set your OnShape keys as environment variables
 
 [In depth guide coming soon]
 
-
 ### What is OnPy for?
+
 OnPy's primary purpose is to mock the workflow of a typical parametric cad program through Python. This allows tools like LLMs and automation products
 to interface with OnShape.
 
 OnShape natively supports [FeatureScript](https://cad.onshape.com/FsDoc/); an OnShape native scripting language used for defining OnShape features. FeatureScript is a vastly powerful tool—many of it's strengths are leveraged in this package. However, FeatureScript is created to define individual features; there is no way to parametrically generate a design with it.
 
-Instead, OnPy interfaces with OnShape's APIs to create designs that function the same as ones generated in the web ui. 
+Instead, OnPy interfaces with OnShape's APIs to create designs that function the same as ones generated in the web ui.
 
 ### Syntax
 
@@ -100,10 +101,8 @@ If we look in our browser, we'll see a new document aptly named "Cylinder Exampl
 
 ![A screenshot of the code output](.github/media/readme_screenshot.png)
 
-
 ## Contributing
 
 OnPy is obviously in it's earliest stage. All contributors are gratefully welcomed.
 
 This module is structured to be as idiomatic as possible, while also following some of OnShape's layout quirks. There is no strict rules for this repository, but it's a good idea to try to stick with the flow of other things.
-
