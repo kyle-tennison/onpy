@@ -22,7 +22,7 @@ class SketchCircle(Entity):
         self.radius = radius
         self.center = center
         self.units = units
-        self.dir = dir
+        self.dir = Point2D.from_pair(dir)
         self.clockwise = clockwise
         self.entity_id = self.generate_entity_id()
 
@@ -35,8 +35,8 @@ class SketchCircle(Entity):
                 "radius": self.radius,
                 "xcenter": self.center.x,
                 "ycenter": self.center.y,
-                "xdir": self.dir[0],
-                "ydir": self.dir[1],
+                "xdir": self.dir.x,
+                "ydir": self.dir.y,
                 "clockwise": self.clockwise,
             },
             centerId=f"{self.entity_id}.center",
@@ -93,3 +93,58 @@ class SketchLine(Entity):
     @override
     def __repr__(self) -> str:
         return f"Line(start={self.start}, end={self.end})"
+
+
+class SketchArc(Entity):
+    def __init__(
+        self,
+        radius: float,
+        center: Point2D,
+        theta_interval: tuple[float, float],
+        units: UnitSystem,
+        dir: tuple[float, float] = (1, 0),
+        clockwise: bool = False,
+    ):
+        """
+        Args:
+            radius: The radius of the arc
+            center: The centerpoint of the arc
+            theta_interval: The theta interval, in degrees
+            units: The unit system to use
+            dir: An optional dir to specify. Defaults to +x axis
+            clockwise: Whether or not the arc is clockwise. Defaults to false
+        """
+
+        self.radius = radius
+        self.center = center
+        self.theta_interval = tuple(math.radians(i) for i in theta_interval)
+        self.dir = Point2D.from_pair(dir)
+        self.clockwise = clockwise
+        self.entity_id = self.generate_entity_id()
+
+        if units is UnitSystem.INCH:
+            self.radius *= 0.0254
+            self.center *= 0.0254
+
+    @override
+    def to_model(self) -> model.SketchCurveSegmentEntity:
+        return model.SketchCurveSegmentEntity(
+            startPointId=f"{self.entity_id}.start",
+            endPointId=f"{self.entity_id}.end",
+            startParam=self.theta_interval[0],
+            endParam=self.theta_interval[1],
+            centerId=f"{self.entity_id}.center",
+            entityId=f"{self.entity_id}",
+            geometry={
+                "btType": "BTCurveGeometryCircle-115",
+                "radius": self.radius,
+                "xcenter": self.center.x,
+                "ycenter": self.center.y,
+                "xdir": self.dir.x,
+                "ydir": self.dir.y,
+            },
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return f"Arc(center={self.center}, radius={self.radius}, interval={self.theta_interval[0]}<θ<{self.theta_interval[1]})"

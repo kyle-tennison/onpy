@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, override
 from loguru import logger
 from onpy.features.base import Feature, Extrudable
 from onpy.features.entities.base import Entity
-from onpy.features.entities.sketch_entities import SketchCircle, SketchLine
+from onpy.features.entities.sketch_entities import SketchCircle, SketchLine, SketchArc
 import onpy.api.model as model
 from onpy.util.misc import unwrap_type, unwrap, Point2D, UnitSystem
 
@@ -120,6 +120,33 @@ class Sketch(Feature, Extrudable):
         p2 = Point2D.from_pair(corner_2)
 
         self.trace_points((p1.x, p1.y), (p2.x, p1.y), (p2.x, p2.y), (p1.x, p2.y))
+
+    def add_centerpoint_arc(
+        self,
+        centerpoint: tuple[float, float],
+        radius: float,
+        start_angle: float,
+        end_angle: float,
+    ) -> None:
+        """Adds a centerpoint arc to the sketch
+
+        Args:
+            centerpoint: The centerpoint of the arc
+            radius: The radius of the arc
+            start_angle: The angle to start drawing the arc at
+            end_angle: The angle to stop drawing the arc at
+        """
+
+        center = Point2D.from_pair(centerpoint)
+
+        entity = SketchArc(
+            radius=radius,
+            center=center,
+            theta_interval=(start_angle, end_angle),
+            units=self._client.units,
+        )
+
+        self._entities.append(entity)
 
     @override
     def _to_model(self) -> model.Sketch:

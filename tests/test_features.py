@@ -14,6 +14,7 @@ def test_sketch_extrude():
         partstudio=partstudio, plane=partstudio.features.front_plane, name="Base Sketch"
     )
 
+    # draw a circle
     sketch.add_circle((-1, 0), 1)
     sketch.add_circle((1, 0), 1)
 
@@ -22,8 +23,26 @@ def test_sketch_extrude():
     extrude = Extrude(
         partstudio=partstudio, targets=[sketch], distance=1, name="new extrude"
     )
-
     partstudio.add_feature(extrude)
+
+    new_sketch = Sketch(
+        partstudio=partstudio, plane=partstudio.features.top_plane, name="Second Sketch"
+    )
+
+    # a box with an arc
+    new_sketch.trace_points((3, 4), (3, 3), (4, 3))
+    new_sketch.add_centerpoint_arc(
+        centerpoint=(3, 3), radius=1, start_angle=0, end_angle=90
+    )
+
+    partstudio.add_feature(new_sketch)
+    partstudio.add_feature(
+        Extrude(
+            partstudio=partstudio,
+            targets=[new_sketch.query_point((3.5, 3.5, 0))],
+            distance=1,
+        )
+    )
 
     doc.delete()
 
