@@ -115,9 +115,9 @@ class CredentialManager:
             return tokens
 
         print(
-            "onpy needs your OnShape credentials. \n"
+            "\nOnPy needs your OnShape credentials. \n"
             "navagate to https://dev-portal.onshape.com/keys and generate a pair of "
-            "access & secret keys. Paste them here when prompted:"
+            "access & secret keys. Paste them here when prompted:\n"
         )
 
         while True:
