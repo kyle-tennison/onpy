@@ -1,6 +1,6 @@
 """Manages OnShape credentials"""
 
-from pyshape.util.exceptions import PyshapeAuthError
+from onpy.util.exceptions import PyshapeAuthError
 
 import re
 import os
@@ -11,7 +11,7 @@ from loguru import logger
 class CredentialManager:
     """Manages token retrieval and credential storing"""
 
-    credential_path = os.path.expanduser(f"~/.pyshape/config.json")
+    credential_path = os.path.expanduser(f"~/.onpy/config.json")
 
     @staticmethod
     def is_secret_key(token: str | None) -> bool:
@@ -76,7 +76,7 @@ class CredentialManager:
 
     @staticmethod
     def configure_file(access_token: str, secret_token: str) -> None:
-        """Creates a configuration file at ~/.pyshape/config.json
+        """Creates a configuration file at ~/.onpy/config.json
 
         Args:
             access_token: The access token/key from OnShape dev portal
@@ -115,7 +115,7 @@ class CredentialManager:
             return tokens
 
         logger.error(
-            "pyshape needs your OnShape credentials. \n"
+            "onpy needs your OnShape credentials. \n"
             "navagate to https://dev-portal.onshape.com/keys and generate a pair of "
             "access & secret keys. Paste them here when prompted:"
         )

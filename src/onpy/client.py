@@ -1,10 +1,10 @@
 """Entry point to this library"""
 
-from pyshape.util.credentials import CredentialManager
-from pyshape.api.rest_api import RestApi
-from pyshape.document import Document
-from pyshape.util.exceptions import PyshapeParameterError
-from pyshape.util.misc import find_by_name_or_id, UnitSystem
+from onpy.util.credentials import CredentialManager
+from onpy.api.rest_api import RestApi
+from onpy.document import Document
+from onpy.util.exceptions import PyshapeParameterError
+from onpy.util.misc import find_by_name_or_id, UnitSystem
 
 from loguru import logger
 

@@ -1,12 +1,12 @@
 """OnShape extrusion feature"""
 
 from typing import TYPE_CHECKING, override
-from pyshape.api.model import Feature, FeatureAddResponse
-from pyshape.features.base import Feature, Extrudable
-import pyshape.api.model as model
+from onpy.api.model import Feature, FeatureAddResponse
+from onpy.features.base import Feature, Extrudable
+import onpy.api.model as model
 
 if TYPE_CHECKING:
-    from pyshape.elements.partstudio import PartStudio
+    from onpy.elements.partstudio import PartStudio
 
 
 class Extrude(Feature):

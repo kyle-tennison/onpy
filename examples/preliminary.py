@@ -1,10 +1,10 @@
 # A preliminary example of how this module should look
 
-from pyshape import Client
-from pyshape.features.sketch import Sketch
-from pyshape.features.extrude import Extrude
+from onpy import Client
+from onpy.features.sketch import Sketch
+from onpy.features.extrude import Extrude
 
-# from pyshape.features.extrude import Extrude
+# from onpy.features.extrude import Extrude
 
 client = Client()
 

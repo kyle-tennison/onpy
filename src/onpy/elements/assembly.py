@@ -1,13 +1,13 @@
 """Assembly element interface"""
 
-from pyshape.elements.base import Element
-import pyshape.api.model as model
+from onpy.elements.base import Element
+import onpy.api.model as model
 
 from typing import TYPE_CHECKING, override
 
 if TYPE_CHECKING:
-    from pyshape.client import Client
-    from pyshape.document import Document
+    from onpy.client import Client
+    from onpy.document import Document
 
 
 class Assembly(Element):

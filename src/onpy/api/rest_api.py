@@ -2,10 +2,10 @@
 
 import json
 import sys
-from pyshape.api.endpoints import EndpointContainer
-from pyshape.api.model import ApiModel
-from pyshape.util.model import HttpMethod
-from pyshape.util.exceptions import PyshapeApiError, PyshapeInternalError
+from onpy.api.endpoints import EndpointContainer
+from onpy.api.model import ApiModel
+from onpy.util.model import HttpMethod
+from onpy.util.exceptions import PyshapeApiError, PyshapeInternalError
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -14,7 +14,7 @@ from loguru import logger
 from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
-    from pyshape.client import Client
+    from onpy.client import Client
 
 
 class RestApi:

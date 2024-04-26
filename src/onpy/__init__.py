@@ -9,4 +9,4 @@ logger.add(
 )
 
 
-from pyshape.client import Client
+from onpy.client import Client
