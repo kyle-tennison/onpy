@@ -1,4 +1,4 @@
-name: Validate Pull Request
+name: Integration Tests
 
 on:
   pull_request:
