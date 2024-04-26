@@ -43,6 +43,10 @@ class SketchCircle(Entity):
             entityId=f"{self.entity_id}",
         )
 
+    @override
+    def __repr__(self) -> str:
+        return f"Circle(radius={self.radius}, center={self.center})"
+
 
 class SketchLine(Entity):
 
@@ -86,8 +90,6 @@ class SketchLine(Entity):
             },
         )
 
-    def __str__(self) -> str:
-        return repr(self)
-
+    @override
     def __repr__(self) -> str:
-        return f"SketchLine(start={self.start}, end={self.end})"
+        return f"Line(start={self.start}, end={self.end})"

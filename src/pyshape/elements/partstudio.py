@@ -1,6 +1,5 @@
 """PartStudio element interface"""
 
-from pprint import pprint
 from loguru import logger
 from pyshape.elements.base import Element
 import pyshape.api.model as model
@@ -72,8 +71,6 @@ class PartStudio(Element):
         """
 
         fm = feature._to_model()
-
-        pprint(fm.model_dump(exclude_none=True))
 
         response = self._api.endpoints.add_feature(
             document_id=self.document.id,
