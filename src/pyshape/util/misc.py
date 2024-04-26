@@ -122,7 +122,6 @@ class UnitSystem(Enum):
 class Point2D:
     """Represents a 2D point"""
 
-    
     x: float
     y: float
 
@@ -132,3 +131,7 @@ class Point2D:
     @classmethod
     def from_pair(cls, tuple: tuple[float, float]) -> Self:
         return cls(*tuple)
+
+    @property
+    def as_tuple(self) -> tuple[float, float]:
+        return (self.x, self.y)

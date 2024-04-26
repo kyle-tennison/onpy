@@ -43,30 +43,30 @@ class SketchCircle(Entity):
             entityId=f"{self.entity_id}",
         )
 
+
 class SketchLine(Entity):
 
-    def __init__(self,
-                 start_point: Point2D,
-                 end_point: Point2D,
-                 units: UnitSystem
-                 ) -> None:
-        
+    def __init__(
+        self, start_point: Point2D, end_point: Point2D, units: UnitSystem
+    ) -> None:
+
         self.start = start_point
         self.end = end_point
         self.units = units
         self.entity_id = self.generate_entity_id()
 
-        dx = self.end.x - self.start.x 
+        if units is UnitSystem.INCH:
+            self.start *= 0.0254
+            self.end *= 0.0254
+
+        dx = self.end.x - self.start.x
         dy = self.end.y - self.start.y
 
-        length = math.sqrt(dx ** 2 + dy ** 2)
+        length = math.sqrt(dx**2 + dy**2)
         theta = math.atan2(dy, dx)
         unit_direction = Point2D(math.cos(theta), math.sin(theta))
 
-        if units is UnitSystem.INCH:
-            length *= 0.0254
-
-        self.length = abs(length) 
+        self.length = abs(length)
         self.dir = unit_direction
 
     @override
@@ -81,7 +81,13 @@ class SketchLine(Entity):
                 "btType": "BTCurveGeometryLine-117",
                 "pntX": self.start.x,
                 "pntY": self.start.y,
-                "dirX": self.start.x + self.dir.x,
-                "dirY": self.start.y + self.dir.y
-            }
+                "dirX": self.dir.x,
+                "dirY": self.dir.y,
+            },
         )
+
+    def __str__(self) -> str:
+        return repr(self)
+
+    def __repr__(self) -> str:
+        return f"SketchLine(start={self.start}, end={self.end})"

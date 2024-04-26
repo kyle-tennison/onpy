@@ -1,6 +1,8 @@
 """Interface to OnShape Sketches"""
 
 from typing import TYPE_CHECKING, override
+
+from loguru import logger
 from pyshape.features.base import Feature, Extrudable
 from pyshape.features.entities.base import Entity
 from pyshape.features.entities.sketch_entities import SketchCircle, SketchLine
@@ -58,7 +60,7 @@ class Sketch(Feature, Extrudable):
 
     def add_line(self, start: tuple[float, float], end: tuple[float, float]) -> None:
         """Adds a line to the sketch
-        
+
         Args:
             start: The starting point of the line
             end: The ending point of the line
@@ -67,14 +69,28 @@ class Sketch(Feature, Extrudable):
         start_point = Point2D.from_pair(start)
         end_point = Point2D.from_pair(end)
 
-        entity = SketchLine(
-            start_point,
-            end_point,
-            self._client.units
-        )
+        entity = SketchLine(start_point, end_point, self._client.units)
 
         self._entities.append(entity)
-            
+
+    def trace_points(self, *points: tuple[float, float]) -> None:
+        """Traces a series of points"""
+
+        segments: list[tuple[Point2D, Point2D]] = []
+
+        for idx in range(1, len(points)):
+
+            p1 = Point2D.from_pair(points[idx - 1])
+            p2 = Point2D.from_pair(points[idx])
+
+            segments.append((p1, p2))
+
+        segments.append((Point2D.from_pair(points[0]), Point2D.from_pair(points[-1])))
+
+        logger.critical(f"segments: \n{segments}")
+
+        for p1, p2 in segments:
+            self.add_line(p1.as_tuple, p2.as_tuple)
 
     @override
     def _to_model(self) -> model.Sketch:
