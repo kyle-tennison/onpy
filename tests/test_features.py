@@ -1,6 +1,6 @@
 from onpy import Client
 from onpy.features import Sketch, Extrude
-
+from onpy.api.versioning import WorkspaceWVM
 
 def test_sketch_extrude():
     """Tests the ability to extrude a sketch"""
@@ -70,5 +70,37 @@ def test_sketch_point_query():
         partstudio=partstudio, targets=[sketch.query_point((0.6, 0, 0))], distance=1
     )
     partstudio.add_feature(extrude)
+
+    document.delete()
+
+
+def test_feature_wipe():
+    """Test the ability to remove features"""
+
+    client = Client()
+
+    document = client.create_document("test_features::test_feature_wipe")
+    partstudio = document.get_partstudio()
+
+    # add dummy feature(s)
+    sketch = Sketch(
+        partstudio=partstudio,
+        plane=partstudio.features.top_plane,
+        name="Overlapping Sketch",
+    )
+    sketch.add_circle(center=(-0.5, 0), radius=1)
+    sketch.add_circle(center=(0.5, 0), radius=1)
+    partstudio.add_feature(sketch)
+    partstudio.add_feature(Extrude(partstudio=partstudio, targets=[sketch], distance=1))
+
+    partstudio.wipe()
+
+    features = client._api.endpoints.list_features(
+        document_id=document.id,
+        version=WorkspaceWVM(document.default_workspace.id),
+        element_id=partstudio.id
+    )
+
+    assert len(features) == 0
 
     document.delete()

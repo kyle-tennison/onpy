@@ -69,3 +69,4 @@ def test_versions():
     assert "V34" in [v.name for v in client._api.endpoints.list_versions(document.id)]
 
     document.delete()
+
