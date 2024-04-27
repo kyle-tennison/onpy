@@ -56,6 +56,7 @@ def test_elements():
     finally:
         document.delete()
 
+
 def test_versions():
     """Test the ability to create versions"""
 

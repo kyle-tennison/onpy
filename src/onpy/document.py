@@ -87,9 +87,9 @@ class Document(model.NameIdFetchable):
 
         return match
 
-    def create_version(self, name: str|None = None) -> None:
+    def create_version(self, name: str | None = None) -> None:
         """Creates a version from the current workspace
-        
+
         Args:
             name: An optional name of the version. Defaults to v1, v2, etc.
         """
@@ -97,7 +97,7 @@ class Document(model.NameIdFetchable):
         if name is None:
             versions = self._client._api.endpoints.list_versions(self.id)
             for version in versions:
-                pattern = r'^V(\d+)$'
+                pattern = r"^V(\d+)$"
                 match = re.match(pattern, version.name)
                 if match:
                     name = f"V{int(match.group(1))+1}"
@@ -107,14 +107,10 @@ class Document(model.NameIdFetchable):
                 name = "V1"
 
         self._client._api.endpoints.create_version(
-            document_id=self.id,
-            workspace_id=self.default_workspace.id,
-            name=name
+            document_id=self.id, workspace_id=self.default_workspace.id, name=name
         )
 
         logger.info(f"Created new version {name}")
-
-
 
     def __eq__(self, other: Any) -> bool:
 
