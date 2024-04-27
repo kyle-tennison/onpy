@@ -7,6 +7,7 @@ from onpy.features.base import Feature, FeatureList
 from onpy.features.default_planes import DefaultPlane, DefaultPlaneOrientation
 from onpy.api.versioning import WorkspaceWVM
 from onpy.util.exceptions import PyshapeFeatureError
+from onpy.util.misc import unwrap
 
 from typing import TYPE_CHECKING, override
 
@@ -90,6 +91,25 @@ class PartStudio(Element):
             logger.info(f"Successfully added feature '{feature.name}'")
 
         feature._load_response(response)
+
+    def wipe(self) -> None:
+        """Removes all features from the current partstudio. Stores in another version"""
+
+        self.document.create_version()
+
+        features = self._api.endpoints.list_features(
+            document_id=self._document.id,
+            version=WorkspaceWVM(self._document.default_workspace.id),
+            element_id=self.id,
+        )
+
+        for feature in features:
+            self._api.endpoints.delete_feature(
+                document_id=self._document.id,
+                workspace_id=self._document.default_workspace.id,
+                element_id=self.id,
+                feature_id=unwrap(feature.featureId),
+            )
 
     def __repr__(self) -> str:
         return super().__repr__()

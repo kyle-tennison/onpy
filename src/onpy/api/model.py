@@ -57,6 +57,25 @@ class DocumentCreateRequest(ApiModel):
     isPublic: Optional[bool] = True
 
 
+class DocumentVersion(ApiModel):
+    """Represents a document version"""
+
+    documentId: str
+    name: str
+    id: str
+    microversion: str
+    createdAt: datetime
+    description: Optional[str] = ""
+
+
+class DocumentVersionUpload(ApiModel):
+    """Represents a partial document version, used for upload"""
+
+    documentId: str
+    name: str
+    workspaceId: str
+
+
 class Element(ApiModel):
     """Represents an OnShape element"""
 
@@ -147,8 +166,15 @@ class FeatureAddResponse(ApiModel):
     featureState: FeatureState
 
 
+class FeatureListResponse(ApiModel):
+    """API Response of GET /partstudios/DWE/features"""
+
+    features: list[Feature]
+    defaultFeatures: list[Feature]
+
+
 class FeaturescriptUpload(ApiModel):
-    """Request model of POST /partstudio/DWE/featurescript"""
+    """Request model of POST /partstudios/DWE/featurescript"""
 
     script: str
 

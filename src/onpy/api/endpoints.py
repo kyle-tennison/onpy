@@ -65,6 +65,18 @@ class EndpointContainer:
             payload=model.FeaturescriptUpload(script=script),
         )
 
+    def list_features(
+        self, document_id: str, version: VersionTarget, element_id: str
+    ) -> list[model.Feature]:
+        """Lists all the features in a partstudio"""
+
+        feature_list = self.api.get(
+            endpoint=f"/partstudios/d/{document_id}/{version.wvm}/{version.wvmid}/e/{element_id}/features",
+            response_type=model.FeatureListResponse,
+        )
+
+        return feature_list.features
+
     def add_feature(
         self,
         document_id: str,
@@ -80,4 +92,37 @@ class EndpointContainer:
             payload=model.FeatureAddRequest(
                 feature=feature.model_dump(exclude_none=True)
             ),
+        )
+
+    def list_versions(self, document_id: str) -> list[model.DocumentVersion]:
+        """Lists the versions in a document in reverse-chronological order"""
+
+        versions = self.api.list_get(
+            endpoint=f"/documents/d/{document_id}/versions",
+            response_type=model.DocumentVersion,
+        )
+
+        return sorted(versions, key=lambda v: v.createdAt, reverse=True)
+
+    def create_version(
+        self, document_id: str, workspace_id: str, name: str
+    ) -> model.DocumentVersion:
+        """Creates a new version from a workspace"""
+
+        return self.api.post(
+            f"/documents/d/{document_id}/versions",
+            response_type=model.DocumentVersion,
+            payload=model.DocumentVersionUpload(
+                documentId=document_id, name=name, workspaceId=workspace_id
+            ),
+        )
+
+    def delete_feature(
+        self, document_id: str, workspace_id, element_id: str, feature_id: str
+    ) -> None:
+        """Deletes a feature"""
+
+        self.api.delete(
+            endpoint=f"/partstudios/d/{document_id}/w/{workspace_id}/e/{element_id}/features/featureid/{feature_id}",
+            response_type=str,
         )

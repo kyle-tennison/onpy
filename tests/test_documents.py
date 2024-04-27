@@ -55,3 +55,17 @@ def test_elements():
         assert main_ps in document.elements
     finally:
         document.delete()
+
+
+def test_versions():
+    """Test the ability to create versions"""
+
+    document = client.create_document("test_documents::test_versions")
+
+    document.create_version("V33")
+    assert "V33" in [v.name for v in client._api.endpoints.list_versions(document.id)]
+
+    document.create_version()
+    assert "V34" in [v.name for v in client._api.endpoints.list_versions(document.id)]
+
+    document.delete()
