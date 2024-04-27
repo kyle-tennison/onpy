@@ -1,5 +1,8 @@
 """Interface to managing OnShape documents"""
 
+import re
+
+from loguru import logger
 import onpy.api.model as model
 from onpy.elements.partstudio import PartStudio
 from onpy.elements.assembly import Assembly
@@ -83,6 +86,38 @@ class Document(model.NameIdFetchable):
             )
 
         return match
+
+    def create_version(self, name: str|None = None) -> None:
+        """Creates a version from the current workspace
+        
+        Args:
+            name: An optional name of the version. Defaults to v1, v2, etc.
+        """
+
+        if name is None:
+            versions = self._client._api.endpoints.list_versions(self.id)
+
+            print([v.name for v in versions])
+
+            for version in versions:
+                pattern = r'^V(\d+)$'
+                match = re.match(pattern, version.name)
+                if match:
+                    name = f"V{int(match.group(1))+1}"
+                    break
+
+            if name is None:
+                name = "V1"
+
+        self._client._api.endpoints.create_version(
+            document_id=self.id,
+            workspace_id=self.default_workspace.id,
+            name=name
+        )
+
+        logger.info(f"Created new version {name}")
+
+
 
     def __eq__(self, other: Any) -> bool:
 

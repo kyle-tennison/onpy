@@ -81,3 +81,31 @@ class EndpointContainer:
                 feature=feature.model_dump(exclude_none=True)
             ),
         )
+    
+
+    def list_versions(self, document_id: str) -> list[model.DocumentVersion]:
+        """Lists the versions in a document in reverse-chronological order"""
+
+        versions = self.api.list_get(
+            endpoint=f"/documents/d/{document_id}/versions",
+            response_type=model.DocumentVersion
+        )
+
+        return sorted(
+            versions,
+            key = lambda v: v.createdAt,
+            reverse=True
+        )
+
+    def create_version(self, document_id: str, workspace_id: str, name: str) -> model.DocumentVersion:
+        """Creates a new version from a workspace"""
+
+        return self.api.post(
+            f"/documents/d/{document_id}/versions",
+            response_type=model.DocumentVersion,
+            payload=model.DocumentVersionUpload(
+                documentId=document_id,
+                name=name,
+                workspaceId=workspace_id
+            )
+        )
