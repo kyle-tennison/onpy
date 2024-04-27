@@ -2,6 +2,7 @@ from onpy import Client
 from onpy.features import Sketch, Extrude
 from onpy.api.versioning import WorkspaceWVM
 
+
 def test_sketch_extrude():
     """Tests the ability to extrude a sketch"""
 
@@ -98,7 +99,7 @@ def test_feature_wipe():
     features = client._api.endpoints.list_features(
         document_id=document.id,
         version=WorkspaceWVM(document.default_workspace.id),
-        element_id=partstudio.id
+        element_id=partstudio.id,
     )
 
     assert len(features) == 0
