@@ -96,9 +96,6 @@ class Document(model.NameIdFetchable):
 
         if name is None:
             versions = self._client._api.endpoints.list_versions(self.id)
-
-            print([v.name for v in versions])
-
             for version in versions:
                 pattern = r'^V(\d+)$'
                 match = re.match(pattern, version.name)
