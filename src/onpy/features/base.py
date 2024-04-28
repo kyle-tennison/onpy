@@ -33,7 +33,7 @@ class Feature(ABC):
     def _client(self) -> "Client":
         """A reference to the underlying client"""
         return self.document._client
-    
+
     @property
     def _api(self) -> "RestApi":
         """A reference to the api"""
@@ -87,7 +87,6 @@ class Feature(ABC):
 
         self._load_response(response)
 
-
     def _update_feature(self) -> None:
         """Updates the feature in the cloud"""
 
@@ -95,7 +94,7 @@ class Feature(ABC):
             document_id=self.document.id,
             workspace_id=self.document.default_workspace.id,
             element_id=self.partstudio.id,
-            feature=self._to_model()
+            feature=self._to_model(),
         )
 
         if response.featureState.featureStatus != "OK":
@@ -105,9 +104,6 @@ class Feature(ABC):
                 raise PyshapeFeatureError("Feature errored on update")
         else:
             logger.debug(f"Successfully updated feature '{self.name}'")
-
-
-
 
 
 class FeatureList:

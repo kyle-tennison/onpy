@@ -64,31 +64,24 @@ class PartStudio(Element):
 
     def add_sketch(self, plane: Plane, name: str = "New Sketch") -> Sketch:
         """Adds a new sketch to the partstudio
-        
+
         Args:
             plane: The plane to base the sketch off of
             name: An optional name for the sketch
         """
-        return Sketch(
-            partstudio=self,
-            plane=plane,
-            name=name
-        )
-    
-    def add_extrude(self, targets: list[Extrudable], distance: float, name: str = "New Extrude") -> Extrude:
+        return Sketch(partstudio=self, plane=plane, name=name)
+
+    def add_extrude(
+        self, targets: list[Extrudable], distance: float, name: str = "New Extrude"
+    ) -> Extrude:
         """Adds a new blind extrude feature to the partstudio
-        
+
         Args:
             targets: The targets to extrude
             distance: The distance to extrude
             name: An optional name for the extrusion
         """
-        return Extrude(
-            partstudio=self,
-            targets=targets,
-            distance=distance,
-            name=name
-        )
+        return Extrude(partstudio=self, targets=targets, distance=distance, name=name)
 
     def wipe(self) -> None:
         """Removes all features from the current partstudio. Stores in another version"""

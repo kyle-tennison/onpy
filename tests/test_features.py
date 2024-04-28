@@ -12,7 +12,9 @@ def test_sketch_extrude():
     partstudio = doc.get_partstudio(name="Part Studio 1")
 
     # draw a circle
-    sketch = partstudio.add_sketch(plane=partstudio.features.front_plane, name="Base Sketch")
+    sketch = partstudio.add_sketch(
+        plane=partstudio.features.front_plane, name="Base Sketch"
+    )
     sketch.add_circle((-1, 0), 1)
     sketch.add_circle((1, 0), 1)
 
@@ -29,8 +31,8 @@ def test_sketch_extrude():
     )
 
     partstudio.add_extrude(
-            targets=[new_sketch.query_point((3.5, 3.5, 0))],
-            distance=1,
+        targets=[new_sketch.query_point((3.5, 3.5, 0))],
+        distance=1,
     )
 
     doc.delete()
@@ -52,9 +54,7 @@ def test_sketch_point_query():
     sketch.add_circle(center=(-0.5, 0), radius=1)
     sketch.add_circle(center=(0.5, 0), radius=1)
 
-    partstudio.add_extrude(
-        targets=[sketch.query_point((0.6, 0, 0))], distance=1
-    )
+    partstudio.add_extrude(targets=[sketch.query_point((0.6, 0, 0))], distance=1)
 
     document.delete()
 
