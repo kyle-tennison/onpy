@@ -25,6 +25,8 @@ class Sketch(Feature, Extrudable):
         self._id: str | None = None
         self._entities: list[Entity] = []
 
+        self._upload_feature()
+
     @property
     @override
     def partstudio(self) -> "PartStudio":
@@ -32,8 +34,8 @@ class Sketch(Feature, Extrudable):
 
     @property
     @override
-    def id(self) -> str | None:
-        return self._id
+    def id(self) -> str:
+        return unwrap(self._id, message="Feature id unbound")
 
     @property
     def name(self) -> str:
@@ -58,8 +60,8 @@ class Sketch(Feature, Extrudable):
         )
 
         logger.info(f"Added circle to sketch: {entity}")
-
         self._entities.append(entity)
+        self._update_feature()
 
     def add_line(self, start: tuple[float, float], end: tuple[float, float]) -> None:
         """Adds a line to the sketch
@@ -77,6 +79,7 @@ class Sketch(Feature, Extrudable):
         logger.info(f"Added line to sketch: {entity}")
 
         self._entities.append(entity)
+        self._update_feature()
 
     def trace_points(
         self, *points: tuple[float, float], end_connect: bool = True
@@ -147,11 +150,13 @@ class Sketch(Feature, Extrudable):
         )
 
         self._entities.append(entity)
+        self._update_feature()
 
     @override
     def _to_model(self) -> model.Sketch:
         return model.Sketch(
             name=self.name,
+            featureId=self._id,
             suppressed=False,
             parameters=[
                 model.FeatureParameterQueryList(
