@@ -3,11 +3,12 @@
 from loguru import logger
 from onpy.elements.base import Element
 import onpy.api.model as model
-from onpy.features.base import Feature, FeatureList
+from onpy.features.base import Feature, FeatureList, Extrudable
 from onpy.features.default_planes import DefaultPlane, DefaultPlaneOrientation
 from onpy.api.versioning import WorkspaceWVM
 from onpy.util.exceptions import PyshapeFeatureError
 from onpy.util.misc import unwrap
+from onpy.features import Sketch, Extrude, Plane
 
 from typing import TYPE_CHECKING, override
 
@@ -61,36 +62,26 @@ class PartStudio(Element):
 
         return default_planes
 
-    def add_feature(self, feature: Feature):
-        """Adds a feature to the partstudio
+    def add_sketch(self, plane: Plane, name: str = "New Sketch") -> Sketch:
+        """Adds a new sketch to the partstudio
 
         Args:
-            feature: The feature to add
-
-        Raises:
-            PyshapeFeatureError if the feature fails to load
+            plane: The plane to base the sketch off of
+            name: An optional name for the sketch
         """
+        return Sketch(partstudio=self, plane=plane, name=name)
 
-        fm = feature._to_model()
+    def add_extrude(
+        self, targets: list[Extrudable], distance: float, name: str = "New Extrude"
+    ) -> Extrude:
+        """Adds a new blind extrude feature to the partstudio
 
-        response = self._api.endpoints.add_feature(
-            document_id=self.document.id,
-            version=WorkspaceWVM(self.document.default_workspace.id),
-            element_id=self.id,
-            feature=feature._to_model(),
-        )
-
-        self._features.append(feature)
-
-        if response.featureState.featureStatus != "OK":
-            if response.featureState.featureStatus == "WARNING":
-                logger.warning("Feature loaded with warning")
-            else:
-                raise PyshapeFeatureError("Feature has error")
-        else:
-            logger.info(f"Successfully added feature '{feature.name}'")
-
-        feature._load_response(response)
+        Args:
+            targets: The targets to extrude
+            distance: The distance to extrude
+            name: An optional name for the extrusion
+        """
+        return Extrude(partstudio=self, targets=targets, distance=distance, name=name)
 
     def wipe(self) -> None:
         """Removes all features from the current partstudio. Stores in another version"""

@@ -1,7 +1,9 @@
 """Base class for sketches"""
 
+from loguru import logger
 import onpy.api.model as model
-from onpy.util.exceptions import PyshapeParameterError
+from onpy.util.exceptions import PyshapeParameterError, PyshapeFeatureError
+from onpy.api.versioning import WorkspaceWVM
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Iterator, Protocol
@@ -11,6 +13,7 @@ if TYPE_CHECKING:
     from onpy.document import Document
     from onpy.elements.partstudio import PartStudio
     from onpy.features.plane import Plane
+    from onpy.api.rest_api import RestApi
 
 
 class Feature(ABC):
@@ -30,6 +33,11 @@ class Feature(ABC):
     def _client(self) -> "Client":
         """A reference to the underlying client"""
         return self.document._client
+
+    @property
+    def _api(self) -> "RestApi":
+        """A reference to the api"""
+        return self._client._api
 
     @property
     @abstractmethod
@@ -52,6 +60,50 @@ class Feature(ABC):
     def _load_response(self, response: model.FeatureAddResponse) -> None:
         """Load the feature add response to the feature metadata"""
         ...
+
+    def _upload_feature(self) -> None:
+        """Adds a feature to the partstudio
+
+        Raises:
+            PyshapeFeatureError if the feature fails to load
+        """
+
+        response = self._api.endpoints.add_feature(
+            document_id=self.document.id,
+            version=WorkspaceWVM(self.document.default_workspace.id),
+            element_id=self.partstudio.id,
+            feature=self._to_model(),
+        )
+
+        self.partstudio._features.append(self)
+
+        if response.featureState.featureStatus != "OK":
+            if response.featureState.featureStatus == "WARNING":
+                logger.warning("Feature loaded with warning")
+            else:
+                raise PyshapeFeatureError("Feature errored on upload")
+        else:
+            logger.debug(f"Successfully uploaded feature '{self.name}'")
+
+        self._load_response(response)
+
+    def _update_feature(self) -> None:
+        """Updates the feature in the cloud"""
+
+        response = self._api.endpoints.update_feature(
+            document_id=self.document.id,
+            workspace_id=self.document.default_workspace.id,
+            element_id=self.partstudio.id,
+            feature=self._to_model(),
+        )
+
+        if response.featureState.featureStatus != "OK":
+            if response.featureState.featureStatus == "WARNING":
+                logger.warning("Feature loaded with warning")
+            else:
+                raise PyshapeFeatureError("Feature errored on update")
+        else:
+            logger.debug(f"Successfully updated feature '{self.name}'")
 
 
 class FeatureList:

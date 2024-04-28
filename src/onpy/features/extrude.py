@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, override
 from onpy.api.model import Feature, FeatureAddResponse
 from onpy.features.base import Feature, Extrudable
 import onpy.api.model as model
+from onpy.util.misc import unwrap
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -24,10 +25,12 @@ class Extrude(Feature):
         self._name = name
         self.distance = distance
 
+        self._upload_feature()
+
     @property
     @override
     def id(self) -> str | None:
-        return self._id
+        return unwrap(self._id, message="Feature id unbound")
 
     @property
     @override
@@ -58,6 +61,7 @@ class Extrude(Feature):
 
         return model.Extrude(
             name=self.name,
+            featureId=self._id,
             suppressed=False,
             parameters=[
                 {
@@ -91,5 +95,6 @@ class Extrude(Feature):
             ],
         )
 
+    @override
     def _load_response(self, response: FeatureAddResponse) -> None:
         self._id = response.feature.featureId

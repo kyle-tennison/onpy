@@ -11,23 +11,17 @@ def test_sketch_extrude():
     doc = client.create_document(name="test_features::test_sketch_extrude")
     partstudio = doc.get_partstudio(name="Part Studio 1")
 
-    sketch = Sketch(
-        partstudio=partstudio, plane=partstudio.features.front_plane, name="Base Sketch"
-    )
-
     # draw a circle
+    sketch = partstudio.add_sketch(
+        plane=partstudio.features.front_plane, name="Base Sketch"
+    )
     sketch.add_circle((-1, 0), 1)
     sketch.add_circle((1, 0), 1)
 
-    partstudio.add_feature(sketch)
+    partstudio.add_extrude(targets=[sketch], distance=1, name="new extrude")
 
-    extrude = Extrude(
-        partstudio=partstudio, targets=[sketch], distance=1, name="new extrude"
-    )
-    partstudio.add_feature(extrude)
-
-    new_sketch = Sketch(
-        partstudio=partstudio, plane=partstudio.features.top_plane, name="Second Sketch"
+    new_sketch = partstudio.add_sketch(
+        plane=partstudio.features.top_plane, name="Second Sketch"
     )
 
     # a box with an arc
@@ -36,13 +30,9 @@ def test_sketch_extrude():
         centerpoint=(3, 3), radius=1, start_angle=0, end_angle=90
     )
 
-    partstudio.add_feature(new_sketch)
-    partstudio.add_feature(
-        Extrude(
-            partstudio=partstudio,
-            targets=[new_sketch.query_point((3.5, 3.5, 0))],
-            distance=1,
-        )
+    partstudio.add_extrude(
+        targets=[new_sketch.query_point((3.5, 3.5, 0))],
+        distance=1,
     )
 
     doc.delete()
@@ -56,8 +46,7 @@ def test_sketch_point_query():
     document = client.create_document("test_features::test_sketch_point_query")
     partstudio = document.get_partstudio()
 
-    sketch = Sketch(
-        partstudio=partstudio,
+    sketch = partstudio.add_sketch(
         plane=partstudio.features.top_plane,
         name="Overlapping Sketch",
     )
@@ -65,12 +54,7 @@ def test_sketch_point_query():
     sketch.add_circle(center=(-0.5, 0), radius=1)
     sketch.add_circle(center=(0.5, 0), radius=1)
 
-    partstudio.add_feature(sketch)
-
-    extrude = Extrude(
-        partstudio=partstudio, targets=[sketch.query_point((0.6, 0, 0))], distance=1
-    )
-    partstudio.add_feature(extrude)
+    partstudio.add_extrude(targets=[sketch.query_point((0.6, 0, 0))], distance=1)
 
     document.delete()
 
@@ -84,15 +68,13 @@ def test_feature_wipe():
     partstudio = document.get_partstudio()
 
     # add dummy feature(s)
-    sketch = Sketch(
-        partstudio=partstudio,
+    sketch = partstudio.add_sketch(
         plane=partstudio.features.top_plane,
         name="Overlapping Sketch",
     )
     sketch.add_circle(center=(-0.5, 0), radius=1)
     sketch.add_circle(center=(0.5, 0), radius=1)
-    partstudio.add_feature(sketch)
-    partstudio.add_feature(Extrude(partstudio=partstudio, targets=[sketch], distance=1))
+    partstudio.add_extrude(targets=[sketch], distance=1)
 
     partstudio.wipe()
 

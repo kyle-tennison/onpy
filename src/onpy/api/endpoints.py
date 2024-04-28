@@ -94,6 +94,33 @@ class EndpointContainer:
             ),
         )
 
+    def update_feature(
+        self,
+        document_id: str,
+        workspace_id: str,
+        element_id: str,
+        feature: model.Feature,
+    ) -> model.FeatureAddResponse:
+        """Updates an existing feature"""
+
+        return self.api.post(
+            endpoint=f"/partstudios/d/{document_id}/w/{workspace_id}/e/{element_id}/features/featureid/{feature.featureId}",
+            response_type=model.FeatureAddResponse,
+            payload=model.FeatureAddRequest(
+                feature=feature.model_dump(exclude_none=True)
+            ),
+        )
+
+    def delete_feature(
+        self, document_id: str, workspace_id, element_id: str, feature_id: str
+    ) -> None:
+        """Deletes a feature"""
+
+        self.api.delete(
+            endpoint=f"/partstudios/d/{document_id}/w/{workspace_id}/e/{element_id}/features/featureid/{feature_id}",
+            response_type=str,
+        )
+
     def list_versions(self, document_id: str) -> list[model.DocumentVersion]:
         """Lists the versions in a document in reverse-chronological order"""
 
@@ -115,14 +142,4 @@ class EndpointContainer:
             payload=model.DocumentVersionUpload(
                 documentId=document_id, name=name, workspaceId=workspace_id
             ),
-        )
-
-    def delete_feature(
-        self, document_id: str, workspace_id, element_id: str, feature_id: str
-    ) -> None:
-        """Deletes a feature"""
-
-        self.api.delete(
-            endpoint=f"/partstudios/d/{document_id}/w/{workspace_id}/e/{element_id}/features/featureid/{feature_id}",
-            response_type=str,
         )
