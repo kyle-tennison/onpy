@@ -5,6 +5,7 @@ from onpy.api.model import Feature, FeatureAddResponse
 from onpy.features.base import Feature, Extrudable
 import onpy.api.model as model
 from onpy.util.misc import unwrap
+from onpy.features.query.list import QueryList
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -15,11 +16,11 @@ class Extrude(Feature):
     def __init__(
         self,
         partstudio: "PartStudio",
-        targets: list[Extrudable],
+        targets: QueryList | list[Extrudable],
         distance: float,
         name: str = "Extrusion",
     ) -> None:
-        self.targets = targets
+        self.targets = targets if isinstance(targets, list) else targets._available
         self._id: str | None = None
         self._partstudio = partstudio
         self._name = name

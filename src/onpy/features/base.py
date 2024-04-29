@@ -152,7 +152,7 @@ class Extrudable(Protocol):
 
     @property
     @abstractmethod
-    def _extrusion_query(self) -> str:
+    def _extrusion_query(self) -> Any:
         """The query used for extrusion"""
         ...
 

@@ -9,6 +9,7 @@ from onpy.api.versioning import WorkspaceWVM
 from onpy.util.exceptions import PyshapeFeatureError
 from onpy.util.misc import unwrap
 from onpy.features import Sketch, Extrude, Plane
+from onpy.features.query.list import QueryList
 
 from typing import TYPE_CHECKING, override
 
@@ -72,7 +73,10 @@ class PartStudio(Element):
         return Sketch(partstudio=self, plane=plane, name=name)
 
     def add_extrude(
-        self, targets: list[Extrudable], distance: float, name: str = "New Extrude"
+        self,
+        targets: QueryList | list[Extrudable],
+        distance: float,
+        name: str = "New Extrude",
     ) -> Extrude:
         """Adds a new blind extrude feature to the partstudio
 

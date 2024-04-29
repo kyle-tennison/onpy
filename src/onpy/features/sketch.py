@@ -7,7 +7,8 @@ from onpy.features.base import Feature, Extrudable
 from onpy.features.entities.base import Entity
 from onpy.features.entities.sketch_entities import SketchCircle, SketchLine, SketchArc
 import onpy.api.model as model
-from onpy.util.misc import unwrap_type, unwrap, Point2D, UnitSystem
+from onpy.util.misc import unwrap, Point2D, UnitSystem
+from onpy.features.query.list import QueryList
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -194,10 +195,17 @@ class Sketch(Feature, Extrudable):
     def _extrusion_query_key(self) -> str:
         return "featureId"
 
-    def query_point(self, point: tuple[float, float, float]) -> "SketchRegionQuery":
-        """Gets the sketch region at a specific point"""
+    # def query_point(self, point: tuple[float, float, float]) -> "SketchRegionQuery":
+    #     """Gets the sketch region at a specific point"""
 
-        return SketchRegionQuery(self, point)
+    #     return SketchRegionQuery(self, point)
+
+    # TODO: merge this with .entites eventually
+    @property
+    def queries(self) -> QueryList:
+        """The available queries"""
+
+        return QueryList._build_from_sketch(self)
 
     def __str__(self) -> str:
         return repr(self)
@@ -206,28 +214,29 @@ class Sketch(Feature, Extrudable):
         return f'Sketch("{self.name}")'
 
 
-class SketchRegionQuery(Extrudable):
+# class SketchRegion(Extrudable):
 
-    def __init__(self, sketch: Sketch, point: tuple[float, float, float]) -> None:
-        self.point = point
-        self.sketch = sketch
+#     def __init__(self, sketch: Sketch, transient_id: str) -> None:
+#         self.sketch = sketch
+#         self.transient_id = transient_id
 
-    @property
-    @override
-    def _extrusion_query(self) -> str:
-        return (
-            f'query = qContainsPoint(qSketchRegion(makeId("{self.sketch.id}"), false), '
-            f" vector([{self.point[0]},{self.point[1]},{self.point[2]}])"
-            + ("* inch" if self.sketch._client.units is UnitSystem.INCH else "")
-            + ");"
-        )
+#     @property
+#     @override
+#     def _extrusion_query(self) -> str:
+#         return "query =  { \"queryType\" : QueryType.TRANSIENT, \"transientId\" : \"TRANSIENT_ID\" } as Query;".replace("TRANSIENT_ID", self.transient_id)
+#         # return (
+#         #     f'query = qContainsPoint(qSketchRegion(makeId("{self.sketch.id}"), false), '
+#         #     f" vector([{self.point[0]},{self.point[1]},{self.point[2]}])"
+#         #     + ("* inch" if self.sketch._client.units is UnitSystem.INCH else "")
+#         #     + ");"
+#         # )
 
-    @property
-    @override
-    def _extrusion_parameter_bt_type(self) -> str:
-        return "BTMIndividualQuery-138"
+#     @property
+#     @override
+#     def _extrusion_parameter_bt_type(self) -> str:
+#         return "BTMIndividualQuery-138"
 
-    @property
-    @override
-    def _extrusion_query_key(self) -> str:
-        return "queryString"
+#     @property
+#     @override
+#     def _extrusion_query_key(self) -> str:
+#         return "queryString"
