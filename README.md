@@ -7,9 +7,9 @@
 
 ## Overview
 
-**Pyshape is a python-based, high level interface to building 3D models in [Onshape](https://onshape.com)**
+**OnPy is a python-based, high level interface to building 3D models in [Onshape](https://onshape.com)**
 
-In Pyshape you can:
+In OnPy you can:
 
 - Build 2D sketches
 - Extrude to create 3D geometries
