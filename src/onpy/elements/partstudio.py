@@ -73,7 +73,10 @@ class PartStudio(Element):
         return Sketch(partstudio=self, plane=plane, name=name)
 
     def add_extrude(
-        self, targets: QueryList, distance: float, name: str = "New Extrude"
+        self,
+        targets: QueryList | list[Extrudable],
+        distance: float,
+        name: str = "New Extrude",
     ) -> Extrude:
         """Adds a new blind extrude feature to the partstudio
 

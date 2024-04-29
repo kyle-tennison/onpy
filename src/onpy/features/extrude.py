@@ -16,11 +16,11 @@ class Extrude(Feature):
     def __init__(
         self,
         partstudio: "PartStudio",
-        targets: QueryList,
+        targets: QueryList | list[Extrudable],
         distance: float,
         name: str = "Extrusion",
     ) -> None:
-        self.targets = targets
+        self.targets = targets if isinstance(targets, list) else targets._available
         self._id: str | None = None
         self._partstudio = partstudio
         self._name = name
@@ -48,7 +48,7 @@ class Extrude(Feature):
 
         queries = []
 
-        for target in self.targets._available:
+        for target in self.targets:
             query_dict = {
                 "btType": target._extrusion_parameter_bt_type,
                 target._extrusion_query_key: target._extrusion_query,
