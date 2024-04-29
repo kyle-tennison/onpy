@@ -7,7 +7,7 @@
 
 ## Overview
 
-**OnPy is a python-based, high level interface to building 3D models in [Onshape](https://onshape.com)**
+**OnPy is a high level Python interface for building 3D models in [Onshape](https://onshape.com)**
 
 In OnPy you can:
 
