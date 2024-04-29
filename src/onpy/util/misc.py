@@ -116,6 +116,12 @@ class UnitSystem(Enum):
         """Gets the extension of the unit; e.g., 'in' for inches."""
 
         return {UnitSystem.INCH: "in", UnitSystem.METRIC: "m"}[self]
+    
+    @property
+    def fs_name(self) -> str:
+        """The featurescript name of the unit system"""
+
+        return {UnitSystem.INCH: "inch", UnitSystem.METRIC: "meter"}[self]
 
 
 @dataclass
