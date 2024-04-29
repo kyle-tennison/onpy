@@ -1,11 +1,12 @@
 """Classes for interacting with queries"""
 
 from textwrap import dedent
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 from onpy.util.misc import unwrap
 from onpy.api.versioning import WorkspaceWVM
 import onpy.api.model as model
-from onpy.features.query.types import QueryType, qContainsPoint
+import onpy.features.query.types as qtypes
+from onpy.features.base import Extrudable
 
 
 if TYPE_CHECKING:
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
     
 
 
-class QueryEntity:
+class QueryEntity(Extrudable):
     """Base class for query entities"""
 
     def __init__(self, transient_id: str):
@@ -29,6 +30,22 @@ class QueryEntity:
     def as_entity(self) -> str:
         """Featurescript expression to get a reference to this entity"""
         return f"evaluateQuery(context, {self.as_query})[0] "
+    
+    @property
+    @override
+    def _extrusion_query(self) -> list[str]:
+        return [ self.transient_id ]
+
+    @property
+    @override
+    def _extrusion_parameter_bt_type(self) -> str:
+        return "BTMIndividualQuery-138"
+
+    @property
+    @override
+    def _extrusion_query_key(self) -> str:
+        return "deterministicIds"
+
     
     def __str__(self) -> str:
         return repr(self)
@@ -78,7 +95,7 @@ class QueryList:
         )
     
 
-    def _apply_query(self, query: "QueryType") -> list[QueryEntity]:
+    def _apply_query(self, query: "qtypes.QueryType") -> list[QueryEntity]:
         """Builds the featurescript to evaluate a query and evaluates the featurescript
         
         Args:
@@ -139,13 +156,83 @@ class QueryList:
             point: The point to use for filtering
         """
 
-        query = qContainsPoint(point=point, units=self._client.units)
+        query = qtypes.qContainsPoint(point=point, units=self._client.units)
 
         return QueryList(
             feature=self._feature,
             available=self._apply_query(query)
         )
 
+    def closest_to(self, point: tuple[float, float, float]) -> "QueryList":
+        """Gets the entity closest to the point
+        
+        Args:
+            point: The point to use for filtering
+        """
+
+        query = qtypes.qClosestTo(point=point, units=self._client.units)
+
+        return QueryList(
+            feature=self._feature,
+            available=self._apply_query(query)
+        )
+    
+    def largest(self) -> "QueryList":
+        """Gets the largest entity"""
+
+        query = qtypes.qLargest()
+
+        return QueryList(
+            feature=self._feature,
+            available=self._apply_query(query)
+        )
+    
+    def smallest(self) -> "QueryList":
+        """Gets the smallest entity"""
+
+        query = qtypes.qSmallest()
+
+        return QueryList(
+            feature=self._feature,
+            available=self._apply_query(query)
+        )
+    
+    def intersects(self, origin: tuple[float, float, float], direction: tuple[float, float, float]) -> "QueryList":
+        """Gets the queries that intersect an infinite line
+        
+        Args:
+            origin: The origin on the line. This can be any point that lays on 
+                the line.
+            direction: The direction vector of the line
+        """
+
+        query = qtypes.qIntersectsLine(
+            line_origin=origin,
+            line_direction=direction,
+            units=self._client.units
+        )
+
+        return QueryList(
+            feature=self._feature,
+            available=self._apply_query(query)
+        )
+    
+    def is_type(self, entity_type: str) -> "QueryList":
+        """Gets the queries of a specific type
+        
+        Args:
+            entity_type: The entity type to filter. Supports VERTEX, EDGE,
+                FACE, and BODY (case insensitive)
+        """
+
+        query = qtypes.qEntityType(
+            entity_type=qtypes.EntityType.parse_type(entity_type)
+        )
+
+        return QueryList(
+            feature=self._feature,
+            available=self._apply_query(query)
+        )
 
 
 
