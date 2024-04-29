@@ -200,7 +200,7 @@ class Sketch(Feature, Extrudable):
 
     #     return SketchRegionQuery(self, point)
 
-    #TODO: merge this with .entites eventually
+    # TODO: merge this with .entites eventually
     @property
     def queries(self) -> QueryList:
         """The available queries"""

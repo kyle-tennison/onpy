@@ -180,7 +180,7 @@ class FeaturescriptUpload(ApiModel):
 
 
 class FeaturescriptResponse(ApiModel):
-    result: dict|None
+    result: dict | None
 
 
 class Sketch(Feature):
