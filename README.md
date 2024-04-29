@@ -5,7 +5,6 @@
 [![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)
 
 
-
 ## Overview
 
 **Pyshape is a python-based, high level interface to building 3D models in [Onshape](https://onshape.com)**
