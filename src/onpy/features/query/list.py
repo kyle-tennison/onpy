@@ -1,20 +1,20 @@
-"""Interface for OnShape queries"""
+"""Classes for interacting with queries"""
 
-from abc import ABC, abstractmethod
-from pprint import pprint
 from textwrap import dedent
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING
+from onpy.util.misc import unwrap
 from onpy.api.versioning import WorkspaceWVM
 import onpy.api.model as model
-from onpy.util.misc import unwrap, UnitSystem
+from onpy.features.query.types import QueryType, qContainsPoint
+
 
 if TYPE_CHECKING:
-    from onpy.features import Sketch
-    from onpy import Client
+    from onpy.features import Sketch, Extrude
     from onpy.features.base import Feature
+    
 
 
-class QueryEntities:
+class QueryEntity:
     """Base class for query entities"""
 
     def __init__(self, transient_id: str):
@@ -37,41 +37,10 @@ class QueryEntities:
         """NOTE: for debugging purposes"""
         return f"QueryEntity({self.transient_id})"
 
-class QueryType(ABC):
-    """Used to represent the type of a query"""
-
-    @abstractmethod
-    def inject_featurescript(self, q_to_filter: str) -> str:
-        """The featurescript to inject to create a Query object of this type
-        
-        Args:
-            q_to_filter: The internal query to filter
-        """
-        ...
-
-
-class qContainsPoint(QueryType):
-
-    def __init__(self, point: tuple[float, float, float], units: UnitSystem):
-
-        self.point = point 
-        self.units = units
-
-    @property
-    def point_vector(self) -> str:
-        """The Featurescript compatible definition of the point to query"""
-        return f"vector([{self.point[0]}, {self.point[1]}, {self.point[2]}]) * {self.units.fs_name}"
-
-    @override
-    def inject_featurescript(self, q_to_filter: str) -> str:
-        return f"qContainsPoint({q_to_filter}, {self.point_vector})"
-
-
-
 class QueryList:
     """Object used to list and filter queries"""
 
-    def __init__(self, feature: "Feature", available: list[QueryEntities]) -> None:
+    def __init__(self, feature: "Feature", available: list[QueryEntity]) -> None:
         self._available = available
         self._feature = feature
         self._client = feature._client
@@ -101,7 +70,7 @@ class QueryList:
         message="Featurescript has error")
 
         transient_ids = [i["value"] for i in result["value"]]
-        query_entities = [QueryEntities(tid) for tid in transient_ids]
+        query_entities = [QueryEntity(tid) for tid in transient_ids]
 
         return QueryList(
             feature=sketch,
@@ -109,14 +78,14 @@ class QueryList:
         )
     
 
-    def _apply_query(self, query: QueryType) -> list[QueryEntities]:
+    def _apply_query(self, query: "QueryType") -> list[QueryEntity]:
         """Builds the featurescript to evaluate a query and evaluates the featurescript
         
         Args:
             query: The query to apply
 
         Returns:
-            A list of resulting QueryEntities
+            A list of resulting QueryEntity instances
         """
 
         script = dedent(f"""
@@ -157,7 +126,7 @@ class QueryList:
         )
 
         transient_ids = [i["value"] for i in result["value"]]
-        query_entities = [QueryEntities(tid) for tid in transient_ids]
+        query_entities = [QueryEntity(tid) for tid in transient_ids]
 
         return query_entities
 

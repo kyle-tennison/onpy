@@ -7,8 +7,8 @@ from onpy.features.base import Feature, Extrudable
 from onpy.features.entities.base import Entity
 from onpy.features.entities.sketch_entities import SketchCircle, SketchLine, SketchArc
 import onpy.api.model as model
-from onpy.util.misc import unwrap_type, unwrap, Point2D, UnitSystem
-from onpy.features.query.base import QueryList
+from onpy.util.misc import unwrap, Point2D, UnitSystem
+from onpy.features.query.list import QueryList
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
