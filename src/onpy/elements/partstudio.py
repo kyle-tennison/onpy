@@ -6,7 +6,7 @@ import onpy.api.model as model
 from onpy.features.base import Feature, FeatureList, Extrudable
 from onpy.features.default_planes import DefaultPlane, DefaultPlaneOrientation
 from onpy.api.versioning import WorkspaceWVM
-from onpy.util.exceptions import PyshapeFeatureError
+from onpy.util.exceptions import OnPyFeatureError
 from onpy.util.misc import unwrap
 from onpy.features import Sketch, Extrude, Plane
 from onpy.features.query.list import QueryList

@@ -1,6 +1,6 @@
 """Manages OnShape credentials"""
 
-from onpy.util.exceptions import PyshapeAuthError
+from onpy.util.exceptions import OnPyAuthError
 
 import re
 import os
@@ -68,9 +68,9 @@ class CredentialManager:
                 dev_access = str(data["dev_access"])
 
         if not CredentialManager.is_access_key(dev_access):
-            raise PyshapeAuthError("Dev access key does not follow expected pattern")
+            raise OnPyAuthError("Dev access key does not follow expected pattern")
         if not CredentialManager.is_secret_key(dev_secret):
-            raise PyshapeAuthError("Dev secret key does not follow expected pattern")
+            raise OnPyAuthError("Dev secret key does not follow expected pattern")
 
         return (dev_access, dev_secret)
 
@@ -85,12 +85,12 @@ class CredentialManager:
 
         # verify before adding
         if not CredentialManager.is_access_key(access_token):
-            raise PyshapeAuthError(
+            raise OnPyAuthError(
                 f"Cannot add token {access_token} to credentials file. "
                 "Not a valid access key."
             )
         if not CredentialManager.is_secret_key(secret_token):
-            raise PyshapeAuthError(
+            raise OnPyAuthError(
                 f"Cannot add token {secret_token} to credentials file. "
                 "Not a valid secret key."
             )

@@ -8,7 +8,7 @@ import sys
 from loguru import logger
 
 
-class PyshapeException(Exception, ABC):
+class OnPyException(Exception, ABC):
 
     def __init__(self, message: str):
         self.message = message
@@ -20,15 +20,15 @@ class PyshapeException(Exception, ABC):
         ...
 
 
-class PyshapeAuthError(PyshapeException):
+class OnPyAuthError(OnPyException):
 
     @override
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
-        return f"\nPyshapeAuthError({self.message})"
+        return f"\nOnPyAuthError({self.message})"
 
 
-class PyshapeApiError(PyshapeException):
+class OnPyApiError(OnPyException):
 
     def __init__(self, message: str, response: Response | None = None) -> None:
         self.response = response
@@ -51,7 +51,7 @@ class PyshapeApiError(PyshapeException):
             response_pretty = "Undefined"
 
         return (
-            f"\nPyshapeApiError: (\n"
+            f"\nOnPyApiError: (\n"
             f"  message: {self.message}\n"
             f"  url: {url}\n"
             f"  response: {response_pretty}\n"
@@ -59,32 +59,32 @@ class PyshapeApiError(PyshapeException):
         )
 
 
-class PyshapeInternalError(PyshapeException):
+class OnPyInternalError(OnPyException):
 
     @override
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
-        return f"\nPyshapeInternalError({self.message})"
+        return f"\nOnPyInternalError({self.message})"
 
 
-class PyshapeParameterError(PyshapeException):
-
-    @override
-    def display(self) -> str:
-        """Display the exception as a user-friendly string"""
-        return f"\nPyshapeParameterError({self.message})"
-
-
-class PyshapeFeatureError(PyshapeException):
+class OnPyParameterError(OnPyException):
 
     @override
     def display(self) -> str:
         """Display the exception as a user-friendly string"""
-        return f"\nPyshapeFeatureError({self.message})"
+        return f"\nOnPyParameterError({self.message})"
+
+
+class OnPyFeatureError(OnPyException):
+
+    @override
+    def display(self) -> str:
+        """Display the exception as a user-friendly string"""
+        return f"\nOnPyFeatureError({self.message})"
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
-    if issubclass(exc_type, PyshapeException):
+    if issubclass(exc_type, OnPyException):
         logger.trace(str(exc_traceback))
         logger.error(exc_value.display())
         sys.exit(1)

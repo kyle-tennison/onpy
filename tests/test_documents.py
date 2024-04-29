@@ -5,7 +5,7 @@ from onpy import Client
 import pytest
 import uuid
 
-from onpy.util.exceptions import PyshapeParameterError
+from onpy.util.exceptions import OnPyParameterError
 
 client = Client()
 
@@ -33,13 +33,13 @@ def test_lifecycle():
 def test_exceptions():
     """Tests exertions relating to documents"""
 
-    with pytest.raises(PyshapeParameterError) as _:
+    with pytest.raises(OnPyParameterError) as _:
         client.get_document(id="not a id")
 
-    with pytest.raises(PyshapeParameterError) as _:
+    with pytest.raises(OnPyParameterError) as _:
         client.get_document()
 
-    with pytest.raises(PyshapeParameterError) as _:
+    with pytest.raises(OnPyParameterError) as _:
         client.get_document(id="123", name="123")
 
 

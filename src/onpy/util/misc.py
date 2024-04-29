@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Self
 from onpy.api.model import NameIdFetchable
-from onpy.util.exceptions import PyshapeParameterError
+from onpy.util.exceptions import OnPyParameterError
 
 
 def find_by_name_or_id[
@@ -22,11 +22,11 @@ def find_by_name_or_id[
         The matching item, if found. Returns None if no match is found.
 
     Raises:
-        PyshapeParameterError if neither the id nor name were provided.
+        OnPyParameterError if neither the id nor name were provided.
     """
 
     if name is None and id is None:
-        raise PyshapeParameterError("A name or id is required to fetch")
+        raise OnPyParameterError("A name or id is required to fetch")
 
     if len(items) == 0:
         return None
@@ -36,7 +36,7 @@ def find_by_name_or_id[
     if name:
         filtered = [i for i in items if i.name == name]
         if len(filtered) > 1:
-            raise PyshapeParameterError(
+            raise OnPyParameterError(
                 f"Duplicate names '{name}'. Use id instead to fetch."
             )
         if len(filtered) == 0:
