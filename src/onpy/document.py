@@ -8,7 +8,7 @@ from onpy.elements.partstudio import PartStudio
 from onpy.elements.assembly import Assembly
 from onpy.util.misc import find_by_name_or_id
 from onpy.api.versioning import WorkspaceWVM
-from onpy.util.exceptions import PyshapeParameterError
+from onpy.util.exceptions import OnPyParameterError
 
 from typing import TYPE_CHECKING, Any
 from functools import cache
@@ -80,7 +80,7 @@ class Document(model.NameIdFetchable):
         match = find_by_name_or_id(id, name, self.list_partstudios())
 
         if match is None:
-            raise PyshapeParameterError(
+            raise OnPyParameterError(
                 "Unable to find a partstudio with "
                 + (f"name {name}" if name else f"id {id}")
             )

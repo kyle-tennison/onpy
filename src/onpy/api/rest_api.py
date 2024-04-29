@@ -5,7 +5,7 @@ import sys
 from onpy.api.endpoints import EndpointContainer
 from onpy.api.model import ApiModel
 from onpy.util.model import HttpMethod
-from onpy.util.exceptions import PyshapeApiError, PyshapeInternalError
+from onpy.util.exceptions import OnPyApiError, OnPyInternalError
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -55,7 +55,7 @@ class RestApi:
 
         # check endpoint formatting
         if not endpoint.startswith("/"):
-            raise PyshapeInternalError(f"Endpoint '{endpoint}' missing '/' prefix")
+            raise OnPyInternalError(f"Endpoint '{endpoint}' missing '/' prefix")
 
         # match method enum to requests function
         requests_func: Callable[..., requests.Response] = {
@@ -86,7 +86,7 @@ class RestApi:
         )
 
         if not r.ok:
-            raise PyshapeApiError(f"Bad response {r.status_code}", r)
+            raise OnPyApiError(f"Bad response {r.status_code}", r)
 
         # deserialize response
         try:
@@ -99,7 +99,7 @@ class RestApi:
                 f"{json.dumps(response_dict, indent=4)}"
             )
         except requests.JSONDecodeError as e:
-            raise PyshapeApiError("Response is not json", r)
+            raise OnPyApiError("Response is not json", r)
 
         if issubclass(response_type, ApiModel):
             return response_type(**response_dict)
@@ -108,9 +108,7 @@ class RestApi:
             return response_type(r.text)
 
         else:
-            raise PyshapeInternalError(
-                f"Illegal response type: {response_type.__name__}"
-            )
+            raise OnPyInternalError(f"Illegal response type: {response_type.__name__}")
 
     def http_wrap_list[
         T: ApiModel | str
@@ -138,7 +136,7 @@ class RestApi:
         response_list = json.loads(response_raw)
 
         if not isinstance(response_list, list):
-            raise PyshapeApiError(f"Endpoint {endpoint} expected list response")
+            raise OnPyApiError(f"Endpoint {endpoint} expected list response")
 
         return [response_type(**i) for i in response_list]
 

@@ -2,7 +2,7 @@
 
 from loguru import logger
 import onpy.api.model as model
-from onpy.util.exceptions import PyshapeParameterError, PyshapeFeatureError
+from onpy.util.exceptions import OnPyParameterError, OnPyFeatureError
 from onpy.api.versioning import WorkspaceWVM
 
 from abc import ABC, abstractmethod
@@ -65,7 +65,7 @@ class Feature(ABC):
         """Adds a feature to the partstudio
 
         Raises:
-            PyshapeFeatureError if the feature fails to load
+            OnPyFeatureError if the feature fails to load
         """
 
         response = self._api.endpoints.add_feature(
@@ -81,7 +81,7 @@ class Feature(ABC):
             if response.featureState.featureStatus == "WARNING":
                 logger.warning("Feature loaded with warning")
             else:
-                raise PyshapeFeatureError("Feature errored on upload")
+                raise OnPyFeatureError("Feature errored on upload")
         else:
             logger.debug(f"Successfully uploaded feature '{self.name}'")
 
@@ -101,7 +101,7 @@ class Feature(ABC):
             if response.featureState.featureStatus == "WARNING":
                 logger.warning("Feature loaded with warning")
             else:
-                raise PyshapeFeatureError("Feature errored on update")
+                raise OnPyFeatureError("Feature errored on update")
         else:
             logger.debug(f"Successfully updated feature '{self.name}'")
 
@@ -121,9 +121,9 @@ class FeatureList:
         matches = [f for f in self._features if f.name == name]
 
         if len(matches) == 0:
-            raise PyshapeParameterError(f"No feature named '{name}'")
+            raise OnPyParameterError(f"No feature named '{name}'")
         elif len(matches) > 1:
-            raise PyshapeParameterError(f"Multiple '{name}' features. Use .get(id=...)")
+            raise OnPyParameterError(f"Multiple '{name}' features. Use .get(id=...)")
         else:
             return matches[0]  # type: ignore
 
