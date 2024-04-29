@@ -18,6 +18,21 @@ class EntityType(Enum):
     def as_featurescript(self) -> str:
         """Converts the EntityType variant into a Featurescript expression"""
         return f"EntityType.{self.name}"
+    
+    @staticmethod
+    def parse_type(input: str) -> "EntityType":
+        """Parses a string into the corresponding enum variant
+        
+        Raises:
+            KeyError if the input cannot be matched to a variant
+        """
+
+        input = input.lower()
+
+        if input.lower() not in EntityType:
+            raise KeyError(f"'{input}' is not a valid entity type. Options are: VERTEX, EDGE, FACE, BODY")
+        else:
+            return EntityType[input]
 
 class QueryType(ABC):
     """Used to represent the type of a query"""

@@ -5,6 +5,7 @@ from onpy.api.model import Feature, FeatureAddResponse
 from onpy.features.base import Feature, Extrudable
 import onpy.api.model as model
 from onpy.util.misc import unwrap
+from onpy.features.query.list import QueryList
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -15,7 +16,7 @@ class Extrude(Feature):
     def __init__(
         self,
         partstudio: "PartStudio",
-        targets: list[Extrudable],
+        targets: QueryList,
         distance: float,
         name: str = "Extrusion",
     ) -> None:
@@ -47,7 +48,7 @@ class Extrude(Feature):
 
         queries = []
 
-        for target in self.targets:
+        for target in self.targets._available:
             query_dict = {
                 "btType": target._extrusion_parameter_bt_type,
                 target._extrusion_query_key: target._extrusion_query,
