@@ -41,8 +41,13 @@ class Sketch(Feature, Extrudable):
     @property
     def name(self) -> str:
         return self._name
+    
+    @property
+    @override
+    def entities(self) -> list[Entity]:
+        return self._entities
 
-    def add_circle(self, center: tuple[float, float], radius: float) -> None:
+    def add_circle(self, center: tuple[float, float], radius: float) -> SketchCircle:
         """Adds a circle to the sketch
 
         Args:
@@ -57,14 +62,16 @@ class Sketch(Feature, Extrudable):
             radius *= 0.0254
 
         entity = SketchCircle(
-            radius=radius, center=center_point, units=self._client.units
+            sketch=self, radius=radius, center=center_point, units=self._client.units
         )
 
         logger.info(f"Added circle to sketch: {entity}")
         self._entities.append(entity)
         self._update_feature()
 
-    def add_line(self, start: tuple[float, float], end: tuple[float, float]) -> None:
+        return entity
+
+    def add_line(self, start: tuple[float, float], end: tuple[float, float]) -> SketchLine:
         """Adds a line to the sketch
 
         Args:
@@ -75,12 +82,13 @@ class Sketch(Feature, Extrudable):
         start_point = Point2D.from_pair(start)
         end_point = Point2D.from_pair(end)
 
-        entity = SketchLine(start_point, end_point, self._client.units)
+        entity = SketchLine(self, start_point, end_point, self._client.units)
 
         logger.info(f"Added line to sketch: {entity}")
 
         self._entities.append(entity)
         self._update_feature()
+        return entity
 
     def trace_points(
         self, *points: tuple[float, float], end_connect: bool = True

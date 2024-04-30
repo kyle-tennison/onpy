@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
     from onpy.features.plane import Plane
     from onpy.api.rest_api import RestApi
+    from onpy.features.entities.base import Entity
 
 
 class Feature(ABC):
@@ -49,6 +50,12 @@ class Feature(ABC):
     @abstractmethod
     def name(self) -> str:
         """The name of the feature"""
+        ...
+
+    @property
+    @abstractmethod
+    def entities(self) -> list["Entity"]:
+        """A list of entities on the partstudio"""
         ...
 
     @abstractmethod

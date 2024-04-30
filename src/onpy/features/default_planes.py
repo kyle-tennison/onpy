@@ -41,6 +41,11 @@ class DefaultPlane(Plane):
     @override
     def name(self) -> str:
         return f"{self.orientation.value} Plane"
+    
+    @property
+    @override
+    def entities(self):
+        raise NotImplementedError("Cannot query entities on default plane")
 
     def _load_plane_id(self) -> str:
         """Loads the plane id
