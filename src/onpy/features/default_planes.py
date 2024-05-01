@@ -41,7 +41,7 @@ class DefaultPlane(Plane):
     @override
     def name(self) -> str:
         return f"{self.orientation.value} Plane"
-    
+
     @property
     @override
     def entities(self):

@@ -42,7 +42,7 @@ class Sketch(Feature, Extrudable):
     @property
     def name(self) -> str:
         return self._name
-    
+
     @property
     @override
     def entities(self) -> list[Entity]:
@@ -72,7 +72,9 @@ class Sketch(Feature, Extrudable):
 
         return entity
 
-    def add_line(self, start: tuple[float, float], end: tuple[float, float]) -> SketchLine:
+    def add_line(
+        self, start: tuple[float, float], end: tuple[float, float]
+    ) -> SketchLine:
         """Adds a line to the sketch
 
         Args:

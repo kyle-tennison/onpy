@@ -1,8 +1,7 @@
 """Various entities that might appear in a sketch"""
 
-from enum import Enum
 import math
-from typing import TYPE_CHECKING, Self, override
+from typing import TYPE_CHECKING, override
 
 import numpy as np
 from onpy.features.entities.base import Entity
@@ -12,7 +11,9 @@ from onpy.util.misc import UnitSystem, Point2D
 if TYPE_CHECKING:
     from onpy.features import Sketch
 
+
 class SketchCircle(Entity):
+    """A sketch circle"""
 
     def __init__(
         self,
@@ -23,6 +24,15 @@ class SketchCircle(Entity):
         dir: tuple[float, float] = (1, 0),
         clockwise: bool = False,
     ):
+        """
+        Args:
+            sketch: A reference to the owning sketch
+            radius: The radius of the arc
+            center: The centerpoint of the arc
+            units: The unit system to use
+            dir: An optional dir to specify. Defaults to +x axis
+            clockwise: Whether or not the arc is clockwise. Defaults to false
+        """
 
         self._sketch = sketch
         self.radius = radius
@@ -48,14 +58,14 @@ class SketchCircle(Entity):
             centerId=f"{self.entity_id}.center",
             entityId=f"{self.entity_id}",
         )
-    
+
     @property
     @override
     def _feature(self) -> "Sketch":
         return self._sketch
-    
+
     @override
-    def rotate(self, origin: tuple[float, float], theta: float):
+    def rotate(self, origin: tuple[float, float], theta: float) -> "SketchCircle":
         new_center = self._rotate_point(self.center, Point2D.from_pair(origin), theta)
         new_entity = SketchCircle(
             sketch=self._feature,
@@ -63,15 +73,13 @@ class SketchCircle(Entity):
             center=new_center,
             units=self.units,
             dir=self.dir.as_tuple,
-            clockwise=self.clockwise
+            clockwise=self.clockwise,
         )
         self._replace_entity(new_entity)
         return new_entity
 
-    
     @override
-    def translate(self, x:float, y: float):
-
+    def translate(self, x: float, y: float) -> "SketchCircle":
         new_center = Point2D(self.center.x + x, self.center.y + y)
         new_entity = SketchCircle(
             sketch=self._feature,
@@ -79,16 +87,17 @@ class SketchCircle(Entity):
             center=new_center,
             units=self.units,
             dir=self.dir.as_tuple,
-            clockwise=self.clockwise
+            clockwise=self.clockwise,
         )
         self._replace_entity(new_entity)
         return new_entity
-    
-    @override
-    def mirror(self, line_start: tuple[float, float], line_end: tuple[float, float]):
 
+    @override
+    def mirror(
+        self, line_start: tuple[float, float], line_end: tuple[float, float]
+    ) -> "SketchCircle":
         mirror_start = Point2D.from_pair(line_start)
-        mirror_end = Point2D.from_pair(line_end) 
+        mirror_end = Point2D.from_pair(line_end)
 
         # to avoid confusion
         del line_start
@@ -102,7 +111,7 @@ class SketchCircle(Entity):
             center=new_center,
             units=self.units,
             dir=self.dir.as_tuple,
-            clockwise=self.clockwise
+            clockwise=self.clockwise,
         )
 
         self._replace_entity(new_entity)
@@ -114,10 +123,22 @@ class SketchCircle(Entity):
 
 
 class SketchLine(Entity):
+    """A straight sketch line segment"""
 
     def __init__(
-        self, sketch: "Sketch", start_point: Point2D, end_point: Point2D, units: UnitSystem
+        self,
+        sketch: "Sketch",
+        start_point: Point2D,
+        end_point: Point2D,
+        units: UnitSystem,
     ) -> None:
+        """
+        Args:
+            sketch: A reference to the owning sketch
+            start_point: The starting point of the line
+            end_point: The ending point of the line
+            units: The unit system to use
+        """
 
         self._sketch = sketch
         self.start = start_point
@@ -139,32 +160,30 @@ class SketchLine(Entity):
     @override
     def _feature(self):
         return self._sketch
-    
-    @override
-    def rotate(self, origin: tuple[float, float], theta: float):
 
-        new_start = self._rotate_point(self.start, Point2D.from_pair(origin), degrees=theta)
+    @override
+    def rotate(self, origin: tuple[float, float], theta: float) -> "SketchLine":
+        new_start = self._rotate_point(
+            self.start, Point2D.from_pair(origin), degrees=theta
+        )
         new_end = self._rotate_point(self.end, Point2D.from_pair(origin), degrees=theta)
 
-        new_entity =  SketchLine(
+        new_entity = SketchLine(
             sketch=self._sketch,
             start_point=new_start,
             end_point=new_end,
-            units=self.units
+            units=self.units,
         )
         self._replace_entity(new_entity)
         return new_entity
-    
+
     @override
-    def mirror(self, line_start: tuple[float, float], line_end: tuple[float, float]):
-
+    def mirror(
+        self, line_start: tuple[float, float], line_end: tuple[float, float]
+    ) -> "SketchLine":
         mirror_start = Point2D.from_pair(line_start)
-        mirror_end = Point2D.from_pair(line_end) 
+        mirror_end = Point2D.from_pair(line_end)
 
-        # to avoid confusion
-        del line_start
-        del line_end
-        
         new_start = self._mirror_point(self.start, mirror_start, mirror_end)
         new_end = self._mirror_point(self.end, mirror_start, mirror_end)
 
@@ -172,15 +191,13 @@ class SketchLine(Entity):
             sketch=self._sketch,
             start_point=new_start,
             end_point=new_end,
-            units=self.units
+            units=self.units,
         )
         self._replace_entity(new_entity)
         return new_entity
-        
-    
+
     @override
-    def translate(self, x: float = 0, y: float = 0):
-        
+    def translate(self, x: float = 0, y: float = 0) -> "SketchLine":
         new_start = Point2D(self.start.x + x, self.start.y + y)
         new_end = Point2D(self.end.x + x, self.end.y + y)
 
@@ -188,11 +205,10 @@ class SketchLine(Entity):
             sketch=self._sketch,
             start_point=new_start,
             end_point=new_end,
-            units=self.units
+            units=self.units,
         )
         self._replace_entity(new_entity)
         return new_entity
-
 
     @override
     def to_model(self) -> model.SketchCurveSegmentEntity:
@@ -210,7 +226,6 @@ class SketchLine(Entity):
                 "dirY": self.dir.y,
             },
         )
-    
 
     @override
     def __repr__(self) -> str:
@@ -218,6 +233,8 @@ class SketchLine(Entity):
 
 
 class SketchArc(Entity):
+    """A sketch arc"""
+
     def __init__(
         self,
         sketch: "Sketch",
@@ -230,6 +247,7 @@ class SketchArc(Entity):
     ):
         """
         Args:
+            sketch: A reference to the owning sketch
             radius: The radius of the arc
             center: The centerpoint of the arc
             theta_interval: The theta interval, in degrees
@@ -247,16 +265,17 @@ class SketchArc(Entity):
         self.entity_id = self.generate_entity_id()
         self.units = units
 
-
     @property
     @override
     def _feature(self):
         return self._sketch
-    
+
     @override
-    def mirror(self, line_start: tuple[float, float], line_end: tuple[float, float]) -> "SketchArc":
+    def mirror(
+        self, line_start: tuple[float, float], line_end: tuple[float, float]
+    ) -> "SketchArc":
         mirror_start = Point2D.from_pair(line_start)
-        mirror_end = Point2D.from_pair(line_end) 
+        mirror_end = Point2D.from_pair(line_end)
 
         # to avoid confusion
         del line_start
@@ -270,34 +289,37 @@ class SketchArc(Entity):
         start_point = self._mirror_point(start_point, mirror_start, mirror_end)
         new_center = self._mirror_point(self.center, mirror_start, mirror_end)
 
-        arc_start_vector = np.array([start_point.x - new_center.x, start_point.y - new_center.y])
-        mirror_line_vector = np.array([mirror_end.x-mirror_start.x, mirror_end.y-mirror_start.y])
+        arc_start_vector = np.array(
+            [start_point.x - new_center.x, start_point.y - new_center.y]
+        )
+        mirror_line_vector = np.array(
+            [mirror_end.x - mirror_start.x, mirror_end.y - mirror_start.y]
+        )
 
-        angle_offset = 2 * math.acos( 
-                                    np.dot(arc_start_vector, mirror_line_vector) / 
-                                    (np.linalg.norm(arc_start_vector) * np.linalg.norm(mirror_line_vector))
-                                    )
-        
+        angle_offset = 2 * math.acos(
+            np.dot(arc_start_vector, mirror_line_vector)
+            / (np.linalg.norm(arc_start_vector) * np.linalg.norm(mirror_line_vector))
+        )
+
         d_theta = self.theta_interval[1] - self.theta_interval[0]
-        
+
         new_theta = (
             (self.theta_interval[0] - angle_offset - d_theta),
-            (self.theta_interval[0] - angle_offset), 
-            )
-        
+            (self.theta_interval[0] - angle_offset),
+        )
+
         new_entity = SketchArc(
             sketch=self._sketch,
             radius=self.radius,
             center=new_center,
             theta_interval=new_theta,
             units=self.units,
-            dir=self.dir, 
-            clockwise=self.clockwise
+            dir=self.dir,
+            clockwise=self.clockwise,
         )
         self._replace_entity(new_entity)
         return new_entity
 
-    
     @override
     def translate(self, x: float = 0, y: float = 0) -> "SketchArc":
         new_center = Point2D(self.center.x + x, self.center.y + y)
@@ -308,14 +330,13 @@ class SketchArc(Entity):
             theta_interval=self.theta_interval,
             units=self.units,
             dir=self.dir,
-            clockwise=self.clockwise
+            clockwise=self.clockwise,
         )
         self._replace_entity(new_entity)
         return new_entity
-    
+
     @override
     def rotate(self, origin: tuple[float, float], theta: float) -> "SketchArc":
-        
         pivot = Point2D.from_pair(origin)
 
         start_point = Point2D(
@@ -327,28 +348,26 @@ class SketchArc(Entity):
         start_point = self._rotate_point(start_point, pivot, theta)
 
         d_theta = self.theta_interval[1] - self.theta_interval[0]
-        
-        arc_start_vector = np.array([start_point.x - new_center.x, start_point.y - new_center.y])
-        x_axis = np.array([1,0])
+
+        arc_start_vector = np.array(
+            [start_point.x - new_center.x, start_point.y - new_center.y]
+        )
+        x_axis = np.array([1, 0])
 
         angle_start = math.acos(
-            np.dot(arc_start_vector, x_axis) /
-            np.linalg.norm(arc_start_vector)
+            np.dot(arc_start_vector, x_axis) / np.linalg.norm(arc_start_vector)
         )
 
-        new_theta = (
-            angle_start,
-            angle_start + d_theta
-        )
+        new_theta = (angle_start, angle_start + d_theta)
 
         new_entity = SketchArc(
             sketch=self._sketch,
             radius=self.radius,
-        center=new_center,
+            center=new_center,
             theta_interval=new_theta,
             units=self.units,
             dir=self.dir,
-            clockwise=self.clockwise
+            clockwise=self.clockwise,
         )
         self._replace_entity(new_entity)
         return new_entity

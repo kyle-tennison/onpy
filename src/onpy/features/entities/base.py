@@ -24,18 +24,18 @@ class Entity(ABC):
     @property
     @abstractmethod
     def _feature(self) -> "Feature":
-        """A reference to the """
+        """A reference to the"""
         ...
 
     def generate_entity_id(self) -> str:
         """Generates a random entity id"""
         return str(uuid.uuid4()).replace("-", "")
-    
+
     # TODO: there needs to be reorganization to differentiate between sketch entities and other entities
     @abstractmethod
-    def translate(self, x: float = 0, y:float =0) -> Self:
+    def translate(self, x: float = 0, y: float = 0) -> Self:
         """Linear translation of the entity
-        
+
         Args:
             x: The distance to translate along the x-axis
             y: The distance to translate along the y-axis
@@ -46,9 +46,9 @@ class Entity(ABC):
         ...
 
     @abstractmethod
-    def rotate(self, origin: tuple[float, float], theta:float ) -> Self:
+    def rotate(self, origin: tuple[float, float], theta: float) -> Self:
         """Rotates the entity about a point
-        
+
         Args:
             origin: The point to rotate about
             theta: The degrees to rotate by. Positive is ccw
@@ -59,9 +59,11 @@ class Entity(ABC):
         ...
 
     @abstractmethod
-    def mirror(self, line_start: tuple[float, float], line_end: tuple[float, float]) -> Self:
+    def mirror(
+        self, line_start: tuple[float, float], line_end: tuple[float, float]
+    ) -> Self:
         """Mirror the entity about a line
-        
+
         Args:
             line_start: The starting point of the line
             line_end: The ending point of the line
@@ -71,10 +73,12 @@ class Entity(ABC):
         """
         ...
 
-    @staticmethod # TODO: make these use Point2D
-    def _mirror_point(point: Point2D, line_start: Point2D, line_end: Point2D) -> Point2D:
+    @staticmethod  # TODO: make these use Point2D
+    def _mirror_point(
+        point: Point2D, line_start: Point2D, line_end: Point2D
+    ) -> Point2D:
         """Mirrors the point across a line
-        
+
         Args:
             point: The point to mirror
             line_start: The point where the line starts
@@ -90,17 +94,19 @@ class Entity(ABC):
 
         a = q_i[1] - q_j[1]
         b = q_j[0] - q_i[0]
-        c = - (a * q_i[0] + b * q_i[1])
+        c = -(a * q_i[0] + b * q_i[1])
 
-        p_k = (np.array([[b**2 - a**2, -2 * a * b],
-                        [-2 * a * b, a**2 - b**2]]) @ p_0 - 2 * c * np.array([a, b])) / (a**2 + b**2)
+        p_k = (
+            np.array([[b**2 - a**2, -2 * a * b], [-2 * a * b, a**2 - b**2]]) @ p_0
+            - 2 * c * np.array([a, b])
+        ) / (a**2 + b**2)
 
         return Point2D.from_pair(p_k)
-    
+
     @staticmethod
     def _rotate_point(point: Point2D, pivot: Point2D, degrees: float) -> Point2D:
         """Rotates a point about another point
-        
+
         Args:
             point: The point to rotate
             pivot: The pivot to rotate about
@@ -110,11 +116,11 @@ class Entity(ABC):
             The rotated point
         """
 
-        dx = point.x - pivot.x 
+        dx = point.x - pivot.x
         dy = point.y - pivot.y
 
-        radius = math.sqrt( dx**2 + dy**2)
-        start_angle = math.atan2(dy,dx)
+        radius = math.sqrt(dx**2 + dy**2)
+        start_angle = math.atan2(dy, dx)
         end_angle = start_angle + math.radians(degrees)
 
         new_x = radius * math.cos(end_angle)
@@ -122,9 +128,6 @@ class Entity(ABC):
 
         return Point2D(new_x, new_y)
 
-
-
-    
     def _replace_entity(self, new_entity: "Entity") -> None:
         """Replaces the existing entity with a new entity and refreshes the
         feature
@@ -143,7 +146,6 @@ class Entity(ABC):
         new_entity = copy.copy(self)
         self._feature.entities.append(new_entity)
         return new_entity
-
 
     def __str__(self) -> str:
         return repr(self)
