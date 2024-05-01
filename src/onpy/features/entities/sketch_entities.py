@@ -268,45 +268,24 @@ class SketchArc(Entity):
             self.radius * math.cos(self.theta_interval[0]) + self.center.x,
             self.radius * math.sin(self.theta_interval[0]) + self.center.y,
         )
-        # end_point = Point2D(
-        #     self.radius * math.cos(self.theta_interval[1]),
-        #     self.radius * math.sin(self.theta_interval[1]),
-        # )
-        # end_point = self._rotate_point(end_point, Point2D.from_pair(origin), theta)
-
-        print("self:", self)
-        print("start point:", start_point)
-        print("center is:", self.center)
-
 
         start_point = self._mirror_point(start_point, mirror_start, mirror_end)
         new_center = self._mirror_point(self.center, mirror_start, mirror_end)
 
-        print("new start point:", start_point)
-        print("new center is:", new_center)
-
         arc_start_vector = np.array([start_point.x - new_center.x, start_point.y - new_center.y])
         mirror_line_vector = np.array([mirror_end.x-mirror_start.x, mirror_end.y-mirror_start.y])
-
-        print("arc_start_vector", arc_start_vector)
-        print("mirror_line_vector", mirror_line_vector)
 
         angle_offset = 2 * math.acos( 
                                     np.dot(arc_start_vector, mirror_line_vector) / 
                                     (np.linalg.norm(arc_start_vector) * np.linalg.norm(mirror_line_vector))
                                     )
         
-        print("angle_offset", angle_offset)
-
         d_theta = self.theta_interval[1] - self.theta_interval[0]
         
         new_theta = (
             (self.theta_interval[0] - angle_offset - d_theta),
             (self.theta_interval[0] - angle_offset), 
             )
-        
-        print("old theta:", self.theta_interval)
-        print("new theta:", new_theta)
         
         new_entity = SketchArc(
             sketch=self._sketch,
@@ -317,7 +296,6 @@ class SketchArc(Entity):
             dir=self.dir, 
             clockwise=self.clockwise
         )
-        print(new_entity)
         self._replace_entity(new_entity)
         return new_entity
 
@@ -339,8 +317,46 @@ class SketchArc(Entity):
     
     @override
     def rotate(self, origin: tuple[float, float], theta: float) -> "SketchArc":
-            
-        raise NotImplemented
+        
+        pivot = Point2D.from_pair(origin)
+
+        start_point = Point2D(
+            self.radius * math.cos(self.theta_interval[0]) + self.center.x,
+            self.radius * math.sin(self.theta_interval[0]) + self.center.y,
+        )
+
+        new_center = self._rotate_point(self.center, pivot, theta)
+        start_point = self._rotate_point(start_point, pivot, theta)
+
+        d_theta = self.theta_interval[1] - self.theta_interval[0]
+        
+        arc_start_vector = np.array([start_point.x - new_center.x, start_point.y - new_center.y])
+        x_axis = np.array([1,0])
+
+        angle_start = math.acos(
+            np.dot(arc_start_vector, x_axis) /
+            np.linalg.norm(arc_start_vector)
+        )
+
+        new_theta = (
+            angle_start,
+            angle_start + d_theta
+        )
+
+        new_entity = SketchArc(
+            sketch=self._sketch,
+            radius=self.radius,
+        center=new_center,
+            theta_interval=new_theta,
+            units=self.units,
+            dir=self.dir,
+            clockwise=self.clockwise
+        )
+        self._replace_entity(new_entity)
+        return new_entity
+
+
+
 
 
 

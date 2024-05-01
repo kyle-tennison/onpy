@@ -116,8 +116,8 @@ class Entity(ABC):
         start_angle = math.atan2(dy,dx)
         end_angle = start_angle + math.radians(degrees)
 
-        new_x = math.cos(end_angle)
-        new_y = math.sin(end_angle)
+        new_x = radius * math.cos(end_angle)
+        new_y = radius * math.sin(end_angle)
 
         return Point2D(new_x, new_y)
 
