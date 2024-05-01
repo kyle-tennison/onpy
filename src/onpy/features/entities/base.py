@@ -1,6 +1,7 @@
 """Abstract base class for feature entities"""
 
 from abc import ABC, abstractmethod
+import copy
 import math
 import uuid
 
@@ -135,6 +136,13 @@ class Entity(ABC):
         self._feature.entities.remove(self)
         self._feature.entities.append(new_entity)
         self._feature._update_feature()
+
+    def clone(self) -> Self:
+        """Creates a copy of the entity"""
+
+        new_entity = copy.copy(self)
+        self._feature.entities.append(new_entity)
+        return new_entity
 
 
     def __str__(self) -> str:

@@ -255,8 +255,6 @@ class SketchArc(Entity):
     
     @override
     def mirror(self, line_start: tuple[float, float], line_end: tuple[float, float]) -> "SketchArc":
-        
-
         mirror_start = Point2D.from_pair(line_start)
         mirror_end = Point2D.from_pair(line_end) 
 
@@ -354,11 +352,6 @@ class SketchArc(Entity):
         )
         self._replace_entity(new_entity)
         return new_entity
-
-
-
-
-
 
     @override
     def to_model(self) -> model.SketchCurveSegmentEntity:
