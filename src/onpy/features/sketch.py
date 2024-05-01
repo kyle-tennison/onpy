@@ -1,5 +1,6 @@
 """Interface to OnShape Sketches"""
 
+import math
 from typing import TYPE_CHECKING, override
 
 from loguru import logger
@@ -82,6 +83,10 @@ class Sketch(Feature, Extrudable):
         start_point = Point2D.from_pair(start)
         end_point = Point2D.from_pair(end)
 
+        if self._client.units is UnitSystem.INCH:
+            start_point *= 0.0254
+            end_point *= 0.0254
+
         entity = SketchLine(self, start_point, end_point, self._client.units)
 
         logger.info(f"Added line to sketch: {entity}")
@@ -139,7 +144,7 @@ class Sketch(Feature, Extrudable):
         radius: float,
         start_angle: float,
         end_angle: float,
-    ) -> None:
+    ) -> SketchArc:
         """Adds a centerpoint arc to the sketch
 
         Args:
@@ -151,15 +156,21 @@ class Sketch(Feature, Extrudable):
 
         center = Point2D.from_pair(centerpoint)
 
+        if self._client.units is UnitSystem.INCH:
+            radius *= 0.0254
+            center *= 0.0254
+
         entity = SketchArc(
+            sketch=self,
             radius=radius,
             center=center,
-            theta_interval=(start_angle, end_angle),
+            theta_interval=(math.radians(start_angle), math.radians(end_angle)),
             units=self._client.units,
         )
 
         self._entities.append(entity)
         self._update_feature()
+        return entity
 
     @override
     def _to_model(self) -> model.Sketch:

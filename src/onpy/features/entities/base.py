@@ -3,6 +3,8 @@
 from abc import ABC, abstractmethod
 import math
 import uuid
+
+import numpy as np
 import onpy.api.model as model
 from typing import Self, TYPE_CHECKING
 from onpy.util.misc import Point2D
@@ -69,7 +71,7 @@ class Entity(ABC):
         ...
 
     @staticmethod # TODO: make these use Point2D
-    def _mirror_point(point: tuple[float, float], line_start: tuple[float, float], line_end: tuple[float, float]) -> tuple[float, float]:
+    def _mirror_point(point: Point2D, line_start: Point2D, line_end: Point2D) -> Point2D:
         """Mirrors the point across a line
         
         Args:
@@ -81,16 +83,18 @@ class Entity(ABC):
             The mirrored point
         """
 
-        # calculate the angle of the line
-        angle = math.atan2(line_end[1] - line_start[1], line_end[0] - line_start[0])
-        line_angle_x = angle if angle >= 0 else angle + math.pi
-        point_angle = math.atan2(point[1] - line_start[1], point[0] - line_start[0])
-        diff_angle = point_angle - line_angle_x
-        distance = abs(math.sin(diff_angle) * math.sqrt((point[0] - line_start[0])**2 + (point[1] - line_start[1])**2))
-        new_x = point[0] + 2 * distance * math.cos(diff_angle)
-        new_y = point[1] + 2 * distance * math.sin(diff_angle)
+        q_i = np.array(line_start.as_tuple)
+        q_j = np.array(line_end.as_tuple)
+        p_0 = np.array(point.as_tuple)
 
-        return new_x, new_y
+        a = q_i[1] - q_j[1]
+        b = q_j[0] - q_i[0]
+        c = - (a * q_i[0] + b * q_i[1])
+
+        p_k = (np.array([[b**2 - a**2, -2 * a * b],
+                        [-2 * a * b, a**2 - b**2]]) @ p_0 - 2 * c * np.array([a, b])) / (a**2 + b**2)
+
+        return Point2D.from_pair(p_k)
     
     @staticmethod
     def _rotate_point(point: Point2D, pivot: Point2D, degrees: float) -> Point2D:
