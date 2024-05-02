@@ -146,6 +146,46 @@ class Entity(ABC):
         new_entity = copy.copy(self)
         self._feature.entities.append(new_entity)
         return new_entity
+    
+    def linear_pattern(self, num_steps: int, x_step: float, y_step: float) -> list[Self]:
+        """Creates a linear pattern of the sketch entity
+
+        Args:
+            num_steps: The number of steps to make. Does not include original entity
+            x_step: The x distance to translate per step
+            y_step: The y distance to translate per step
+        
+        Returns:
+            A list of the entities that compose the linear pattern
+        """
+
+        entities = [self]
+
+        for _ in range(num_steps):
+            entities.append(entities[-1].clone().translate(x_step, y_step))
+
+        return entities
+    
+    def circular_pattern(self, origin: tuple[float, float], num_steps: int, theta: float) -> list[Self]:
+        """Creates a circular pattern of the sketch entity about a point
+        
+        Args:
+            origin: The origin of the circular rotation
+            num_steps: The number of steps to make. Does not include original entity
+            theta: The degrees to rotate per step
+            
+        Returns:
+            A list of entities that compose the circular pattern
+        """
+
+        entities = [self]
+
+        for _ in range(num_steps):
+            entities.append(entities[-1].clone().rotate(origin, theta))
+
+        return entities
+
+
 
     def __str__(self) -> str:
         return repr(self)
