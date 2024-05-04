@@ -234,8 +234,9 @@ class Sketch(Feature, Extrudable):
         line_1_vec = np.array(line_1.dir.as_tuple)
         line_2_vec = np.array(line_2.dir.as_tuple) 
 
-        line_1_angle = math.acos(np.dot(line_1_vec, (1,0)))
-        line_2_angle = math.acos(np.dot(line_2_vec, (1,0)))
+
+        line_1_angle = math.atan2(line_1_vec[1], line_1_vec[0]) % (math.pi * 2)
+        line_2_angle = math.atan2(line_2_vec[1], line_2_vec[0]) % (math.pi * 2)
 
         center_angle = np.average((line_1_angle, line_2_angle)) + math.pi/2 # relative to x-axis
 
@@ -244,13 +245,16 @@ class Sketch(Feature, Extrudable):
         print("center_angle", math.degrees(center_angle))
 
         # find the distance of the fillet centerpoint from the intersection point
-
         arc_center_offset = radius/math.sin(opening_angle/2)
-
-        # push distance onto centerline
         line_dir = Point2D(math.cos(center_angle), math.sin(center_angle)) # really is a vector, not a point
         
-        arc_center = line_dir * arc_center_offset + center
+        # Find which direction to apply the offset
+        if math.degrees(np.dot(np.array(line_dir.as_tuple), line_1_vec)) < 0:
+            arc_center = line_dir * arc_center_offset + center # make an initial guess
+        else:
+            arc_center = line_dir * -arc_center_offset + center # make an initial guess
+
+        
 
         self.add_circle((arc_center/0.0254).as_tuple, radius/0.0254)
         self.add_line(start=(0,0), end=(line_dir/0.0254).as_tuple)
