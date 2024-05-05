@@ -248,16 +248,48 @@ class Sketch(Feature, Extrudable):
         arc_center_offset = radius/math.sin(opening_angle/2)
         line_dir = Point2D(math.cos(center_angle), math.sin(center_angle)) # really is a vector, not a point
         
-        # Find which direction to apply the offset
+        # find which direction to apply the offset
         if math.degrees(np.dot(np.array(line_dir.as_tuple), line_1_vec)) < 0:
             arc_center = line_dir * arc_center_offset + center # make an initial guess
         else:
             arc_center = line_dir * -arc_center_offset + center # make an initial guess
 
-        
 
-        self.add_circle((arc_center/0.0254).as_tuple, radius/0.0254)
-        self.add_line(start=(0,0), end=(line_dir/0.0254).as_tuple)
+        # find the closest point to the line
+        t = (arc_center.x - line_1.start.x) * math.cos(line_1_angle) + (arc_center.y - line_1.start.y) * math.sin(line_1_angle)
+        line_1_tangent_point = Point2D(
+            math.cos(line_1_angle) * t + line_1.start.x,
+            math.sin(line_1_angle) * t + line_1.start.y,
+        )
+        t = (arc_center.x - line_2.start.x) * math.cos(line_2_angle) + (arc_center.y - line_2.start.y) * math.sin(line_2_angle)
+        line_2_tangent_point = Point2D(
+            math.cos(line_2_angle) * t + line_2.start.x,
+            math.sin(line_2_angle) * t + line_2.start.y,
+        )
+
+        self.add_circle((line_1_tangent_point/0.0254).as_tuple, radius=0.001/0.0254)
+        self.add_circle((line_2_tangent_point/0.0254).as_tuple, radius=0.001/0.0254)
+
+
+        # self.add_circle((arc_center/0.0254).as_tuple, radius/0.0254)
+
+        self._entities.append(
+            SketchArc(
+                sketch=self,
+                radius=radius,
+                center=arc_center,
+                theta_interval=(0, opening_angle),
+                units=self._client.units
+            )
+        )
+
+        self._update_feature()
+
+        # TODO: change from circle to arc
+
+        # 1. Find the points where the "circle" touches the line
+        # 2. Use the two points + the centerpoint to draw the arc
+        # 3. Shorten the line segments to this point
         
 
 
