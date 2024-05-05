@@ -265,6 +265,9 @@ class SketchArc(Entity):
         self.entity_id = self.generate_entity_id()
         self.units = units
 
+        if self.theta_interval[0] > self.theta_interval[1]:
+            self.theta_interval = (self.theta_interval[1], self.theta_interval[0])
+
     @property
     @override
     def _feature(self):
@@ -389,6 +392,70 @@ class SketchArc(Entity):
                 "xdir": self.dir[0],
                 "ydir": self.dir[1],
             },
+        )
+
+    @classmethod
+    def three_point_with_midpoint(
+        cls,
+        sketch: "Sketch",
+        center: Point2D,
+        radius: float | None,
+        endpoint_1: Point2D,
+        endpoint_2: Point2D,
+        units: UnitSystem,
+        dir: tuple[float, float] = (1, 0),
+        clockwise: bool = False,
+    ) -> "SketchArc":
+        """Constructs a new instance of a SketchArc using endpoints instead
+        of a theta interval
+
+        Args:
+            sketch: A reference to the owning sketch
+            radius: The radius of the arc. If unprovided, it will be solved for
+            center: The centerpoint of the arc
+            endpoint_1: One of the endpoints of the arc
+            endpoint_2: The other endpoint of the arc
+            units: The unit system to use
+            dir: An optional dir to specify. Defaults to +x axis
+            clockwise: Whether or not the arc is clockwise. Defaults to false
+
+        Returns:
+            A new SketchArc instance
+        """
+
+        # verify that a valid arc can be found
+        assert math.isclose(
+            math.sqrt((center.x - endpoint_1.x) ** 2 + (center.y - endpoint_1.y) ** 2),
+            math.sqrt((center.x - endpoint_2.x) ** 2 + (center.y - endpoint_2.y) ** 2),
+        ), "No valid arc can be created from provided endpoints"
+
+        # find radius
+        radius_from_endpoints = math.sqrt(
+            (center.x - endpoint_1.x) ** 2 + (center.y - endpoint_1.y) ** 2
+        )
+        if radius is None:
+            radius = radius_from_endpoints
+        else:
+            assert math.isclose(radius, radius_from_endpoints), \
+            "Endpoints do not match the provided radius"
+
+        # create line vectors from center to endpoints
+        vec_1 = Point2D(endpoint_1.x - center.x, endpoint_1.y - center.y)
+        vec_2 = Point2D(endpoint_2.x - center.x, endpoint_2.y - center.y)
+
+        # measure the angle of these segments
+        theta_1 = math.atan2(vec_1.y, vec_1.x)
+        theta_2 = math.atan2(vec_2.y, vec_2.x)
+
+        # create an arc using this interval
+        return SketchArc(
+            sketch=sketch,
+            radius=radius,
+            center=center,
+            theta_interval=(theta_1, theta_2),
+            units=units,
+            dir=dir,
+            clockwise=clockwise,
         )
 
     @override
