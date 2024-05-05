@@ -269,14 +269,14 @@ class Sketch(Feature, Extrudable):
         )
 
         # shorten line segments
-        if center==line_1.start:
+        if center == line_1.start:
             line_1.start = line_1_tangent_point
             line_2.start = line_2_tangent_point
         else:
             line_1.end = line_1_tangent_point
             line_2.start = line_2_tangent_point
 
-        # add arc 
+        # add arc
         self._entities.append(
             SketchArc.three_point_with_midpoint(
                 sketch=self,

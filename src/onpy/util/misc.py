@@ -142,7 +142,7 @@ class Point2D:
 
     def __sub__(self, other: "Point2D") -> "Point2D":
         return Point2D(self.x - other.x, self.y - other.y)
-    
+
     def __eq__(self, other: "Point2D") -> bool:
         return self.x == other.x and self.y == other.y
 

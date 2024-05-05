@@ -150,22 +150,22 @@ class SketchLine(Entity):
     def dx(self) -> float:
         """The x-component of the line"""
         return self.end.x - self.start.x
-    
+
     @property
     def dy(self) -> float:
         """The y-component of the line"""
         return self.end.y - self.start.y
-    
+
     @property
     def length(self) -> float:
         """The length of the line"""
         return abs(math.sqrt(self.dx**2 + self.dy**2))
-    
+
     @property
     def theta(self) -> float:
         """The angle of the line relative to the x-axis"""
         return math.atan2(self.dy, self.dx)
-    
+
     @property
     def dir(self) -> Point2D:
         """A vector pointing in the direction of the line"""
@@ -448,8 +448,9 @@ class SketchArc(Entity):
         if radius is None:
             radius = radius_from_endpoints
         else:
-            assert math.isclose(radius, radius_from_endpoints), \
-            "Endpoints do not match the provided radius"
+            assert math.isclose(
+                radius, radius_from_endpoints
+            ), "Endpoints do not match the provided radius"
 
         # create line vectors from center to endpoints
         vec_1 = Point2D(endpoint_1.x - center.x, endpoint_1.y - center.y)
