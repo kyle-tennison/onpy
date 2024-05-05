@@ -146,15 +146,30 @@ class SketchLine(Entity):
         self.units = units
         self.entity_id = self.generate_entity_id()
 
-        dx = self.end.x - self.start.x
-        dy = self.end.y - self.start.y
-
-        length = math.sqrt(dx**2 + dy**2)
-        theta = math.atan2(dy, dx)
-        unit_direction = Point2D(math.cos(theta), math.sin(theta))
-
-        self.length = abs(length)
-        self.dir = unit_direction
+    @property
+    def dx(self) -> float:
+        """The x-component of the line"""
+        return self.end.x - self.start.x
+    
+    @property
+    def dy(self) -> float:
+        """The y-component of the line"""
+        return self.end.y - self.start.y
+    
+    @property
+    def length(self) -> float:
+        """The length of the line"""
+        return abs(math.sqrt(self.dx**2 + self.dy**2))
+    
+    @property
+    def theta(self) -> float:
+        """The angle of the line relative to the x-axis"""
+        return math.atan2(self.dy, self.dx)
+    
+    @property
+    def dir(self) -> Point2D:
+        """A vector pointing in the direction of the line"""
+        return Point2D(math.cos(self.theta), math.sin(self.theta))
 
     @property
     @override
@@ -264,9 +279,6 @@ class SketchArc(Entity):
         self.clockwise = clockwise
         self.entity_id = self.generate_entity_id()
         self.units = units
-
-        if self.theta_interval[0] > self.theta_interval[1]:
-            self.theta_interval = (self.theta_interval[1], self.theta_interval[0])
 
     @property
     @override
@@ -444,15 +456,20 @@ class SketchArc(Entity):
         vec_2 = Point2D(endpoint_2.x - center.x, endpoint_2.y - center.y)
 
         # measure the angle of these segments
-        theta_1 = math.atan2(vec_1.y, vec_1.x)
-        theta_2 = math.atan2(vec_2.y, vec_2.x)
+        theta_1 = math.atan2(vec_1.y, vec_1.x) % (2 * math.pi)
+        theta_2 = math.atan2(vec_2.y, vec_2.x) % (2 * math.pi)
+
+        # create theta interval
+        theta_interval = (theta_1, theta_2)
+        if abs(theta_2 - theta_1) < math.pi:
+            theta_interval = (theta_interval[1], theta_interval[0])
 
         # create an arc using this interval
         return SketchArc(
             sketch=sketch,
             radius=radius,
             center=center,
-            theta_interval=(theta_1, theta_2),
+            theta_interval=theta_interval,
             units=units,
             dir=dir,
             clockwise=clockwise,
