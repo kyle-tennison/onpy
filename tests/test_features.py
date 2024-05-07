@@ -35,6 +35,15 @@ def test_sketch_extrude():
         distance=1,
     )
 
+    # test extrude on a new plane
+    new_plane = partstudio.add_offset_plane(target=partstudio.features.top_plane, distance=3)
+    offset_sketch = partstudio.add_sketch(new_plane)
+    offset_sketch.add_circle((0,0), 1)
+    partstudio.add_extrude(
+        targets=offset_sketch.queries.contains_point((0,0, 3)),
+        distance=-3
+    )
+
     doc.delete()
 
 
