@@ -390,7 +390,7 @@ class SketchArc(Entity):
             endpoint_2=end_point,
             units=self.units,
             dir=self.dir,
-            clockwise=self.clockwise
+            clockwise=self.clockwise,
         )
 
         # d_theta = self.theta_interval[1] - self.theta_interval[0]

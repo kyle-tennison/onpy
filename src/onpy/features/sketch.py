@@ -278,14 +278,14 @@ class Sketch(Feature, Extrudable):
 
         # add arc
         arc = SketchArc.three_point_with_midpoint(
-                sketch=self,
-                radius=radius,
-                center=arc_center,
-                endpoint_1=line_1_tangent_point,
-                endpoint_2=line_2_tangent_point,
-                units=self._client.units,
-            )
-        self._entities.append( arc )
+            sketch=self,
+            radius=radius,
+            center=arc_center,
+            endpoint_1=line_1_tangent_point,
+            endpoint_2=line_2_tangent_point,
+            units=self._client.units,
+        )
+        self._entities.append(arc)
 
         self._update_feature()
 
@@ -344,18 +344,23 @@ class Sketch(Feature, Extrudable):
         """The available queries"""
 
         return QueryList._build_from_sketch(self)
-    
 
-    def mirror(self, *entities: Entity, line_point: tuple[float, float], line_dir: tuple[float, float], copy: bool = True) -> list[Entity]:
+    def mirror(
+        self,
+        *entities: Entity,
+        line_point: tuple[float, float],
+        line_dir: tuple[float, float],
+        copy: bool = True,
+    ) -> list[Entity]:
         """Mirrors entities about a line
-        
+
         Args:
             *entities: Any number of entities to mirror
             line_point: Any point that lies on the mirror line
             line_dir: The direction of the mirror line
             copy: Whether or not to save a copy of the original entity. Defaults
                 to True.
-            
+
         Returns:
             A lit of the new entities added
         """
@@ -364,18 +369,23 @@ class Sketch(Feature, Extrudable):
             entities = tuple([e.clone() for e in entities])
 
         return [e.mirror(line_point, line_dir) for e in entities]
-    
 
-    def rotate(self, *entities: Entity, origin: tuple[float, float], theta: float, copy: bool = False) -> list[Entity]:
+    def rotate(
+        self,
+        *entities: Entity,
+        origin: tuple[float, float],
+        theta: float,
+        copy: bool = False,
+    ) -> list[Entity]:
         """Rotates entities about a point
-        
+
         Args:
             *entities: Any number of entities to rotate
             origin: The point to pivot about
             theta: The degrees to rotate by
             copy: Whether or not to save a copy of the original entity. Defaults
                 to False.
-            
+
         Returns:
             A lit of the new entities added
         """
@@ -384,17 +394,19 @@ class Sketch(Feature, Extrudable):
             entities = tuple([e.clone() for e in entities])
 
         return [e.rotate(origin, theta) for e in entities]
-    
-    def translate(self, *entities: Entity, x: float=0, y: float=0, copy: bool = False) -> list[Entity]:
+
+    def translate(
+        self, *entities: Entity, x: float = 0, y: float = 0, copy: bool = False
+    ) -> list[Entity]:
         """Translates entities in a cartesian system
-        
+
         Args:
             *entities: Any number of entities to translate
             x: The amount to translate in the x-axis
             y: The amount to translate in the y-axis
             copy: Whether or not to save a copy of the original entity. Defaults
                 to False.
-            
+
         Returns:
             A lit of the new entities added
         """
@@ -403,8 +415,6 @@ class Sketch(Feature, Extrudable):
             entities = tuple([e.clone() for e in entities])
 
         return [e.translate(x, y) for e in entities]
-
-
 
     def __str__(self) -> str:
         return repr(self)
