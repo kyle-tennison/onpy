@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from onpy.client import Client
     from onpy.document import Document
     from onpy.elements.partstudio import PartStudio
-    from onpy.features.plane import Plane
+    from onpy.features.planes import Plane
     from onpy.api.rest_api import RestApi
     from onpy.features.entities.base import Entity
 

@@ -15,7 +15,7 @@ from onpy.util.exceptions import OnPyFeatureError
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
-    from onpy.features.plane import Plane
+    from onpy.features.planes import Plane
 
 
 class Sketch(Feature, Extrudable):
@@ -302,7 +302,7 @@ class Sketch(Feature, Extrudable):
                     queries=[
                         {
                             "btType": "BTMIndividualQuery-138",
-                            "deterministicIds": [self.plane.id],
+                            "deterministicIds": [self.plane.transient_id],
                         }
                     ],
                     parameterId="sketchPlane",
