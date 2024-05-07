@@ -1,14 +1,17 @@
 """Interface to OnShape Sketches"""
 
+import math
 from typing import TYPE_CHECKING, override
 
 from loguru import logger
+import numpy as np
 from onpy.features.base import Feature, Extrudable
 from onpy.features.entities.base import Entity
 from onpy.features.entities.sketch_entities import SketchCircle, SketchLine, SketchArc
 import onpy.api.model as model
 from onpy.util.misc import unwrap, Point2D, UnitSystem
 from onpy.features.query.list import QueryList
+from onpy.util.exceptions import OnPyFeatureError
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -42,29 +45,46 @@ class Sketch(Feature, Extrudable):
     def name(self) -> str:
         return self._name
 
-    def add_circle(self, center: tuple[float, float], radius: float) -> None:
+    @property
+    @override
+    def entities(self) -> list[Entity]:
+        return self._entities
+
+    def add_circle(
+        self,
+        center: tuple[float, float],
+        radius: float,
+        units: UnitSystem | None = None,
+    ) -> SketchCircle:
         """Adds a circle to the sketch
 
         Args:
             center: An (x,y) pair of the center of the circle
             radius: The radius of the circle
+            units: An optional other unit system to use
         """
         center_point = Point2D.from_pair(center)
 
+        units = units if units else self._client.units
+
         # API expects metric values
-        if self._client.units is UnitSystem.INCH:
+        if units is UnitSystem.INCH:
             center_point *= 0.0254
             radius *= 0.0254
 
         entity = SketchCircle(
-            radius=radius, center=center_point, units=self._client.units
+            sketch=self, radius=radius, center=center_point, units=self._client.units
         )
 
         logger.info(f"Added circle to sketch: {entity}")
         self._entities.append(entity)
         self._update_feature()
 
-    def add_line(self, start: tuple[float, float], end: tuple[float, float]) -> None:
+        return entity
+
+    def add_line(
+        self, start: tuple[float, float], end: tuple[float, float]
+    ) -> SketchLine:
         """Adds a line to the sketch
 
         Args:
@@ -75,16 +95,21 @@ class Sketch(Feature, Extrudable):
         start_point = Point2D.from_pair(start)
         end_point = Point2D.from_pair(end)
 
-        entity = SketchLine(start_point, end_point, self._client.units)
+        if self._client.units is UnitSystem.INCH:
+            start_point *= 0.0254
+            end_point *= 0.0254
+
+        entity = SketchLine(self, start_point, end_point, self._client.units)
 
         logger.info(f"Added line to sketch: {entity}")
 
         self._entities.append(entity)
         self._update_feature()
+        return entity
 
     def trace_points(
         self, *points: tuple[float, float], end_connect: bool = True
-    ) -> None:
+    ) -> list[SketchLine]:
         """Traces a series of points
 
         Args:
@@ -107,8 +132,12 @@ class Sketch(Feature, Extrudable):
                 (Point2D.from_pair(points[0]), Point2D.from_pair(points[-1]))
             )
 
+        lines = []
+
         for p1, p2 in segments:
-            self.add_line(p1.as_tuple, p2.as_tuple)
+            lines.append(self.add_line(p1.as_tuple, p2.as_tuple))
+
+        return lines
 
     def add_corner_rectangle(
         self, corner_1: tuple[float, float], corner_2: tuple[float, float]
@@ -131,7 +160,7 @@ class Sketch(Feature, Extrudable):
         radius: float,
         start_angle: float,
         end_angle: float,
-    ) -> None:
+    ) -> SketchArc:
         """Adds a centerpoint arc to the sketch
 
         Args:
@@ -143,15 +172,124 @@ class Sketch(Feature, Extrudable):
 
         center = Point2D.from_pair(centerpoint)
 
+        if self._client.units is UnitSystem.INCH:
+            radius *= 0.0254
+            center *= 0.0254
+
         entity = SketchArc(
+            sketch=self,
             radius=radius,
             center=center,
-            theta_interval=(start_angle, end_angle),
+            theta_interval=(math.radians(start_angle), math.radians(end_angle)),
             units=self._client.units,
         )
 
         self._entities.append(entity)
         self._update_feature()
+        return entity
+
+    def add_fillet(
+        self,
+        line_1: SketchLine,
+        line_2: SketchLine,
+        radius: float,
+    ) -> SketchArc:
+        """Creates a fillet between two lines by shortening them and adding an
+        arc in between. Returns the added arc.
+
+        Args:
+            line_1: Line to fillet
+            line_2: Other line to fillet
+            radius: Radius of the fillet
+
+        Returns
+            A SketchArc of the added arc. Updates line_1 and line_2
+
+        Raises OnPyFeatureError if
+        """
+
+        if self._client.units is UnitSystem.INCH:
+            radius *= 0.0254
+
+        if line_1.start == line_2.start:
+            center = line_1.start
+            vertex_1 = line_1.end
+            vertex_2 = line_2.end
+        elif line_1.end == line_2.start:
+            center = line_1.end
+            vertex_1 = line_1.start
+            vertex_2 = line_2.end
+        else:
+            raise OnPyFeatureError(f"Line entities need to share a point for a fillet")
+
+        # draw a triangle to find the angle between the two lines using law of cosines
+        a = math.sqrt((vertex_1.x - center.x) ** 2 + (vertex_1.y - center.y) ** 2)
+        b = math.sqrt((vertex_2.x - center.x) ** 2 + (vertex_2.y - center.y) ** 2)
+        c = math.sqrt((vertex_1.x - vertex_2.x) ** 2 + (vertex_1.y - vertex_2.y) ** 2)
+
+        opening_angle = math.acos((a**2 + b**2 - c**2) / (2 * a * b))
+
+        # find the vector that is between the two lines
+        line_1_vec = np.array(line_1.dir.as_tuple)
+        line_2_vec = np.array(line_2.dir.as_tuple)
+
+        line_1_angle = math.atan2(line_1_vec[1], line_1_vec[0]) % (math.pi * 2)
+        line_2_angle = math.atan2(line_2_vec[1], line_2_vec[0]) % (math.pi * 2)
+
+        center_angle = (
+            np.average((line_1_angle, line_2_angle)) + math.pi / 2
+        )  # relative to x-axis
+
+        # find the distance of the fillet centerpoint from the intersection point
+        arc_center_offset = radius / math.sin(opening_angle / 2)
+        line_dir = Point2D(
+            math.cos(center_angle), math.sin(center_angle)
+        )  # really is a vector, not a point
+
+        # find which direction to apply the offset
+        if math.degrees(np.dot(np.array(line_dir.as_tuple), line_1_vec)) < 0:
+            arc_center = line_dir * arc_center_offset + center  # make an initial guess
+        else:
+            arc_center = line_dir * -arc_center_offset + center  # make an initial guess
+
+        # find the closest point to the line
+        t = (arc_center.x - line_1.start.x) * math.cos(line_1_angle) + (
+            arc_center.y - line_1.start.y
+        ) * math.sin(line_1_angle)
+        line_1_tangent_point = Point2D(
+            math.cos(line_1_angle) * t + line_1.start.x,
+            math.sin(line_1_angle) * t + line_1.start.y,
+        )
+        t = (arc_center.x - line_2.start.x) * math.cos(line_2_angle) + (
+            arc_center.y - line_2.start.y
+        ) * math.sin(line_2_angle)
+        line_2_tangent_point = Point2D(
+            math.cos(line_2_angle) * t + line_2.start.x,
+            math.sin(line_2_angle) * t + line_2.start.y,
+        )
+
+        # shorten line segments
+        if center == line_1.start:
+            line_1.start = line_1_tangent_point
+            line_2.start = line_2_tangent_point
+        else:
+            line_1.end = line_1_tangent_point
+            line_2.start = line_2_tangent_point
+
+        # add arc
+        arc = SketchArc.three_point_with_midpoint(
+            sketch=self,
+            radius=radius,
+            center=arc_center,
+            endpoint_1=line_1_tangent_point,
+            endpoint_2=line_2_tangent_point,
+            units=self._client.units,
+        )
+        self._entities.append(arc)
+
+        self._update_feature()
+
+        return arc
 
     @override
     def _to_model(self) -> model.Sketch:
@@ -206,6 +344,77 @@ class Sketch(Feature, Extrudable):
         """The available queries"""
 
         return QueryList._build_from_sketch(self)
+
+    def mirror(
+        self,
+        *entities: Entity,
+        line_point: tuple[float, float],
+        line_dir: tuple[float, float],
+        copy: bool = True,
+    ) -> list[Entity]:
+        """Mirrors entities about a line
+
+        Args:
+            *entities: Any number of entities to mirror
+            line_point: Any point that lies on the mirror line
+            line_dir: The direction of the mirror line
+            copy: Whether or not to save a copy of the original entity. Defaults
+                to True.
+
+        Returns:
+            A lit of the new entities added
+        """
+
+        if copy:
+            entities = tuple([e.clone() for e in entities])
+
+        return [e.mirror(line_point, line_dir) for e in entities]
+
+    def rotate(
+        self,
+        *entities: Entity,
+        origin: tuple[float, float],
+        theta: float,
+        copy: bool = False,
+    ) -> list[Entity]:
+        """Rotates entities about a point
+
+        Args:
+            *entities: Any number of entities to rotate
+            origin: The point to pivot about
+            theta: The degrees to rotate by
+            copy: Whether or not to save a copy of the original entity. Defaults
+                to False.
+
+        Returns:
+            A lit of the new entities added
+        """
+
+        if copy:
+            entities = tuple([e.clone() for e in entities])
+
+        return [e.rotate(origin, theta) for e in entities]
+
+    def translate(
+        self, *entities: Entity, x: float = 0, y: float = 0, copy: bool = False
+    ) -> list[Entity]:
+        """Translates entities in a cartesian system
+
+        Args:
+            *entities: Any number of entities to translate
+            x: The amount to translate in the x-axis
+            y: The amount to translate in the y-axis
+            copy: Whether or not to save a copy of the original entity. Defaults
+                to False.
+
+        Returns:
+            A lit of the new entities added
+        """
+
+        if copy:
+            entities = tuple([e.clone() for e in entities])
+
+        return [e.translate(x, y) for e in entities]
 
     def __str__(self) -> str:
         return repr(self)

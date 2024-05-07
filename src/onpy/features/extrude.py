@@ -43,6 +43,13 @@ class Extrude(Feature):
     def name(self) -> str:
         return self._name
 
+    @property
+    @override
+    def entities(self) -> list:
+        return (
+            []
+        )  # TODO: entities are only really relevant on sketches and actual bodies, not features
+
     def _list_queries(self) -> list[dict[str, str]]:
         """Gets a list of queries. Used to build model"""
 
