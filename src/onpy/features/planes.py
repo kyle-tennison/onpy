@@ -146,15 +146,15 @@ class OffsetPlane(Plane):
     @override
     def transient_id(self) -> str:
 
-        script = dedent("""
+        script = dedent(f"""
                         
-        function(context is Context, queries) {
+        function(context is Context, queries) {{
 
-            var feature_id = makeId("FQbOMDWj2GFKVND_0");
+            var feature_id = makeId("{self.id}");
             var face = evaluateQuery(context, qCreatedBy(feature_id, EntityType.FACE))[0];
-            return transientQueriesToStrings(face)
+            return transientQueriesToStrings(face);
 
-        }
+        }}
             """)
         
         response = self._client._api.endpoints.eval_featurescript(
@@ -165,7 +165,7 @@ class OffsetPlane(Plane):
             return_type=model.FeaturescriptResponse,
         )
 
-        plane_id = unwrap(response.result, message="Featurescript failed to load offset plane transient id")["value"][0]["value"]
+        plane_id = unwrap(response.result, message="Featurescript failed to load offset plane transient id")["value"]
         return plane_id
 
     
