@@ -21,7 +21,8 @@ classifiers = [
 dependencies = [
     "loguru",
     "requests",
-    "pydantic"
+    "pydantic",
+    "numpy"
 ]
 [project.optional-dependencies]
 dev = [
