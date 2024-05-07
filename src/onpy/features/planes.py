@@ -39,6 +39,7 @@ class Plane(Feature):
 
 class DefaultPlaneOrientation(Enum):
     """The different orientations that the DefaultPlane can be"""
+
     TOP = "Top"
     FRONT = "Front"
     RIGHT = "Right"
@@ -97,25 +98,30 @@ class DefaultPlane(Plane):
             return_type=model.FeaturescriptResponse,
         )
 
-        plane_id = unwrap(response.result, message="Featurescript failed to load default plane")[
-            "value"][0]["value"]
+        plane_id = unwrap(
+            response.result, message="Featurescript failed to load default plane"
+        )["value"][0]["value"]
         return plane_id
 
     @override
     def _to_model(self):
-        raise NotImplementedError(
-            "Default planes cannot be converted to a model")
+        raise NotImplementedError("Default planes cannot be converted to a model")
 
     @override
     def _load_response(self, response: model.FeatureAddResponse) -> None:
-        raise NotImplementedError(
-            "DefaultPlane should not receive a response object")
+        raise NotImplementedError("DefaultPlane should not receive a response object")
 
 
 class OffsetPlane(Plane):
     """Represents a linearly offset plane"""
 
-    def __init__(self, partstudio: "PartStudio", owner: Plane, distance: float, name: str = "Offset Plane"):
+    def __init__(
+        self,
+        partstudio: "PartStudio",
+        owner: Plane,
+        distance: float,
+        name: str = "Offset Plane",
+    ):
         self._partstudio = partstudio
         self._owner = owner
         self._name = name
@@ -148,7 +154,8 @@ class OffsetPlane(Plane):
     @override
     def transient_id(self) -> str:
 
-        script = dedent(f"""
+        script = dedent(
+            f"""
 
         function(context is Context, queries) {{
 
@@ -157,7 +164,8 @@ class OffsetPlane(Plane):
             return transientQueriesToStrings(face);
 
         }}
-            """)
+            """
+        )
 
         response = self._client._api.endpoints.eval_featurescript(
             document_id=self.document.id,
@@ -168,7 +176,9 @@ class OffsetPlane(Plane):
         )
 
         plane_id = unwrap(
-            response.result, message="Featurescript failed to load offset plane transient id")["value"]
+            response.result,
+            message="Featurescript failed to load offset plane transient id",
+        )["value"]
         return plane_id
 
     @override
@@ -181,17 +191,17 @@ class OffsetPlane(Plane):
                     "queries": [
                         {
                             "btType": "BTMIndividualQuery-138",
-                            "deterministicIds": [self.owner.transient_id]
+                            "deterministicIds": [self.owner.transient_id],
                         }
                     ],
-                    "parameterId": "entities"
+                    "parameterId": "entities",
                 },
                 {
                     "btType": "BTMParameterEnum-145",
                     "namespace": "",
                     "enumName": "CPlaneType",
                     "value": "OFFSET",
-                    "parameterId": "cplaneType"
+                    "parameterId": "cplaneType",
                 },
                 {
                     "btType": "BTMParameterQuantity-147",
@@ -199,10 +209,10 @@ class OffsetPlane(Plane):
                     "value": 0,
                     "units": "",
                     "expression": f"{self.distance} {self._client.units.extension}",
-                    "parameterId": "offset"
+                    "parameterId": "offset",
                 },
             ],
-            suppressed=False
+            suppressed=False,
         )
 
     @override

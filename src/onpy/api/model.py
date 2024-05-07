@@ -198,7 +198,9 @@ class Extrude(Feature):
     btType: str = "BTMFeature-134"
     featureType: str = "extrude"
 
+
 class Plane(Feature):
     """Represents a Plane Feature"""
-    btType: str =  "BTMFeature-134"
+
+    btType: str = "BTMFeature-134"
     featureType: str = "cPlane"

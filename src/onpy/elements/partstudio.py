@@ -92,20 +92,17 @@ class PartStudio(Element):
             An Extrude object
         """
         return Extrude(partstudio=self, targets=targets, distance=distance, name=name)
-    
+
     def add_offset_plane(
-            self,
-            target: Plane,
-            distance: float,
-            name: str = "Offset Plane"
+        self, target: Plane, distance: float, name: str = "Offset Plane"
     ) -> OffsetPlane:
         """Adds a new offset plane to the partstudio
-        
+
         Args:
             target: The plane to offset from
             distance: The distance to offset
             name: An optional name for the plane
-            
+
         Returns:
             An OffsetPlane object
         """
