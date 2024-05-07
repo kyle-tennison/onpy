@@ -80,6 +80,11 @@ class SketchCircle(Entity):
 
     @override
     def translate(self, x: float, y: float) -> "SketchCircle":
+
+        if self._sketch._client.units is UnitSystem.INCH:
+            x *= 0.0254
+            y *= 0.0254
+
         new_center = Point2D(self.center.x + x, self.center.y + y)
         new_entity = SketchCircle(
             sketch=self._feature,
@@ -213,6 +218,11 @@ class SketchLine(Entity):
 
     @override
     def translate(self, x: float = 0, y: float = 0) -> "SketchLine":
+
+        if self._sketch._client.units is UnitSystem.INCH:
+            x *= 0.0254
+            y *= 0.0254
+
         new_start = Point2D(self.start.x + x, self.start.y + y)
         new_end = Point2D(self.end.x + x, self.end.y + y)
 
@@ -337,6 +347,11 @@ class SketchArc(Entity):
 
     @override
     def translate(self, x: float = 0, y: float = 0) -> "SketchArc":
+
+        if self._sketch._client.units is UnitSystem.INCH:
+            x *= 0.0254
+            y *= 0.0254
+
         new_center = Point2D(self.center.x + x, self.center.y + y)
         new_entity = SketchArc(
             sketch=self._sketch,
@@ -358,32 +373,48 @@ class SketchArc(Entity):
             self.radius * math.cos(self.theta_interval[0]) + self.center.x,
             self.radius * math.sin(self.theta_interval[0]) + self.center.y,
         )
+        end_point = Point2D(
+            self.radius * math.cos(self.theta_interval[1]) + self.center.x,
+            self.radius * math.sin(self.theta_interval[1]) + self.center.y,
+        )
 
         new_center = self._rotate_point(self.center, pivot, theta)
         start_point = self._rotate_point(start_point, pivot, theta)
+        end_point = self._rotate_point(end_point, pivot, theta)
 
-        d_theta = self.theta_interval[1] - self.theta_interval[0]
-
-        arc_start_vector = np.array(
-            [start_point.x - new_center.x, start_point.y - new_center.y]
-        )
-        x_axis = np.array([1, 0])
-
-        angle_start = math.acos(
-            np.dot(arc_start_vector, x_axis) / np.linalg.norm(arc_start_vector)
-        )
-
-        new_theta = (angle_start, angle_start + d_theta)
-
-        new_entity = SketchArc(
+        new_entity = SketchArc.three_point_with_midpoint(
             sketch=self._sketch,
-            radius=self.radius,
             center=new_center,
-            theta_interval=new_theta,
+            radius=self.radius,
+            endpoint_1=start_point,
+            endpoint_2=end_point,
             units=self.units,
             dir=self.dir,
-            clockwise=self.clockwise,
+            clockwise=self.clockwise
         )
+
+        # d_theta = self.theta_interval[1] - self.theta_interval[0]
+
+        # arc_start_vector = np.array(
+        #     [start_point.x - new_center.x, start_point.y - new_center.y]
+        # )
+        # x_axis = np.array([1, 0])
+
+        # angle_start = math.acos(
+        #     np.dot(arc_start_vector, x_axis) / np.linalg.norm(arc_start_vector)
+        # )
+
+        # new_theta = (angle_start, angle_start + d_theta)
+
+        # new_entity = SketchArc(
+        #     sketch=self._sketch,
+        #     radius=self.radius,
+        #     center=new_center,
+        #     theta_interval=new_theta,
+        #     units=self.units,
+        #     dir=self.dir,
+        #     clockwise=self.clockwise,
+        # )
         self._replace_entity(new_entity)
         return new_entity
 

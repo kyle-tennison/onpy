@@ -69,7 +69,7 @@ class Entity(ABC):
             line_end: The ending point of the line
 
         Returns:
-            A new sketch object
+            A new entity object
         """
         ...
 
