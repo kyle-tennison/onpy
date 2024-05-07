@@ -460,10 +460,33 @@ class SketchArc(Entity):
         theta_1 = math.atan2(vec_1.y, vec_1.x) % (2 * math.pi)
         theta_2 = math.atan2(vec_2.y, vec_2.x) % (2 * math.pi)
 
+        # calculate the difference in angles
+        diff_theta = abs(theta_1 - theta_2)
+
+        # Choose the smaller arc
+        if diff_theta <= math.pi:
+            # if the difference is less than or equal to pi, choose the smaller arc
+            if clockwise:
+                # for clockwise arcs, choose the larger angle as the starting point
+                theta_start = max(theta_1, theta_2)
+                theta_end = min(theta_1, theta_2)
+            else:
+                # for counterclockwise arcs, choose the smaller angle as the starting point
+                theta_start = min(theta_1, theta_2)
+                theta_end = max(theta_1, theta_2)
+        else:
+            # if the difference is greater than pi, choose the larger arc
+            if clockwise:
+                # for clockwise arcs, choose the smaller angle as the starting point
+                theta_start = min(theta_1, theta_2)
+                theta_end = max(theta_1, theta_2)
+            else:
+                # for counterclockwise arcs, choose the larger angle as the starting point
+                theta_start = max(theta_1, theta_2)
+                theta_end = min(theta_1, theta_2)
+
         # create theta interval
-        theta_interval = (theta_1, theta_2)
-        if abs(theta_2 - theta_1) < math.pi:
-            theta_interval = (theta_interval[1], theta_interval[0])
+        theta_interval = (theta_start, theta_end)
 
         # create an arc using this interval
         return SketchArc(
