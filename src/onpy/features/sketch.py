@@ -302,7 +302,7 @@ class Sketch(Feature, Extrudable):
                     queries=[
                         {
                             "btType": "BTMIndividualQuery-138",
-                            "deterministicIds": [self.plane.id],
+                            "deterministicIds": [self.plane.transient_id],
                         }
                     ],
                     parameterId="sketchPlane",
