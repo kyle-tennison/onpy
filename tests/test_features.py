@@ -91,3 +91,40 @@ def test_feature_wipe():
     assert len(features) == 0
 
     document.delete()
+
+def test_pseudo_elements():
+    """Tests the ability to mirror, rotate, and translate items, along with
+    pseudo elements like fillets."""
+
+    document = Client().create_document("test_features::test_pseudo_elements")
+    partstudio = document.get_partstudio()
+
+    partstudio.wipe()
+
+    sketch = partstudio.add_sketch(plane=partstudio.features.top_plane)
+
+    lines = sketch.trace_points(
+        (-1,0),
+        (-0.5, 1),
+        (0.5, 1),
+        end_connect=False
+    )
+    fillet_arc = sketch.add_fillet(lines[0], lines[1], radius=0.2)
+    main_arc = sketch.add_centerpoint_arc(centerpoint=(0.5, 0), radius=1, start_angle=0, end_angle=90)
+
+    sketch.mirror(
+        *lines,
+        fillet_arc,
+        main_arc,
+        line_point=(0,0),
+        line_dir=(1,0)
+    )
+
+    sketch.translate(*sketch.entities, x=1, y=1)
+    sketch.rotate(*sketch.entities, origin=(0,0), theta=180)
+    partstudio.add_extrude(
+        targets=sketch.queries.contains_point((-1, -1, 0)),
+        distance=1
+    )
+
+    document.delete()
