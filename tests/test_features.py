@@ -48,7 +48,6 @@ def test_sketch_extrude():
     # try to extrude between the sketches
     partstudio.add_loft(sketch.queries.largest(), offset_sketch.queries.largest())
 
-
     doc.delete()
 
 

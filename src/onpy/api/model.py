@@ -205,6 +205,7 @@ class Plane(Feature):
     btType: str = "BTMFeature-134"
     featureType: str = "cPlane"
 
+
 class Loft(Feature):
     """Represents a Loft Feature"""
 

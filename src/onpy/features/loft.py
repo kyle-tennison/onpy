@@ -14,7 +14,13 @@ if TYPE_CHECKING:
 class Loft(Feature):
     """Interface to lofting between two 2D profiles"""
 
-    def __init__(self, partstudio: "PartStudio", start_face: QueryList, end_face: QueryList, name: str = "Loft") -> None:
+    def __init__(
+        self,
+        partstudio: "PartStudio",
+        start_face: QueryList,
+        end_face: QueryList,
+        name: str = "Loft",
+    ) -> None:
 
         self._partstudio = partstudio
         self._id: str | None = None
@@ -55,62 +61,69 @@ class Loft(Feature):
         return model.Loft(
             name=self.name,
             suppressed=False,
-            parameters=[{
-                "btType": "BTMParameterEnum-145",
-                "namespace": "",
-                "enumName": "ToolBodyType",
-                "value": "SOLID",
-                "parameterId": "bodyType"
-            },
+            parameters=[
                 {
-                "btType": "BTMParameterEnum-145",
-                "namespace": "",
-                "enumName": "NewBodyOperationType",
-                "value": "NEW",
-                "parameterId": "operationType"
-            },
+                    "btType": "BTMParameterEnum-145",
+                    "namespace": "",
+                    "enumName": "ToolBodyType",
+                    "value": "SOLID",
+                    "parameterId": "bodyType",
+                },
                 {
-                "btType": "BTMParameterEnum-145",
-                "namespace": "",
-                "enumName": "NewSurfaceOperationType",
-                "value": "NEW",
-                "parameterId": "surfaceOperationType"
-            },
+                    "btType": "BTMParameterEnum-145",
+                    "namespace": "",
+                    "enumName": "NewBodyOperationType",
+                    "value": "NEW",
+                    "parameterId": "operationType",
+                },
                 {
-                "btType": "BTMParameterArray-2025",
-                "items": [
-                    {
-                        "btType": "BTMArrayParameterItem-1843",
-                        "parameters": [
-                            {
-                                "btType": "BTMParameterQueryList-148",
-                                "queries": [
-                                    {
-                                        "btType": "BTMIndividualQuery-138",
-                                        "deterministicIds": [e.transient_id for e in self.start_face._available],
-                                    }
-                                ],
-                                "parameterId": "sheetProfileEntities"
-                            }
-                        ],
-                    },
-                    {
-                        "btType": "BTMArrayParameterItem-1843",
-                        "parameters": [
-                            {
-                                "btType": "BTMParameterQueryList-148",
-                                "queries": [
-                                    {
-                                        "btType": "BTMIndividualQuery-138",
-                                        "deterministicIds": [e.transient_id for e in self.end_face._available],
-                                    }
-                                ],
-                                "parameterId": "sheetProfileEntities"
-                            }
-                        ],
-                    }
-                ],
-                "parameterId": "sheetProfilesArray"
-            },
-            ]
+                    "btType": "BTMParameterEnum-145",
+                    "namespace": "",
+                    "enumName": "NewSurfaceOperationType",
+                    "value": "NEW",
+                    "parameterId": "surfaceOperationType",
+                },
+                {
+                    "btType": "BTMParameterArray-2025",
+                    "items": [
+                        {
+                            "btType": "BTMArrayParameterItem-1843",
+                            "parameters": [
+                                {
+                                    "btType": "BTMParameterQueryList-148",
+                                    "queries": [
+                                        {
+                                            "btType": "BTMIndividualQuery-138",
+                                            "deterministicIds": [
+                                                e.transient_id
+                                                for e in self.start_face._available
+                                            ],
+                                        }
+                                    ],
+                                    "parameterId": "sheetProfileEntities",
+                                }
+                            ],
+                        },
+                        {
+                            "btType": "BTMArrayParameterItem-1843",
+                            "parameters": [
+                                {
+                                    "btType": "BTMParameterQueryList-148",
+                                    "queries": [
+                                        {
+                                            "btType": "BTMIndividualQuery-138",
+                                            "deterministicIds": [
+                                                e.transient_id
+                                                for e in self.end_face._available
+                                            ],
+                                        }
+                                    ],
+                                    "parameterId": "sheetProfileEntities",
+                                }
+                            ],
+                        },
+                    ],
+                    "parameterId": "sheetProfilesArray",
+                },
+            ],
         )

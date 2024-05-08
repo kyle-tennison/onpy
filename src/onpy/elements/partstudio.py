@@ -92,26 +92,20 @@ class PartStudio(Element):
             An Extrude object
         """
         return Extrude(partstudio=self, targets=targets, distance=distance, name=name)
-    
 
     def add_loft(self, start: QueryList, end: QueryList, name: str = "Loft") -> Loft:
         """Adds a new loft feature to the partstudio
-        
+
         Args:
             start: The start point(s) of the loft
             end: The end point(s) of the loft
             name: An optional name for the loft feature
-            
+
         Returns:
             A Loft object
         """
 
-        return Loft(
-            partstudio=self,
-            start_face=start,
-            end_face=end,
-            name=name
-        )
+        return Loft(partstudio=self, start_face=start, end_face=end, name=name)
 
     def add_offset_plane(
         self, target: Plane, distance: float, name: str = "Offset Plane"
