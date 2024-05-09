@@ -31,7 +31,7 @@ class Extrude(Feature):
     @property
     @override
     def id(self) -> str | None:
-        return unwrap(self._id, message="Feature id unbound")
+        return unwrap(self._id, message="Extrude feature id unbound")
 
     @property
     @override

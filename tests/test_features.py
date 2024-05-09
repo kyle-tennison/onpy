@@ -45,6 +45,11 @@ def test_sketch_extrude():
         targets=offset_sketch.queries.contains_point((0, 0, 3)), distance=-3
     )
 
+    # try to extrude between the sketches
+    loft_start = partstudio.add_sketch(partstudio.features.top_plane)
+    loft_start.add_circle((1, 0), 2)
+    partstudio.add_loft(loft_start.queries.largest(), offset_sketch.queries.largest())
+
     doc.delete()
 
 
