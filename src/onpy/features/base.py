@@ -52,12 +52,6 @@ class Feature(ABC):
         """The name of the feature"""
         ...
 
-    @property
-    @abstractmethod
-    def entities(self) -> list["Entity"]:
-        """A list of entities on the partstudio"""
-        ...
-
     @abstractmethod
     def _to_model(self) -> model.Feature:
         """Converts the feature into the corresponding api model"""

@@ -127,8 +127,8 @@ def test_pseudo_elements():
 
     sketch.mirror(*lines, fillet_arc, main_arc, line_point=(0, 0), line_dir=(1, 0))
 
-    sketch.translate(*sketch.entities, x=1, y=1)
-    sketch.rotate(*sketch.entities, origin=(0, 0), theta=180)
+    sketch.translate(*sketch.sketch_items, x=1, y=1)
+    sketch.rotate(*sketch.sketch_items, origin=(0, 0), theta=180)
     partstudio.add_extrude(
         targets=sketch.queries.contains_point((-1, -1, 0)), distance=1
     )
