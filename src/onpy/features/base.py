@@ -14,7 +14,8 @@ if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
     from onpy.features.planes import Plane
     from onpy.api.rest_api import RestApi
-    from onpy.features.entities.base import Entity
+    from onpy.entities import EntityFilter
+
 
 
 class Feature(ABC):
@@ -50,6 +51,12 @@ class Feature(ABC):
     @abstractmethod
     def name(self) -> str:
         """The name of the feature"""
+        ...
+
+    @property
+    @abstractmethod
+    def entities(self) -> "EntityFilter":
+        """An object used for interfacing with entities that belong to the object"""
         ...
 
     @abstractmethod

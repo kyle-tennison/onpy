@@ -5,7 +5,7 @@ from onpy.api.model import Feature, FeatureAddResponse
 from onpy.features.base import Feature, Extrudable
 import onpy.api.model as model
 from onpy.util.misc import unwrap
-from onpy.features.query.list import QueryList
+from onpy.entities import EntityFilter
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -16,7 +16,7 @@ class Extrude(Feature):
     def __init__(
         self,
         partstudio: "PartStudio",
-        targets: QueryList | list[Extrudable],
+        targets: EntityFilter | list[Extrudable],
         distance: float,
         name: str = "Extrusion",
     ) -> None:
@@ -45,10 +45,8 @@ class Extrude(Feature):
 
     @property
     @override
-    def entities(self) -> list:
-        return (
-            []
-        )  # TODO: entities are only really relevant on sketches and actual bodies, not features
+    def entities(self) -> EntityFilter:
+        return EntityFilter(self, available=[]) # TODO: load with items
 
     def _list_queries(self) -> list[dict[str, str]]:
         """Gets a list of queries. Used to build model"""

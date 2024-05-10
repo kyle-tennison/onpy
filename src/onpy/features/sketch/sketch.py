@@ -6,7 +6,7 @@ from loguru import logger
 from typing import TYPE_CHECKING, override
 
 import onpy.api.model as model
-from onpy.features.query.list import QueryList
+from onpy.entities import EntityFilter
 from onpy.util.exceptions import OnPyFeatureError
 from onpy.features.base import Feature, Extrudable
 from onpy.util.misc import unwrap, Point2D, UnitSystem
@@ -336,10 +336,11 @@ class Sketch(Feature, Extrudable):
         return "featureId"
 
     @property
-    def queries(self) -> QueryList:
+    @override
+    def entities(self) -> EntityFilter:
         """The available queries"""
 
-        return QueryList._build_from_sketch(self)
+        return EntityFilter._build_from_sketch(self)
 
     def mirror(
         self,

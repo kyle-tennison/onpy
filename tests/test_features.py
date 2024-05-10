@@ -31,7 +31,7 @@ def test_sketch_extrude():
     )
 
     partstudio.add_extrude(
-        targets=new_sketch.queries.contains_point((3.5, 3.5, 0)),
+        targets=new_sketch.entities.contains_point((3.5, 3.5, 0)),
         distance=1,
     )
 
@@ -42,13 +42,13 @@ def test_sketch_extrude():
     offset_sketch = partstudio.add_sketch(new_plane)
     offset_sketch.add_circle((0, 0), 1)
     partstudio.add_extrude(
-        targets=offset_sketch.queries.contains_point((0, 0, 3)), distance=-3
+        targets=offset_sketch.entities.contains_point((0, 0, 3)), distance=-3
     )
 
     # try to extrude between the sketches
     loft_start = partstudio.add_sketch(partstudio.features.top_plane)
     loft_start.add_circle((1, 0), 2)
-    partstudio.add_loft(loft_start.queries.largest(), offset_sketch.queries.largest())
+    partstudio.add_loft(loft_start.entities.largest(), offset_sketch.entities.largest())
 
     doc.delete()
 
@@ -67,12 +67,12 @@ def test_sketch_queries():
 
     sketch.add_line((-2, -1), (2, 2))
 
-    print(sketch.queries.contains_point((1, -1, 0)))
+    print(sketch.entities.contains_point((1, -1, 0)))
 
-    partstudio.add_extrude(targets=sketch.queries.largest(), distance=1)
-    partstudio.add_extrude(targets=sketch.queries.smallest(), distance=0.5)
+    partstudio.add_extrude(targets=sketch.entities.largest(), distance=1)
+    partstudio.add_extrude(targets=sketch.entities.smallest(), distance=0.5)
     partstudio.add_extrude(
-        targets=sketch.queries.contains_point((0, 0, 0)), distance=-3
+        targets=sketch.entities.contains_point((0, 0, 0)), distance=-3
     )
 
     document.delete()
@@ -130,7 +130,7 @@ def test_pseudo_elements():
     sketch.translate(*sketch.sketch_items, x=1, y=1)
     sketch.rotate(*sketch.sketch_items, origin=(0, 0), theta=180)
     partstudio.add_extrude(
-        targets=sketch.queries.contains_point((-1, -1, 0)), distance=1
+        targets=sketch.entities.contains_point((-1, -1, 0)), distance=1
     )
 
     document.delete()

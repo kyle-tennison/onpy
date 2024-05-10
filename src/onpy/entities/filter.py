@@ -5,67 +5,26 @@ from typing import TYPE_CHECKING, override
 from onpy.util.misc import unwrap
 from onpy.api.versioning import WorkspaceWVM
 import onpy.api.model as model
-import onpy.features.query.types as qtypes
-from onpy.features.base import Extrudable
+import onpy.entities.queries as qtypes
+from onpy.entities import Entity
 
 
 if TYPE_CHECKING:
-    from onpy.features import Sketch, Extrude
+    from onpy.features import Sketch
     from onpy.features.base import Feature
 
 
-class QueryEntity(Extrudable):
-    """Base class for query entities"""
-
-    def __init__(self, transient_id: str):
-        self.transient_id = transient_id
-
-    @property
-    def as_query(self) -> str:
-        """Featurescript expression to convert into query of self"""
-        return '{ "queryType" : QueryType.TRANSIENT, "transientId" : "TRANSIENT_ID" } as Query'.replace(
-            "TRANSIENT_ID", self.transient_id
-        )
-
-    @property
-    def as_entity(self) -> str:
-        """Featurescript expression to get a reference to this entity"""
-        return f"evaluateQuery(context, {self.as_query})[0] "
-
-    @property
-    @override
-    def _extrusion_query(self) -> list[str]:
-        return [self.transient_id]
-
-    @property
-    @override
-    def _extrusion_parameter_bt_type(self) -> str:
-        return "BTMIndividualQuery-138"
-
-    @property
-    @override
-    def _extrusion_query_key(self) -> str:
-        return "deterministicIds"
-
-    def __str__(self) -> str:
-        return repr(self)
-
-    def __repr__(self) -> str:
-        """NOTE: for debugging purposes"""
-        return f"QueryEntity({self.transient_id})"
-
-
-class QueryList:
+class EntityFilter:
     """Object used to list and filter queries"""
 
-    def __init__(self, feature: "Feature", available: list[QueryEntity]) -> None:
+    def __init__(self, feature: "Feature", available: list[Entity]) -> None:
         self._available = available
         self._feature = feature
         self._client = feature._client
         self._api = feature._api
 
     @staticmethod
-    def _build_from_sketch(sketch: "Sketch") -> "QueryList":
+    def _build_from_sketch(sketch: "Sketch") -> "EntityFilter":
         """Loads available feature from a sketch"""
 
         featurescript = dedent(
@@ -92,18 +51,18 @@ class QueryList:
         )
 
         transient_ids = [i["value"] for i in result["value"]]
-        query_entities = [QueryEntity(tid) for tid in transient_ids]
+        query_entities = [Entity(tid) for tid in transient_ids]
 
-        return QueryList(feature=sketch, available=query_entities)
+        return EntityFilter(feature=sketch, available=query_entities)
 
-    def _apply_query(self, query: "qtypes.QueryType") -> list[QueryEntity]:
+    def _apply_query(self, query: "qtypes.QueryType") -> list[Entity]:
         """Builds the featurescript to evaluate a query and evaluates the featurescript
 
         Args:
             query: The query to apply
 
         Returns:
-            A list of resulting QueryEntity instances
+            A list of resulting Entity instances
         """
 
         script = dedent(
@@ -147,11 +106,11 @@ class QueryList:
         )
 
         transient_ids = [i["value"] for i in result["value"]]
-        query_entities = [QueryEntity(tid) for tid in transient_ids]
+        query_entities = [Entity(tid) for tid in transient_ids]
 
         return query_entities
 
-    def contains_point(self, point: tuple[float, float, float]) -> "QueryList":
+    def contains_point(self, point: tuple[float, float, float]) -> "EntityFilter":
         """Filters out all queries that don't contain the provided point
 
         Args:
@@ -160,9 +119,9 @@ class QueryList:
 
         query = qtypes.qContainsPoint(point=point, units=self._client.units)
 
-        return QueryList(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter(feature=self._feature, available=self._apply_query(query))
 
-    def closest_to(self, point: tuple[float, float, float]) -> "QueryList":
+    def closest_to(self, point: tuple[float, float, float]) -> "EntityFilter":
         """Gets the entity closest to the point
 
         Args:
@@ -171,25 +130,25 @@ class QueryList:
 
         query = qtypes.qClosestTo(point=point, units=self._client.units)
 
-        return QueryList(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter(feature=self._feature, available=self._apply_query(query))
 
-    def largest(self) -> "QueryList":
+    def largest(self) -> "EntityFilter":
         """Gets the largest entity"""
 
         query = qtypes.qLargest()
 
-        return QueryList(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter(feature=self._feature, available=self._apply_query(query))
 
-    def smallest(self) -> "QueryList":
+    def smallest(self) -> "EntityFilter":
         """Gets the smallest entity"""
 
         query = qtypes.qSmallest()
 
-        return QueryList(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter(feature=self._feature, available=self._apply_query(query))
 
     def intersects(
         self, origin: tuple[float, float, float], direction: tuple[float, float, float]
-    ) -> "QueryList":
+    ) -> "EntityFilter":
         """Gets the queries that intersect an infinite line
 
         Args:
@@ -202,9 +161,9 @@ class QueryList:
             line_origin=origin, line_direction=direction, units=self._client.units
         )
 
-        return QueryList(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter(feature=self._feature, available=self._apply_query(query))
 
-    def is_type(self, entity_type: str) -> "QueryList":
+    def is_type(self, entity_type: str) -> "EntityFilter":
         """Gets the queries of a specific type
 
         Args:
@@ -216,8 +175,8 @@ class QueryList:
             entity_type=qtypes.EntityType.parse_type(entity_type)
         )
 
-        return QueryList(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter(feature=self._feature, available=self._apply_query(query))
 
     def __str__(self) -> str:
         """NOTE: for debugging purposes"""
-        return f"QueryList({self._available})"
+        return f"EntityFilter({self._available})"

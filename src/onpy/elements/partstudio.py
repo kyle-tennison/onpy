@@ -9,7 +9,7 @@ from onpy.api.versioning import WorkspaceWVM
 from onpy.util.exceptions import OnPyFeatureError
 from onpy.util.misc import unwrap
 from onpy.features import Sketch, Extrude, Plane, OffsetPlane, Loft
-from onpy.features.query.list import QueryList
+from onpy.entities import EntityFilter
 
 from typing import TYPE_CHECKING, override
 
@@ -77,7 +77,7 @@ class PartStudio(Element):
 
     def add_extrude(
         self,
-        targets: QueryList | list[Extrudable],
+        targets: EntityFilter | list[Extrudable],
         distance: float,
         name: str = "New Extrude",
     ) -> Extrude:
@@ -93,7 +93,7 @@ class PartStudio(Element):
         """
         return Extrude(partstudio=self, targets=targets, distance=distance, name=name)
 
-    def add_loft(self, start: QueryList, end: QueryList, name: str = "Loft") -> Loft:
+    def add_loft(self, start: EntityFilter, end: EntityFilter, name: str = "Loft") -> Loft:
         """Adds a new loft feature to the partstudio
 
         Args:

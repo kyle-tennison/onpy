@@ -5,7 +5,7 @@ from onpy.api.model import Feature, FeatureAddResponse
 from onpy.features.base import Feature, Extrudable
 import onpy.api.model as model
 from onpy.util.misc import unwrap
-from onpy.features.query.list import QueryList
+from onpy.entities import EntityFilter
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -17,8 +17,8 @@ class Loft(Feature):
     def __init__(
         self,
         partstudio: "PartStudio",
-        start_face: QueryList,
-        end_face: QueryList,
+        start_face: EntityFilter,
+        end_face: EntityFilter,
         name: str = "Loft",
     ) -> None:
 
@@ -48,8 +48,8 @@ class Loft(Feature):
 
     @property
     @override
-    def entities(self):
-        raise NotImplementedError()
+    def entities(self) -> EntityFilter:
+        return EntityFilter(self, available=[]) # TODO: load with items
 
     @override
     def _load_response(self, response: FeatureAddResponse) -> None:

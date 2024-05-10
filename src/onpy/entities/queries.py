@@ -2,41 +2,9 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
-from textwrap import dedent
 from typing import override
 from onpy.util.misc import UnitSystem
-
-
-class EntityType(Enum):
-    """Used to differentiate entity types"""
-
-    VERTEX = "vertex"
-    EDGE = "edge"
-    FACE = "face"
-    BODY = "body"
-
-    def as_featurescript(self) -> str:
-        """Converts the EntityType variant into a Featurescript expression"""
-        return f"EntityType.{self.name}"
-
-    @staticmethod
-    def parse_type(input: str) -> "EntityType":
-        """Parses a string into the corresponding enum variant
-
-        Raises:
-            KeyError if the input cannot be matched to a variant
-        """
-
-        input = input.lower()
-
-        if input.lower() not in EntityType:
-            raise KeyError(
-                f"'{input}' is not a valid entity type. Options are: VERTEX, EDGE, FACE, BODY"
-            )
-        else:
-            return EntityType[input]
-
+from onpy.entities import EntityType
 
 class QueryType(ABC):
     """Used to represent the type of a query"""

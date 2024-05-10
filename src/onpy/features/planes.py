@@ -10,6 +10,7 @@ from onpy.features.base import Feature
 from onpy.api.versioning import WorkspaceWVM
 import onpy.api.model as model
 from onpy.util.misc import unwrap
+from onpy.entities import EntityFilter
 
 if TYPE_CHECKING:
     from onpy.document import Document
@@ -22,7 +23,8 @@ class Plane(Feature):
     @property
     @override
     def entities(self):
-        raise NotImplementedError("Cannot query entities on plane")
+        """NOTE: Plane cannot contain entities, this will always be empty"""
+        return EntityFilter(self, available=[])
 
     @property
     @abstractmethod
