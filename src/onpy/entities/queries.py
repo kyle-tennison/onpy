@@ -1,4 +1,13 @@
-"""Wrapping for various OnShape query types"""
+"""
+
+Python wrappings of OnShape queries
+
+The queries used by entities.py are defined here. They are used to filter
+entities.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass

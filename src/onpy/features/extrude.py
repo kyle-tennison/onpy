@@ -1,4 +1,14 @@
-"""OnShape extrusion feature"""
+"""
+
+Interface to the Extrude Feature
+
+This script defines the Extrude feature. Currently, only blind, solid extrusions
+are supported.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
+
 
 from typing import TYPE_CHECKING, override
 from onpy.api.model import Feature, FeatureAddResponse

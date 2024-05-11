@@ -1,4 +1,13 @@
-"""Interface to OnShape Sketches"""
+"""
+
+Interface to the Sketch Feature
+
+This script defines the Sketch feature. Because sketches are naturally the
+most complex feature, it has been moved to its own submodule.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 import math
 from textwrap import dedent

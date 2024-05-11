@@ -1,4 +1,13 @@
-"""Models for OnShape API payloads & responses"""
+"""
+
+Models for OnShape API payloads & responses.
+
+The API uses pydantic to serialize and deserialize API calls. The models
+to do this are stored here.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
@@ -6,6 +15,12 @@ from datetime import datetime
 from typing import Optional, Protocol
 
 
+class HttpMethod(Enum):
+    Post = "post"
+    Get = "get"
+    Put = "put"
+    Delete = "delete"
+    
 class NameIdFetchable(Protocol):
     name: str | None
     id: str | None

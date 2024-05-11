@@ -1,4 +1,14 @@
-"""Base class for sketches"""
+"""
+
+Abstract base class for features
+
+Features are the operations taken to create some geometry; they are 
+fundamental to the idea of parametric cad. The base class for OnShape Features
+is defined here.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from loguru import logger
 import onpy.api.model as model

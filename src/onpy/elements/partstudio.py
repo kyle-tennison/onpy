@@ -1,4 +1,15 @@
-"""PartStudio element interface"""
+"""
+
+Partstudio element interface
+
+In OnShape, partstudios are the place where parts are modeled. This is 
+partstudios are fundamental to how OnPy operates; besides documents,
+they are effectively the entry point to creating a model. All features
+are created by a partstudio, and they all live in the partstudio.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from loguru import logger
 from onpy.elements.base import Element

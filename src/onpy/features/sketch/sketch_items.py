@@ -1,4 +1,16 @@
-"""Various entities that might appear in a sketch"""
+"""
+
+Various items that can belong to a sketch
+
+As a user builds a sketch, they are adding sketch items. This is importantly
+different from adding entities--which they are also adding. Sketch items
+*cannot* be queried or used for any type of other feature; they are internal
+to the sketch. Entities, on the other hand, are derived from the way sketch
+items are added; these can be queried and used in other features.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 import copy
 import math

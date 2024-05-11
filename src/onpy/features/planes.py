@@ -1,4 +1,13 @@
-"""Different types of OnShape Planes"""
+"""
+
+Interface to OnShape Planes
+
+There are multiple types of planes in OnShape, all of which are defined here.
+There is an abstract plane class used to reconcile these multiple classes.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from abc import abstractmethod
 from functools import cache

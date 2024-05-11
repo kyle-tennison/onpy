@@ -1,4 +1,18 @@
-"""Traits that an entity can implement"""
+"""
+
+Protocols/traits that different objects can display
+
+This system was inspired by Rust's trait system, which is similar to Python's
+Protocol system. Sometimes, we want to be able to target an object
+that is not directly an entity—such as wanting to extrude the total area of
+a sketch. We can do this by making the Sketch object implement the 
+FaceEntityConversable trait, which allows it to convert itself into a set
+of face entities. The same can be done for all other entity types. The
+underlying traits are defined here.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from textwrap import dedent
 from typing import TYPE_CHECKING, Protocol, runtime_checkable

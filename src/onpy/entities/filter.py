@@ -1,4 +1,15 @@
-"""Classes for interacting with queries"""
+"""
+
+Filtering mechanism for selecting entities
+
+In OnShape, entities are usually interacted with through a series of queries.
+For instance, one might query the entity that is closest to a point, or the
+largest in a set of other entities. The functionality to query, and to join
+queries, is defined in EntityFilter.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from textwrap import dedent
 from typing import TYPE_CHECKING, override

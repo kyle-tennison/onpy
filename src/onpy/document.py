@@ -1,4 +1,13 @@
-"""Interface to managing OnShape documents"""
+"""
+
+OnShape Document interface
+
+OnShape Documents contain multiple elements and versions. This script defines
+methods to interact and control these items.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 import re
 

@@ -1,4 +1,13 @@
-"""Exception definitions and excepthook injection"""
+"""
+
+Custom Exceptions 
+
+OnPy features some custom exceptions, which are defined here. Their implementation
+is aimed at being maximally readable and descriptive.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 import json
 from typing import override

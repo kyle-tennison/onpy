@@ -1,4 +1,20 @@
-"""Interface to OnShape entities"""
+"""
+
+Interface to OnShape Entities
+
+In OnShape, there are four types of entities:
+ - Vertex Entities
+ - Line Entities
+ - Face Entities
+ - Body Entities
+
+Different features can create different entities; e.g., an Extrude will create
+a BodyEntity. The different entity types, along with their base class, are
+defined here.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from abc import ABC
 from enum import Enum

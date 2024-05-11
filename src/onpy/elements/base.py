@@ -1,4 +1,14 @@
-"""Abstract base class for OnShape elements (i.e., PartStudios, Assemblies, etc.)"""
+"""
+
+Abstract base class for OnShape elements
+
+In OnShape, each "tab" you see in the GUI is an "element." For instance,
+a partstudio is an element, so is an assembly, and so is a drawing. This script
+is the abstract base class for these OnShape elements.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 import onpy.api.model as model
 

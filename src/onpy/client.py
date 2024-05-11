@@ -1,4 +1,13 @@
-"""Entry point to this library"""
+"""
+
+Client Object - Entry Point
+
+The Client object is the entry point to OnPy. It handles authentication and
+document management.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from onpy.util.credentials import CredentialManager
 from onpy.api.rest_api import RestApi

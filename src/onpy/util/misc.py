@@ -1,4 +1,12 @@
-"""Miscellaneous tools"""
+"""
+
+Miscellaneous Tools
+
+Misc tools should go here
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from dataclasses import dataclass
 from enum import Enum

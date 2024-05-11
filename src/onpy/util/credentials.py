@@ -1,4 +1,14 @@
-"""Manages OnShape credentials"""
+"""
+
+Manages OnShape credentials
+
+The credentials used in OnPy can be stored locally in a file, or through 
+environment variables. The CredentialManager defined here is a utility used
+to interface with these credentials.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from onpy.util.exceptions import OnPyAuthError
 

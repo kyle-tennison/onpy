@@ -1,4 +1,13 @@
-"""OnShape extrusion feature"""
+"""
+
+Interface to the Loft Feature
+
+This script defines the Loft feature. Lofts generate a solid between
+two offset 2D regions
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from typing import TYPE_CHECKING, override
 from onpy.api.model import Feature, FeatureAddResponse

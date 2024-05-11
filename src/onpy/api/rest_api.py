@@ -1,10 +1,20 @@
-"""Rest Api interface to OnShape server"""
+"""
+
+RestApi interface to the OnShape server
+
+The api is built in two parts; a request centric, utility part, and a part
+dedicated to wrapping the many onshape endpoints. This script is the utility
+part; different HTTP request methods are implemented here, based around
+the python requests module.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 import json
 import sys
 from onpy.api.endpoints import EndpointContainer
-from onpy.api.model import ApiModel
-from onpy.util.model import HttpMethod
+from onpy.api.model import ApiModel, HttpMethod
 from onpy.util.exceptions import OnPyApiError, OnPyInternalError
 
 import requests
