@@ -64,13 +64,10 @@ Instead, OnPy interfaces with OnShape's APIs to create designs that function the
 The following is from [`examples/cylinder.py`](examples/cylinder.py) :
 
 ```python
-from onpy import Client
-from onpy.features import Sketch, Extrude
-
-client = Client()  # we use the client object as the entry-point to OnShape
+import onpy
 
 # we'll create a new document, then reference the default partstudio
-document = client.create_document("Cylinder Example")
+document = onpy.create_document("Cylinder Example")
 partstudio = document.get_partstudio()
 
 # now, we'll define a sketch
