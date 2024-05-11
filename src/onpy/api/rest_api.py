@@ -3,9 +3,9 @@
 RestApi interface to the OnShape server
 
 The api is built in two parts; a request centric, utility part, and a part
-dedicated to wrapping the many onshape endpoints. This script is the utility
+dedicated to wrapping the many OnShape endpoints. This script is the utility
 part; different HTTP request methods are implemented here, based around
-the python requests module.
+the Python requests module.
 
 OnPy - May 2024 - Kyle Tennison
 

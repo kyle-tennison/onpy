@@ -3,9 +3,9 @@
 Different endpoints exposed to the RestApi object
 
 The api is built in two parts; a request centric, utility part, and a part
-dedicated to wrapping the many onshape endpoints. This script completes the
-ladder; it uses the utilities from rest_api.py to wrap onshape endpoints
-in python.
+dedicated to wrapping the many OnShape endpoints. This script completes the
+ladder; it uses the utilities from rest_api.py to wrap OnShape endpoints
+in Python.
 
 OnPy - May 2024 - Kyle Tennison
 

@@ -2,7 +2,7 @@
 
 Interface for controlling OnShape API versions.
 
-For each API call, onshape requests a version; this can be a workspace,
+For each API call, OnShape requests a version; this can be a workspace,
 a version, or a microversion. Each of these will have a corresponding ID.
 This script adds scripts that make it easy to interface with any of these 
 versions.
