@@ -24,24 +24,23 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
         self._feature = feature
         self._client = feature._client
         self._api = feature._api
-    
+
     @property
     def _entity_type(self) -> type[T]:
         """The class of the generic type T"""
 
-        etype = self.__orig_class__.__args__[0] # type: ignore
+        etype = self.__orig_class__.__args__[0]  # type: ignore
 
         if not callable(etype):
-            etype = Entity # default to generic entity
+            etype = Entity  # default to generic entity
 
         assert issubclass(etype, Entity) or etype is Entity
 
-        return etype #type: ignore
-    
+        return etype  # type: ignore
+
     @override
     def _face_entities(self) -> list[FaceEntity]:
         return self.is_type(FaceEntity)._available
-
 
     def _apply_query(self, query: "qtypes.QueryType") -> list[T]:
         """Builds the featurescript to evaluate a query and evaluates the featurescript
@@ -107,7 +106,9 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
 
         query = qtypes.qContainsPoint(point=point, units=self._client.units)
 
-        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](
+            feature=self._feature, available=self._apply_query(query)
+        )
 
     def closest_to(self, point: tuple[float, float, float]) -> "EntityFilter":
         """Gets the entity closest to the point
@@ -118,21 +119,27 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
 
         query = qtypes.qClosestTo(point=point, units=self._client.units)
 
-        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](
+            feature=self._feature, available=self._apply_query(query)
+        )
 
     def largest(self) -> "EntityFilter":
         """Gets the largest entity"""
 
         query = qtypes.qLargest()
 
-        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](
+            feature=self._feature, available=self._apply_query(query)
+        )
 
     def smallest(self) -> "EntityFilter":
         """Gets the smallest entity"""
 
         query = qtypes.qSmallest()
 
-        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](
+            feature=self._feature, available=self._apply_query(query)
+        )
 
     def intersects(
         self, origin: tuple[float, float, float], direction: tuple[float, float, float]
@@ -149,7 +156,9 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
             line_origin=origin, line_direction=direction, units=self._client.units
         )
 
-        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](
+            feature=self._feature, available=self._apply_query(query)
+        )
 
     def is_type[E: Entity](self, entity_type: type[E]) -> "EntityFilter[E]":
         """Gets the queries of a specific type
@@ -159,11 +168,11 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
                 FACE, and BODY (case insensitive)
         """
 
-        query = qtypes.qEntityType(
-            entity_type=entity_type
-        )
+        query = qtypes.qEntityType(entity_type=entity_type)
 
-        available: list[E] = [entity_type(e.transient_id) for e in self._apply_query(query)] 
+        available: list[E] = [
+            entity_type(e.transient_id) for e in self._apply_query(query)
+        ]
 
         return EntityFilter[E](feature=self._feature, available=available)
 

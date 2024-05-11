@@ -71,9 +71,7 @@ def test_sketch_queries():
 
     partstudio.add_extrude(faces=sketch.entities.largest(), distance=1)
     partstudio.add_extrude(faces=sketch.entities.smallest(), distance=0.5)
-    partstudio.add_extrude(
-        faces=sketch.entities.contains_point((0, 0, 0)), distance=-3
-    )
+    partstudio.add_extrude(faces=sketch.entities.contains_point((0, 0, 0)), distance=-3)
 
     document.delete()
 

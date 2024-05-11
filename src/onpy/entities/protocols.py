@@ -18,6 +18,7 @@ class FaceEntityConvertible(Protocol):
         """Converts the current object into a list of face entities"""
         ...
 
+
 @runtime_checkable
 class VertexEntityConvertible(Protocol):
     """A protocol used for items that can be converted into a list of vertex entities"""
@@ -27,6 +28,7 @@ class VertexEntityConvertible(Protocol):
         """Converts the current object into a list of vertex entities"""
         ...
 
+
 @runtime_checkable
 class EdgeEntityConvertible(Protocol):
     """A protocol used for items that can be converted into a list of edge entities"""
@@ -35,6 +37,7 @@ class EdgeEntityConvertible(Protocol):
     def _edge_entities(self) -> list["EdgeEntity"]:
         """Converts the current object into a list of edge entities"""
         ...
+
 
 @runtime_checkable
 class BodyEntityConvertible(Protocol):

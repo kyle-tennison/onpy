@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from onpy.entities import EntityFilter
 
 
-
 class Feature(ABC):
     """An abstract base class for OnShape elements"""
 

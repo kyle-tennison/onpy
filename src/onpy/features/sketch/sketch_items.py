@@ -184,7 +184,7 @@ class SketchItem(ABC):
             entities.append(entities[-1].clone().rotate(origin, theta))
 
         return entities
-    
+
     def _generate_entity_id(self) -> str:
         """Generates a random entity id"""
         return str(uuid.uuid4()).replace("-", "")
@@ -194,7 +194,6 @@ class SketchItem(ABC):
 
     @abstractmethod
     def __repr__(self) -> str: ...
-
 
 
 class SketchCircle(SketchItem):

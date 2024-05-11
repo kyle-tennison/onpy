@@ -6,6 +6,7 @@ from typing import override
 from onpy.util.misc import UnitSystem
 from onpy.entities import Entity
 
+
 class QueryType(ABC):
     """Used to represent the type of a query"""
 

@@ -94,7 +94,12 @@ class PartStudio(Element):
         """
         return Extrude(partstudio=self, faces=faces, distance=distance, name=name)
 
-    def add_loft(self, start: FaceEntityConvertible, end: FaceEntityConvertible, name: str = "Loft") -> Loft:
+    def add_loft(
+        self,
+        start: FaceEntityConvertible,
+        end: FaceEntityConvertible,
+        name: str = "Loft",
+    ) -> Loft:
         """Adds a new loft feature to the partstudio
 
         Args:

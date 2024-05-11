@@ -47,9 +47,8 @@ class Extrude(Feature):
     @property
     @override
     def entities(self) -> EntityFilter:
-        return EntityFilter(self, available=[]) # TODO: load with items
-    
-    
+        return EntityFilter(self, available=[])  # TODO: load with items
+
     @override
     def _to_model(self) -> model.Extrude:
 

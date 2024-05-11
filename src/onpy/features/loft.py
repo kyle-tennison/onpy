@@ -51,7 +51,7 @@ class Loft(Feature):
     @property
     @override
     def entities(self) -> EntityFilter:
-        return EntityFilter(self, available=[]) # TODO: load with items
+        return EntityFilter(self, available=[])  # TODO: load with items
 
     @override
     def _load_response(self, response: FeatureAddResponse) -> None:
@@ -97,8 +97,7 @@ class Loft(Feature):
                                         {
                                             "btType": "BTMIndividualQuery-138",
                                             "deterministicIds": [
-                                                e.transient_id
-                                                for e in self.start_faces
+                                                e.transient_id for e in self.start_faces
                                             ],
                                         }
                                     ],
@@ -115,8 +114,7 @@ class Loft(Feature):
                                         {
                                             "btType": "BTMIndividualQuery-138",
                                             "deterministicIds": [
-                                                e.transient_id
-                                                for e in self.end_faces
+                                                e.transient_id for e in self.end_faces
                                             ],
                                         }
                                     ],

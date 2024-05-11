@@ -314,16 +314,13 @@ class Sketch(Feature, FaceEntityConvertible):
                     parameterId="sketchPlane",
                 ).model_dump(exclude_none=True)
             ],
-            entities=[
-                i.to_model().model_dump(exclude_none=True) for i in self._items
-            ],
+            entities=[i.to_model().model_dump(exclude_none=True) for i in self._items],
         )
 
     @override
     def _load_response(self, response: model.FeatureAddResponse) -> None:
         """Loads the feature id from the response"""
         self._id = unwrap(response.feature.featureId)
-
 
     @override
     def _face_entities(self) -> list[FaceEntity]:
@@ -357,7 +354,6 @@ class Sketch(Feature, FaceEntityConvertible):
         face_entities = [FaceEntity(tid) for tid in transient_ids]
 
         return face_entities
-
 
     @property
     @override
