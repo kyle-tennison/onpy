@@ -13,6 +13,7 @@ logger.add(
 
 # --- some quality of life functions ---
 
+
 def get_document(id: str | None = None, name: str | None = None) -> Document:
     """Gets a document by name or id. Instantiates a new client.
 
