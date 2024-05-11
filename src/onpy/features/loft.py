@@ -1,11 +1,23 @@
-"""OnShape extrusion feature"""
+"""
+
+Interface to the Loft Feature
+
+This script defines the Loft feature. Lofts generate a solid between
+two offset 2D regions
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from typing import TYPE_CHECKING, override
-from onpy.api.model import Feature, FeatureAddResponse
-from onpy.features.base import Feature, Extrudable
+
 import onpy.api.model as model
 from onpy.util.misc import unwrap
-from onpy.features.query.list import QueryList
+from onpy.entities import FaceEntity
+from onpy.entities import EntityFilter
+from onpy.features.base import Feature
+from onpy.api.model import FeatureAddResponse
+from onpy.entities.protocols import FaceEntityConvertible
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -17,8 +29,8 @@ class Loft(Feature):
     def __init__(
         self,
         partstudio: "PartStudio",
-        start_face: QueryList,
-        end_face: QueryList,
+        start_face: FaceEntityConvertible,
+        end_face: FaceEntityConvertible,
         name: str = "Loft",
     ) -> None:
 
@@ -26,8 +38,8 @@ class Loft(Feature):
         self._id: str | None = None
         self._name = name
 
-        self.start_face = start_face
-        self.end_face = end_face
+        self.start_faces: list[FaceEntity] = start_face._face_entities()
+        self.end_faces: list[FaceEntity] = end_face._face_entities()
 
         self._upload_feature()
 
@@ -48,8 +60,8 @@ class Loft(Feature):
 
     @property
     @override
-    def entities(self):
-        raise NotImplementedError()
+    def entities(self) -> EntityFilter:
+        return EntityFilter(self, available=[])  # TODO: load with items
 
     @override
     def _load_response(self, response: FeatureAddResponse) -> None:
@@ -95,8 +107,7 @@ class Loft(Feature):
                                         {
                                             "btType": "BTMIndividualQuery-138",
                                             "deterministicIds": [
-                                                e.transient_id
-                                                for e in self.start_face._available
+                                                e.transient_id for e in self.start_faces
                                             ],
                                         }
                                     ],
@@ -113,8 +124,7 @@ class Loft(Feature):
                                         {
                                             "btType": "BTMIndividualQuery-138",
                                             "deterministicIds": [
-                                                e.transient_id
-                                                for e in self.end_face._available
+                                                e.transient_id for e in self.end_faces
                                             ],
                                         }
                                     ],

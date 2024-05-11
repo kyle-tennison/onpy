@@ -1,9 +1,19 @@
-"""Assembly element interface"""
+"""
 
-from onpy.elements.base import Element
-import onpy.api.model as model
+Assembly element interface
+
+Assemblies combine multiple parts together to create a complete product. As of
+now (May 2024), OnPy does not directly interface with assemblies, hence
+the lack of code.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from typing import TYPE_CHECKING, override
+
+import onpy.api.model as model
+from onpy.elements.base import Element
 
 if TYPE_CHECKING:
     from onpy.client import Client

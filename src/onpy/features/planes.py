@@ -1,18 +1,27 @@
-"""Different types of OnShape Planes"""
+"""
 
-from abc import abstractmethod
-from functools import cache
-from onpy.features.base import Feature
+Interface to OnShape Planes
+
+There are multiple types of planes in OnShape, all of which are defined here.
+There is an abstract plane class used to reconcile these multiple classes.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
+
 from enum import Enum
+from functools import cache
 from textwrap import dedent
+from abc import abstractmethod
 from typing import TYPE_CHECKING, override
-from onpy.features.base import Feature
-from onpy.api.versioning import WorkspaceWVM
+
 import onpy.api.model as model
 from onpy.util.misc import unwrap
+from onpy.entities import EntityFilter
+from onpy.features.base import Feature
+from onpy.api.versioning import WorkspaceWVM
 
 if TYPE_CHECKING:
-    from onpy.document import Document
     from onpy.elements.partstudio import PartStudio
 
 
@@ -22,7 +31,8 @@ class Plane(Feature):
     @property
     @override
     def entities(self):
-        raise NotImplementedError("Cannot query entities on plane")
+        """NOTE: Plane cannot contain entities, this will always be empty"""
+        return EntityFilter(self, available=[])
 
     @property
     @abstractmethod

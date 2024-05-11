@@ -1,20 +1,28 @@
-"""PartStudio element interface"""
+"""
 
-from loguru import logger
-from onpy.elements.base import Element
-import onpy.api.model as model
-from onpy.features.base import Feature, FeatureList, Extrudable
-from onpy.features.planes import DefaultPlane, DefaultPlaneOrientation
-from onpy.api.versioning import WorkspaceWVM
-from onpy.util.exceptions import OnPyFeatureError
-from onpy.util.misc import unwrap
-from onpy.features import Sketch, Extrude, Plane, OffsetPlane, Loft
-from onpy.features.query.list import QueryList
+Partstudio element interface
+
+In OnShape, partstudios are the place where parts are modeled. This is 
+partstudios are fundamental to how OnPy operates; besides documents,
+they are effectively the entry point to creating a model. All features
+are created by a partstudio, and they all live in the partstudio.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from typing import TYPE_CHECKING, override
 
+import onpy.api.model as model
+from onpy.util.misc import unwrap
+from onpy.elements.base import Element
+from onpy.api.versioning import WorkspaceWVM
+from onpy.features.base import Feature, FeatureList
+from onpy.entities.protocols import FaceEntityConvertible
+from onpy.features import Sketch, Extrude, Plane, OffsetPlane, Loft
+from onpy.features.planes import DefaultPlane, DefaultPlaneOrientation
+
 if TYPE_CHECKING:
-    from onpy.client import Client
     from onpy.document import Document
 
 
@@ -77,28 +85,33 @@ class PartStudio(Element):
 
     def add_extrude(
         self,
-        targets: QueryList | list[Extrudable],
+        faces: FaceEntityConvertible,
         distance: float,
         name: str = "New Extrude",
     ) -> Extrude:
         """Adds a new blind extrude feature to the partstudio
 
         Args:
-            targets: The targets to extrude
+            faces: The faces to extrude
             distance: The distance to extrude
             name: An optional name for the extrusion
 
         Returns:
             An Extrude object
         """
-        return Extrude(partstudio=self, targets=targets, distance=distance, name=name)
+        return Extrude(partstudio=self, faces=faces, distance=distance, name=name)
 
-    def add_loft(self, start: QueryList, end: QueryList, name: str = "Loft") -> Loft:
+    def add_loft(
+        self,
+        start: FaceEntityConvertible,
+        end: FaceEntityConvertible,
+        name: str = "Loft",
+    ) -> Loft:
         """Adds a new loft feature to the partstudio
 
         Args:
-            start: The start point(s) of the loft
-            end: The end point(s) of the loft
+            start: The start face(s) of the loft
+            end: The end face(s) of the loft
             name: An optional name for the loft feature
 
         Returns:

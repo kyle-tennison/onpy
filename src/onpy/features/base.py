@@ -1,12 +1,22 @@
-"""Base class for sketches"""
+"""
+
+Abstract base class for features
+
+Features are the operations taken to create some geometry; they are 
+fundamental to the idea of parametric cad. The base class for OnShape Features
+is defined here.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 from loguru import logger
-import onpy.api.model as model
-from onpy.util.exceptions import OnPyParameterError, OnPyFeatureError
-from onpy.api.versioning import WorkspaceWVM
-
+from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Iterator, Protocol
+
+import onpy.api.model as model
+from onpy.api.versioning import WorkspaceWVM
+from onpy.util.exceptions import OnPyParameterError, OnPyFeatureError
 
 if TYPE_CHECKING:
     from onpy.client import Client
@@ -14,7 +24,7 @@ if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
     from onpy.features.planes import Plane
     from onpy.api.rest_api import RestApi
-    from onpy.features.entities.base import Entity
+    from onpy.entities import EntityFilter
 
 
 class Feature(ABC):
@@ -54,8 +64,8 @@ class Feature(ABC):
 
     @property
     @abstractmethod
-    def entities(self) -> list["Entity"]:
-        """A list of entities on the partstudio"""
+    def entities(self) -> "EntityFilter":
+        """An object used for interfacing with entities that belong to the object"""
         ...
 
     @abstractmethod
@@ -152,25 +162,3 @@ class FeatureList:
     @property
     def right_plane(self) -> "Plane":
         return self["Right Plane"]  # type: ignore
-
-
-class Extrudable(Protocol):
-    """Marks an object that can be extruded"""
-
-    @property
-    @abstractmethod
-    def _extrusion_query(self) -> Any:
-        """The query used for extrusion"""
-        ...
-
-    @property
-    @abstractmethod
-    def _extrusion_query_key(self) -> str:
-        """The JSON filed that points to the _extrusion_query"""
-        ...
-
-    @property
-    @abstractmethod
-    def _extrusion_parameter_bt_type(self) -> str:
-        """The btType of the extrudable region. e.g., BTMIndividualSketchRegionQuery-140"""
-        ...

@@ -1,9 +1,20 @@
-"""Contains different endpoints exposed to the RestApi object"""
+"""
+
+Different endpoints exposed to the RestApi object
+
+The api is built in two parts; a request centric, utility part, and a part
+dedicated to wrapping the many OnShape endpoints. This script completes the
+ladder; it uses the utilities from rest_api.py to wrap OnShape endpoints
+in Python.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
+
+from typing import TYPE_CHECKING
 
 import onpy.api.model as model
 from onpy.api.versioning import VersionTarget
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from onpy.api.rest_api import RestApi

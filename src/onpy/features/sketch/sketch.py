@@ -1,24 +1,38 @@
-"""Interface to OnShape Sketches"""
+"""
+
+Interface to the Sketch Feature
+
+This script defines the Sketch feature. Because sketches are naturally the
+most complex feature, it has been moved to its own submodule.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 import math
+from textwrap import dedent
+import numpy as np
+from loguru import logger
 from typing import TYPE_CHECKING, override
 
-from loguru import logger
-import numpy as np
-from onpy.features.base import Feature, Extrudable
-from onpy.features.entities.base import Entity
-from onpy.features.entities.sketch_entities import SketchCircle, SketchLine, SketchArc
 import onpy.api.model as model
-from onpy.util.misc import unwrap, Point2D, UnitSystem
-from onpy.features.query.list import QueryList
+from onpy.entities import FaceEntity
+from onpy.entities import EntityFilter
+from onpy.features.base import Feature
+from onpy.api.versioning import WorkspaceWVM
 from onpy.util.exceptions import OnPyFeatureError
+from onpy.util.misc import unwrap, Point2D, UnitSystem
+from onpy.features.sketch.sketch_items import SketchItem
+from onpy.entities.protocols import FaceEntityConvertible
+from onpy.features.sketch.sketch_items import SketchCircle, SketchLine, SketchArc
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
     from onpy.features.planes import Plane
 
 
-class Sketch(Feature, Extrudable):
+class Sketch(Feature, FaceEntityConvertible):
+    """The OnShape Sketch Feature, used to build 2D geometries"""
 
     def __init__(
         self, partstudio: "PartStudio", plane: "Plane", name: str = "New Sketch"
@@ -27,7 +41,7 @@ class Sketch(Feature, Extrudable):
         self._partstudio = partstudio
         self._name = name
         self._id: str | None = None
-        self._entities: list[Entity] = []
+        self._items: list[SketchItem] = []
 
         self._upload_feature()
 
@@ -46,9 +60,9 @@ class Sketch(Feature, Extrudable):
         return self._name
 
     @property
-    @override
-    def entities(self) -> list[Entity]:
-        return self._entities
+    def sketch_items(self) -> list[SketchItem]:
+        """A list of items that were added to the sketch"""
+        return self._items
 
     def add_circle(
         self,
@@ -72,15 +86,15 @@ class Sketch(Feature, Extrudable):
             center_point *= 0.0254
             radius *= 0.0254
 
-        entity = SketchCircle(
+        item = SketchCircle(
             sketch=self, radius=radius, center=center_point, units=self._client.units
         )
 
-        logger.info(f"Added circle to sketch: {entity}")
-        self._entities.append(entity)
+        logger.info(f"Added circle to sketch: {item}")
+        self._items.append(item)
         self._update_feature()
 
-        return entity
+        return item
 
     def add_line(
         self, start: tuple[float, float], end: tuple[float, float]
@@ -99,13 +113,13 @@ class Sketch(Feature, Extrudable):
             start_point *= 0.0254
             end_point *= 0.0254
 
-        entity = SketchLine(self, start_point, end_point, self._client.units)
+        item = SketchLine(self, start_point, end_point, self._client.units)
 
-        logger.info(f"Added line to sketch: {entity}")
+        logger.info(f"Added line to sketch: {item}")
 
-        self._entities.append(entity)
+        self._items.append(item)
         self._update_feature()
-        return entity
+        return item
 
     def trace_points(
         self, *points: tuple[float, float], end_connect: bool = True
@@ -176,7 +190,7 @@ class Sketch(Feature, Extrudable):
             radius *= 0.0254
             center *= 0.0254
 
-        entity = SketchArc(
+        item = SketchArc(
             sketch=self,
             radius=radius,
             center=center,
@@ -184,9 +198,10 @@ class Sketch(Feature, Extrudable):
             units=self._client.units,
         )
 
-        self._entities.append(entity)
+        self._items.append(item)
+        logger.info("Successfully added arc to sketch")
         self._update_feature()
-        return entity
+        return item
 
     def add_fillet(
         self,
@@ -285,7 +300,7 @@ class Sketch(Feature, Extrudable):
             endpoint_2=line_2_tangent_point,
             units=self._client.units,
         )
-        self._entities.append(arc)
+        self._items.append(arc)
 
         self._update_feature()
 
@@ -308,9 +323,7 @@ class Sketch(Feature, Extrudable):
                     parameterId="sketchPlane",
                 ).model_dump(exclude_none=True)
             ],
-            entities=[
-                e.to_model().model_dump(exclude_none=True) for e in self._entities
-            ],
+            entities=[i.to_model().model_dump(exclude_none=True) for i in self._items],
         )
 
     @override
@@ -318,134 +331,119 @@ class Sketch(Feature, Extrudable):
         """Loads the feature id from the response"""
         self._id = unwrap(response.feature.featureId)
 
+    @override
+    def _face_entities(self) -> list[FaceEntity]:
+
+        script = dedent(
+            f"""
+
+        function(context is Context, queries) {{
+
+            var feature_id = makeId("{self.id}");
+            var faces = evaluateQuery(context, qCreatedBy(feature_id, EntityType.FACE));
+            return transientQueriesToStrings(faces);
+
+        }}
+            """
+        )
+
+        response = self._client._api.endpoints.eval_featurescript(
+            document_id=self.document.id,
+            version=WorkspaceWVM(self.document.default_workspace.id),
+            element_id=self.partstudio.id,
+            script=script,
+            return_type=model.FeaturescriptResponse,
+        )
+
+        response_list = unwrap(
+            response.result,
+            message="Featurescript failed to load face entities for sketch",
+        )["value"]
+        transient_ids = [i["value"] for i in response_list]
+        face_entities = [FaceEntity(tid) for tid in transient_ids]
+
+        return face_entities
+
     @property
     @override
-    def _extrusion_query(self) -> str:
-        return unwrap(self.id, "Unable to extrude sketch before adding as a feature")
-
-    @property
-    @override
-    def _extrusion_parameter_bt_type(self) -> str:
-        return "BTMIndividualSketchRegionQuery-140"
-
-    @property
-    @override
-    def _extrusion_query_key(self) -> str:
-        return "featureId"
-
-    # def query_point(self, point: tuple[float, float, float]) -> "SketchRegionQuery":
-    #     """Gets the sketch region at a specific point"""
-
-    #     return SketchRegionQuery(self, point)
-
-    # TODO: merge this with .entites eventually
-    @property
-    def queries(self) -> QueryList:
+    def entities(self) -> EntityFilter[FaceEntity]:
         """The available queries"""
 
-        return QueryList._build_from_sketch(self)
+        return EntityFilter[FaceEntity](self, available=self._face_entities())
 
     def mirror(
         self,
-        *entities: Entity,
+        *items: SketchItem,
         line_point: tuple[float, float],
         line_dir: tuple[float, float],
         copy: bool = True,
-    ) -> list[Entity]:
-        """Mirrors entities about a line
+    ) -> list[SketchItem]:
+        """Mirrors sketch items about a line
 
         Args:
-            *entities: Any number of entities to mirror
+            *items: Any number of sketch items to mirror
             line_point: Any point that lies on the mirror line
             line_dir: The direction of the mirror line
             copy: Whether or not to save a copy of the original entity. Defaults
                 to True.
 
         Returns:
-            A lit of the new entities added
+            A lit of the new items added
         """
 
         if copy:
-            entities = tuple([e.clone() for e in entities])
+            items = tuple([i.clone() for i in items])
 
-        return [e.mirror(line_point, line_dir) for e in entities]
+        return [i.mirror(line_point, line_dir) for i in items]
 
     def rotate(
         self,
-        *entities: Entity,
+        *items: SketchItem,
         origin: tuple[float, float],
         theta: float,
         copy: bool = False,
-    ) -> list[Entity]:
-        """Rotates entities about a point
+    ) -> list[SketchItem]:
+        """Rotates sketch items about a point
 
         Args:
-            *entities: Any number of entities to rotate
+            *items: Any number of sketch items to rotate
             origin: The point to pivot about
             theta: The degrees to rotate by
             copy: Whether or not to save a copy of the original entity. Defaults
                 to False.
 
         Returns:
-            A lit of the new entities added
+            A lit of the new items added
         """
 
         if copy:
-            entities = tuple([e.clone() for e in entities])
+            items = tuple([i.clone() for i in items])
 
-        return [e.rotate(origin, theta) for e in entities]
+        return [i.rotate(origin, theta) for i in items]
 
     def translate(
-        self, *entities: Entity, x: float = 0, y: float = 0, copy: bool = False
-    ) -> list[Entity]:
-        """Translates entities in a cartesian system
+        self, *items: SketchItem, x: float = 0, y: float = 0, copy: bool = False
+    ) -> list[SketchItem]:
+        """Translates sketch items in a cartesian system
 
         Args:
-            *entities: Any number of entities to translate
+            *items: Any number of sketch items to translate
             x: The amount to translate in the x-axis
             y: The amount to translate in the y-axis
             copy: Whether or not to save a copy of the original entity. Defaults
                 to False.
 
         Returns:
-            A lit of the new entities added
+            A lit of the new items added
         """
 
         if copy:
-            entities = tuple([e.clone() for e in entities])
+            items = tuple([i.clone() for i in items])
 
-        return [e.translate(x, y) for e in entities]
+        return [i.translate(x, y) for i in items]
 
     def __str__(self) -> str:
         return repr(self)
 
     def __repr__(self) -> str:
         return f'Sketch("{self.name}")'
-
-
-# class SketchRegion(Extrudable):
-
-#     def __init__(self, sketch: Sketch, transient_id: str) -> None:
-#         self.sketch = sketch
-#         self.transient_id = transient_id
-
-#     @property
-#     @override
-#     def _extrusion_query(self) -> str:
-#         return "query =  { \"queryType\" : QueryType.TRANSIENT, \"transientId\" : \"TRANSIENT_ID\" } as Query;".replace("TRANSIENT_ID", self.transient_id)
-#         # return (
-#         #     f'query = qContainsPoint(qSketchRegion(makeId("{self.sketch.id}"), false), '
-#         #     f" vector([{self.point[0]},{self.point[1]},{self.point[2]}])"
-#         #     + ("* inch" if self.sketch._client.units is UnitSystem.INCH else "")
-#         #     + ");"
-#         # )
-
-#     @property
-#     @override
-#     def _extrusion_parameter_bt_type(self) -> str:
-#         return "BTMIndividualQuery-138"
-
-#     @property
-#     @override
-#     def _extrusion_query_key(self) -> str:
-#         return "queryString"

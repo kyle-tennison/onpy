@@ -1,41 +1,20 @@
-"""Wrapping for various OnShape query types"""
+"""
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from enum import Enum
-from textwrap import dedent
+Python wrappings of OnShape queries
+
+The queries used by entities.py are defined here. They are used to filter
+entities.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
+
 from typing import override
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
+
+from onpy.entities import Entity
 from onpy.util.misc import UnitSystem
-
-
-class EntityType(Enum):
-    """Used to differentiate entity types"""
-
-    VERTEX = "vertex"
-    EDGE = "edge"
-    FACE = "face"
-    BODY = "body"
-
-    def as_featurescript(self) -> str:
-        """Converts the EntityType variant into a Featurescript expression"""
-        return f"EntityType.{self.name}"
-
-    @staticmethod
-    def parse_type(input: str) -> "EntityType":
-        """Parses a string into the corresponding enum variant
-
-        Raises:
-            KeyError if the input cannot be matched to a variant
-        """
-
-        input = input.lower()
-
-        if input.lower() not in EntityType:
-            raise KeyError(
-                f"'{input}' is not a valid entity type. Options are: VERTEX, EDGE, FACE, BODY"
-            )
-        else:
-            return EntityType[input]
 
 
 class QueryType(ABC):
@@ -168,8 +147,8 @@ class qIntersectsLine(QueryType):
 class qEntityType(QueryType):
     """Wraps the OnShape qEntityType query"""
 
-    entity_type: EntityType
+    entity_type: type[Entity]
 
     @override
     def inject_featurescript(self, q_to_filter: str) -> str:
-        return f"qEntityType({q_to_filter}, {self.entity_type.as_featurescript()})"
+        return f"qEntityFilter({q_to_filter}, {self.entity_type.as_featurescript()})"

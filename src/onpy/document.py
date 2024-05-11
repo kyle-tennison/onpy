@@ -1,17 +1,25 @@
-"""Interface to managing OnShape documents"""
+"""
+
+OnShape Document interface
+
+OnShape Documents contain multiple elements and versions. This script defines
+methods to interact and control these items.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
 
 import re
-
+from typing import TYPE_CHECKING, Any
 from loguru import logger
+
 import onpy.api.model as model
-from onpy.elements.partstudio import PartStudio
 from onpy.elements.assembly import Assembly
-from onpy.util.misc import find_by_name_or_id
 from onpy.api.versioning import WorkspaceWVM
+from onpy.util.misc import find_by_name_or_id
+from onpy.elements.partstudio import PartStudio
 from onpy.util.exceptions import OnPyParameterError
 
-from typing import TYPE_CHECKING, Any
-from functools import cache
 
 if TYPE_CHECKING:
     from onpy.client import Client

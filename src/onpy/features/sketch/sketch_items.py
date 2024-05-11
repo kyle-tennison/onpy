@@ -1,10 +1,24 @@
-"""Various entities that might appear in a sketch"""
+"""
 
+Various items that can belong to a sketch
+
+As a user builds a sketch, they are adding sketch items. This is importantly
+different from adding entities--which they are also adding. Sketch items
+*cannot* be queried or used for any type of other feature; they are internal
+to the sketch. Entities, on the other hand, are derived from the way sketch
+items are added; these can be queried and used in other features.
+
+OnPy - May 2024 - Kyle Tennison
+
+"""
+
+import copy
 import math
+import uuid
+import numpy as np
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, override
 
-import numpy as np
-from onpy.features.entities.base import Entity
 import onpy.api.model as model
 from onpy.util.misc import UnitSystem, Point2D
 
@@ -12,7 +26,189 @@ if TYPE_CHECKING:
     from onpy.features import Sketch
 
 
-class SketchCircle(Entity):
+class SketchItem(ABC):
+    """Represents an item that the user added to the sketch. *Not* the same
+    as an entity."""
+
+    @property
+    @abstractmethod
+    def sketch(self) -> "Sketch":
+        """A reference to the owning sketch"""
+
+    @abstractmethod
+    def to_model(self) -> model.ApiModel:
+        """Converts the item into the corresponding api model"""
+        ...
+
+    @abstractmethod
+    def translate(self, x: float = 0, y: float = 0) -> "SketchItem":
+        """Linear translation of the entity
+
+        Args:
+            x: The distance to translate along the x-axis
+            y: The distance to translate along the y-axis
+
+        Returns:
+            A new sketch object
+        """
+        ...
+
+    @abstractmethod
+    def rotate(self, origin: tuple[float, float], theta: float) -> "SketchItem":
+        """Rotates the entity about a point
+
+        Args:
+            origin: The point to rotate about
+            theta: The degrees to rotate by. Positive is ccw
+
+        Returns:
+            A new sketch object
+        """
+        ...
+
+    @abstractmethod
+    def mirror(
+        self, line_start: tuple[float, float], line_end: tuple[float, float]
+    ) -> "SketchItem":
+        """Mirror the entity about a line
+
+        Args:
+            line_start: The starting point of the line
+            line_end: The ending point of the line
+
+        Returns:
+            A new entity object
+        """
+        ...
+
+    @staticmethod
+    def _mirror_point(
+        point: Point2D, line_start: Point2D, line_end: Point2D
+    ) -> Point2D:
+        """Mirrors the point across a line
+
+        Args:
+            point: The point to mirror
+            line_start: The point where the line starts
+            line_end: The point where the line ends
+
+        Returns:
+            The mirrored point
+        """
+
+        q_i = np.array(line_start.as_tuple)
+        q_j = np.array(line_end.as_tuple)
+        p_0 = np.array(point.as_tuple)
+
+        a = q_i[1] - q_j[1]
+        b = q_j[0] - q_i[0]
+        c = -(a * q_i[0] + b * q_i[1])
+
+        p_k = (
+            np.array([[b**2 - a**2, -2 * a * b], [-2 * a * b, a**2 - b**2]]) @ p_0
+            - 2 * c * np.array([a, b])
+        ) / (a**2 + b**2)
+
+        return Point2D.from_pair(p_k)
+
+    @staticmethod
+    def _rotate_point(point: Point2D, pivot: Point2D, degrees: float) -> Point2D:
+        """Rotates a point about another point
+
+        Args:
+            point: The point to rotate
+            pivot: The pivot to rotate about
+            degrees: The degrees to rotate by
+
+        Returns:
+            The rotated point
+        """
+
+        dx = point.x - pivot.x
+        dy = point.y - pivot.y
+
+        radius = math.sqrt(dx**2 + dy**2)
+        start_angle = math.atan2(dy, dx)
+        end_angle = start_angle + math.radians(degrees)
+
+        new_x = radius * math.cos(end_angle)
+        new_y = radius * math.sin(end_angle)
+
+        return Point2D(new_x, new_y)
+
+    def _replace_entity(self, new_entity: "SketchItem") -> None:
+        """Replaces the existing entity with a new entity and refreshes the
+        feature
+
+        Args:
+            new_entity: The entity to replace with
+        """
+
+        self.sketch.sketch_items.remove(self)
+        self.sketch.sketch_items.append(new_entity)
+        self.sketch._update_feature()
+
+    def clone(self) -> "SketchItem":
+        """Creates a copy of the entity"""
+
+        new_entity = copy.copy(self)
+        self.sketch.sketch_items.append(new_entity)
+        return new_entity
+
+    def linear_pattern(
+        self, num_steps: int, x_step: float, y_step: float
+    ) -> list["SketchItem"]:
+        """Creates a linear pattern of the sketch entity
+
+        Args:
+            num_steps: The number of steps to make. Does not include original entity
+            x_step: The x distance to translate per step
+            y_step: The y distance to translate per step
+
+        Returns:
+            A list of the entities that compose the linear pattern
+        """
+
+        entities: list["SketchItem"] = [self]
+
+        for _ in range(num_steps):
+            entities.append(entities[-1].clone().translate(x_step, y_step))
+
+        return entities
+
+    def circular_pattern(
+        self, origin: tuple[float, float], num_steps: int, theta: float
+    ) -> list["SketchItem"]:
+        """Creates a circular pattern of the sketch entity about a point
+
+        Args:
+            origin: The origin of the circular rotation
+            num_steps: The number of steps to make. Does not include original entity
+            theta: The degrees to rotate per step
+
+        Returns:
+            A list of entities that compose the circular pattern
+        """
+
+        entities: list["SketchItem"] = [self]
+
+        for _ in range(num_steps):
+            entities.append(entities[-1].clone().rotate(origin, theta))
+
+        return entities
+
+    def _generate_entity_id(self) -> str:
+        """Generates a random entity id"""
+        return str(uuid.uuid4()).replace("-", "")
+
+    def __str__(self) -> str:
+        return repr(self)
+
+    @abstractmethod
+    def __repr__(self) -> str: ...
+
+
+class SketchCircle(SketchItem):
     """A sketch circle"""
 
     def __init__(
@@ -40,7 +236,7 @@ class SketchCircle(Entity):
         self.units = units
         self.dir = Point2D.from_pair(dir)
         self.clockwise = clockwise
-        self.entity_id = self.generate_entity_id()
+        self.entity_id = self._generate_entity_id()
 
     @override
     def to_model(self) -> model.SketchCurveEntity:
@@ -61,14 +257,14 @@ class SketchCircle(Entity):
 
     @property
     @override
-    def _feature(self) -> "Sketch":
+    def sketch(self) -> "Sketch":
         return self._sketch
 
     @override
     def rotate(self, origin: tuple[float, float], theta: float) -> "SketchCircle":
         new_center = self._rotate_point(self.center, Point2D.from_pair(origin), theta)
         new_entity = SketchCircle(
-            sketch=self._feature,
+            sketch=self.sketch,
             radius=self.radius,
             center=new_center,
             units=self.units,
@@ -87,7 +283,7 @@ class SketchCircle(Entity):
 
         new_center = Point2D(self.center.x + x, self.center.y + y)
         new_entity = SketchCircle(
-            sketch=self._feature,
+            sketch=self.sketch,
             radius=self.radius,
             center=new_center,
             units=self.units,
@@ -111,7 +307,7 @@ class SketchCircle(Entity):
         new_center = self._mirror_point(self.center, mirror_start, mirror_end)
 
         new_entity = SketchCircle(
-            sketch=self._feature,
+            sketch=self.sketch,
             radius=self.radius,
             center=new_center,
             units=self.units,
@@ -127,7 +323,7 @@ class SketchCircle(Entity):
         return f"Circle(radius={self.radius}, center={self.center})"
 
 
-class SketchLine(Entity):
+class SketchLine(SketchItem):
     """A straight sketch line segment"""
 
     def __init__(
@@ -149,7 +345,7 @@ class SketchLine(Entity):
         self.start = start_point
         self.end = end_point
         self.units = units
-        self.entity_id = self.generate_entity_id()
+        self.entity_id = self._generate_entity_id()
 
     @property
     def dx(self) -> float:
@@ -178,7 +374,7 @@ class SketchLine(Entity):
 
     @property
     @override
-    def _feature(self):
+    def sketch(self):
         return self._sketch
 
     @override
@@ -257,7 +453,7 @@ class SketchLine(Entity):
         return f"Line(start={self.start}, end={self.end})"
 
 
-class SketchArc(Entity):
+class SketchArc(SketchItem):
     """A sketch arc"""
 
     def __init__(
@@ -287,12 +483,12 @@ class SketchArc(Entity):
         self.theta_interval = theta_interval
         self.dir = dir
         self.clockwise = clockwise
-        self.entity_id = self.generate_entity_id()
+        self.entity_id = self._generate_entity_id()
         self.units = units
 
     @property
     @override
-    def _feature(self):
+    def sketch(self):
         return self._sketch
 
     @override
@@ -393,28 +589,6 @@ class SketchArc(Entity):
             clockwise=self.clockwise,
         )
 
-        # d_theta = self.theta_interval[1] - self.theta_interval[0]
-
-        # arc_start_vector = np.array(
-        #     [start_point.x - new_center.x, start_point.y - new_center.y]
-        # )
-        # x_axis = np.array([1, 0])
-
-        # angle_start = math.acos(
-        #     np.dot(arc_start_vector, x_axis) / np.linalg.norm(arc_start_vector)
-        # )
-
-        # new_theta = (angle_start, angle_start + d_theta)
-
-        # new_entity = SketchArc(
-        #     sketch=self._sketch,
-        #     radius=self.radius,
-        #     center=new_center,
-        #     theta_interval=new_theta,
-        #     units=self.units,
-        #     dir=self.dir,
-        #     clockwise=self.clockwise,
-        # )
         self._replace_entity(new_entity)
         return new_entity
 
