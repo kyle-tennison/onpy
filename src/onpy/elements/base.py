@@ -10,10 +10,10 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-import onpy.api.model as model
-
-from abc import abstractmethod, ABC
 from typing import TYPE_CHECKING
+from abc import abstractmethod, ABC
+
+import onpy.api.model as model
 
 if TYPE_CHECKING:
     from onpy.client import Client

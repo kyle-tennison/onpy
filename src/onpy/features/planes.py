@@ -9,20 +9,19 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from abc import abstractmethod
-from functools import cache
-from onpy.features.base import Feature
 from enum import Enum
+from functools import cache
 from textwrap import dedent
+from abc import abstractmethod
 from typing import TYPE_CHECKING, override
-from onpy.features.base import Feature
-from onpy.api.versioning import WorkspaceWVM
+
 import onpy.api.model as model
 from onpy.util.misc import unwrap
 from onpy.entities import EntityFilter
+from onpy.features.base import Feature
+from onpy.api.versioning import WorkspaceWVM
 
 if TYPE_CHECKING:
-    from onpy.document import Document
     from onpy.elements.partstudio import PartStudio
 
 

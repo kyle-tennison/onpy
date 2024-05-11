@@ -12,16 +12,14 @@ OnPy - May 2024 - Kyle Tennison
 """
 
 import json
-import sys
-from onpy.api.endpoints import EndpointContainer
-from onpy.api.model import ApiModel, HttpMethod
-from onpy.util.exceptions import OnPyApiError, OnPyInternalError
-
 import requests
-from requests.auth import HTTPBasicAuth
-import inspect
 from loguru import logger
+from requests.auth import HTTPBasicAuth
 from typing import TYPE_CHECKING, Callable
+
+from onpy.api.model import ApiModel, HttpMethod
+from onpy.api.endpoints import EndpointContainer
+from onpy.util.exceptions import OnPyApiError, OnPyInternalError
 
 if TYPE_CHECKING:
     from onpy.client import Client

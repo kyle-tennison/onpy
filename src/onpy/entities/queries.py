@@ -9,11 +9,12 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import override
-from onpy.util.misc import UnitSystem
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
+
 from onpy.entities import Entity
+from onpy.util.misc import UnitSystem
 
 
 class QueryType(ABC):

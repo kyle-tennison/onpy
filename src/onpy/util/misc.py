@@ -8,9 +8,10 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from dataclasses import dataclass
 from enum import Enum
 from typing import Self
+from dataclasses import dataclass
+
 from onpy.api.model import NameIdFetchable
 from onpy.util.exceptions import OnPyParameterError
 

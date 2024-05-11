@@ -10,12 +10,11 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from onpy.util.exceptions import OnPyAuthError
-
-import re
 import os
 import json
 from loguru import logger
+
+from onpy.util.exceptions import OnPyAuthError
 
 
 class CredentialManager:

@@ -11,10 +11,10 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
+from typing import TYPE_CHECKING
+
 import onpy.api.model as model
 from onpy.api.versioning import VersionTarget
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from onpy.api.rest_api import RestApi

@@ -9,13 +9,11 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from onpy.util.credentials import CredentialManager
-from onpy.api.rest_api import RestApi
 from onpy.document import Document
+from onpy.api.rest_api import RestApi
+from onpy.util.credentials import CredentialManager
 from onpy.util.exceptions import OnPyParameterError
 from onpy.util.misc import find_by_name_or_id, UnitSystem
-
-from loguru import logger
 
 
 class Client:

@@ -14,10 +14,8 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from textwrap import dedent
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from abc import abstractmethod
-from onpy.util.misc import unwrap
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from onpy.entities import VertexEntity, EdgeEntity, FaceEntity, BodyEntity

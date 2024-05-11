@@ -10,10 +10,10 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from onpy.elements.base import Element
-import onpy.api.model as model
-
 from typing import TYPE_CHECKING, override
+
+import onpy.api.model as model
+from onpy.elements.base import Element
 
 if TYPE_CHECKING:
     from onpy.client import Client

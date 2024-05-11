@@ -14,16 +14,14 @@ OnPy - May 2024 - Kyle Tennison
 from textwrap import dedent
 from typing import TYPE_CHECKING, override
 
-from loguru import logger
-from onpy.util.misc import unwrap
-from onpy.api.versioning import WorkspaceWVM
 import onpy.api.model as model
+from onpy.util.misc import unwrap
 import onpy.entities.queries as qtypes
 from onpy.entities import Entity, FaceEntity
+from onpy.api.versioning import WorkspaceWVM
 from onpy.entities.protocols import FaceEntityConvertible
 
 if TYPE_CHECKING:
-    from onpy.features import Sketch
     from onpy.features.base import Feature
 
 

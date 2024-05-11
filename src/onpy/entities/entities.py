@@ -16,9 +16,8 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from abc import ABC
-from enum import Enum
 from typing import override
+
 from onpy.entities.protocols import (
     FaceEntityConvertible,
     VertexEntityConvertible,

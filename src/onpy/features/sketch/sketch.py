@@ -16,15 +16,15 @@ from loguru import logger
 from typing import TYPE_CHECKING, override
 
 import onpy.api.model as model
-from onpy.api.versioning import WorkspaceWVM
+from onpy.entities import FaceEntity
 from onpy.entities import EntityFilter
-from onpy.util.exceptions import OnPyFeatureError
 from onpy.features.base import Feature
+from onpy.api.versioning import WorkspaceWVM
+from onpy.util.exceptions import OnPyFeatureError
 from onpy.util.misc import unwrap, Point2D, UnitSystem
 from onpy.features.sketch.sketch_items import SketchItem
-from onpy.features.sketch.sketch_items import SketchCircle, SketchLine, SketchArc
 from onpy.entities.protocols import FaceEntityConvertible
-from onpy.entities import FaceEntity
+from onpy.features.sketch.sketch_items import SketchCircle, SketchLine, SketchArc
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio

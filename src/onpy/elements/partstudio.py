@@ -11,22 +11,18 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from loguru import logger
-from onpy.elements.base import Element
-import onpy.api.model as model
-from onpy.features.base import Feature, FeatureList
-from onpy.features.planes import DefaultPlane, DefaultPlaneOrientation
-from onpy.api.versioning import WorkspaceWVM
-from onpy.util.exceptions import OnPyFeatureError
-from onpy.util.misc import unwrap
-from onpy.features import Sketch, Extrude, Plane, OffsetPlane, Loft
-from onpy.entities import EntityFilter
-from onpy.entities.protocols import FaceEntityConvertible
-
 from typing import TYPE_CHECKING, override
 
+import onpy.api.model as model
+from onpy.util.misc import unwrap
+from onpy.elements.base import Element
+from onpy.api.versioning import WorkspaceWVM
+from onpy.features.base import Feature, FeatureList
+from onpy.entities.protocols import FaceEntityConvertible
+from onpy.features import Sketch, Extrude, Plane, OffsetPlane, Loft
+from onpy.features.planes import DefaultPlane, DefaultPlaneOrientation
+
 if TYPE_CHECKING:
-    from onpy.client import Client
     from onpy.document import Document
 
 

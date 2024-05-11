@@ -9,12 +9,12 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
+import sys
 import json
+from loguru import logger
 from typing import override
 from requests import Response
 from abc import ABC, abstractmethod
-import sys
-from loguru import logger
 
 
 class OnPyException(Exception, ABC):

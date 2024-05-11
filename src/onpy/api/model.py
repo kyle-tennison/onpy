@@ -10,9 +10,9 @@ OnPy - May 2024 - Kyle Tennison
 """
 
 from enum import Enum
-from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from typing import Optional, Protocol
+from pydantic import BaseModel, ConfigDict
 
 
 class HttpMethod(Enum):
@@ -20,7 +20,8 @@ class HttpMethod(Enum):
     Get = "get"
     Put = "put"
     Delete = "delete"
-    
+
+
 class NameIdFetchable(Protocol):
     name: str | None
     id: str | None

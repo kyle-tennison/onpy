@@ -9,13 +9,12 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-
-from typing import TYPE_CHECKING, override
-from onpy.api.model import Feature, FeatureAddResponse
-from onpy.features.base import Feature
 import onpy.api.model as model
 from onpy.util.misc import unwrap
 from onpy.entities import EntityFilter
+from onpy.features.base import Feature
+from typing import TYPE_CHECKING, override
+from onpy.api.model import FeatureAddResponse
 from onpy.entities.protocols import FaceEntityConvertible
 
 if TYPE_CHECKING:
