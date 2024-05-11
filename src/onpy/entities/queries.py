@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import override
 from onpy.util.misc import UnitSystem
-from onpy.entities import EntityType
+from onpy.entities import Entity
 
 class QueryType(ABC):
     """Used to represent the type of a query"""
@@ -136,8 +136,8 @@ class qIntersectsLine(QueryType):
 class qEntityType(QueryType):
     """Wraps the OnShape qEntityType query"""
 
-    entity_type: EntityType
+    entity_type: type[Entity]
 
     @override
     def inject_featurescript(self, q_to_filter: str) -> str:
-        return f"qEntityType({q_to_filter}, {self.entity_type.as_featurescript()})"
+        return f"qEntityFilter({q_to_filter}, {self.entity_type.as_featurescript()})"

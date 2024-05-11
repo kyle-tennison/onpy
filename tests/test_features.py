@@ -18,7 +18,7 @@ def test_sketch_extrude():
     sketch.add_circle((-1, 0), 1)
     sketch.add_circle((1, 0), 1)
 
-    partstudio.add_extrude(targets=[sketch], distance=1, name="new extrude")
+    partstudio.add_extrude(faces=sketch, distance=1, name="new extrude")
 
     new_sketch = partstudio.add_sketch(
         plane=partstudio.features.top_plane, name="Second Sketch"
@@ -31,7 +31,7 @@ def test_sketch_extrude():
     )
 
     partstudio.add_extrude(
-        targets=new_sketch.entities.contains_point((3.5, 3.5, 0)),
+        faces=new_sketch.entities.contains_point((3.5, 3.5, 0)),
         distance=1,
     )
 
@@ -42,7 +42,7 @@ def test_sketch_extrude():
     offset_sketch = partstudio.add_sketch(new_plane)
     offset_sketch.add_circle((0, 0), 1)
     partstudio.add_extrude(
-        targets=offset_sketch.entities.contains_point((0, 0, 3)), distance=-3
+        faces=offset_sketch.entities.contains_point((0, 0, 3)), distance=-3
     )
 
     # try to extrude between the sketches
@@ -69,10 +69,10 @@ def test_sketch_queries():
 
     print(sketch.entities.contains_point((1, -1, 0)))
 
-    partstudio.add_extrude(targets=sketch.entities.largest(), distance=1)
-    partstudio.add_extrude(targets=sketch.entities.smallest(), distance=0.5)
+    partstudio.add_extrude(faces=sketch.entities.largest(), distance=1)
+    partstudio.add_extrude(faces=sketch.entities.smallest(), distance=0.5)
     partstudio.add_extrude(
-        targets=sketch.entities.contains_point((0, 0, 0)), distance=-3
+        faces=sketch.entities.contains_point((0, 0, 0)), distance=-3
     )
 
     document.delete()
@@ -93,7 +93,7 @@ def test_feature_wipe():
     )
     sketch.add_circle(center=(-0.5, 0), radius=1)
     sketch.add_circle(center=(0.5, 0), radius=1)
-    partstudio.add_extrude(targets=[sketch], distance=1)
+    partstudio.add_extrude(faces=sketch, distance=1)
 
     partstudio.wipe()
 
@@ -130,7 +130,7 @@ def test_pseudo_elements():
     sketch.translate(*sketch.sketch_items, x=1, y=1)
     sketch.rotate(*sketch.sketch_items, origin=(0, 0), theta=180)
     partstudio.add_extrude(
-        targets=sketch.entities.contains_point((-1, -1, 0)), distance=1
+        faces=sketch.entities.contains_point((-1, -1, 0)), distance=1
     )
 
     document.delete()

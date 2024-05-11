@@ -2,60 +2,48 @@
 
 from textwrap import dedent
 from typing import TYPE_CHECKING, override
+
+from loguru import logger
 from onpy.util.misc import unwrap
 from onpy.api.versioning import WorkspaceWVM
 import onpy.api.model as model
 import onpy.entities.queries as qtypes
-from onpy.entities import Entity
-
+from onpy.entities import Entity, FaceEntity
+from onpy.entities.protocols import FaceEntityConvertible
 
 if TYPE_CHECKING:
     from onpy.features import Sketch
     from onpy.features.base import Feature
 
 
-class EntityFilter:
+class EntityFilter[T: Entity](FaceEntityConvertible):
     """Object used to list and filter queries"""
 
-    def __init__(self, feature: "Feature", available: list[Entity]) -> None:
+    def __init__(self, feature: "Feature", available: list[T]) -> None:
         self._available = available
         self._feature = feature
         self._client = feature._client
         self._api = feature._api
+    
+    @property
+    def _entity_type(self) -> type[T]:
+        """The class of the generic type T"""
 
-    @staticmethod
-    def _build_from_sketch(sketch: "Sketch") -> "EntityFilter":
-        """Loads available feature from a sketch"""
+        etype = self.__orig_class__.__args__[0] # type: ignore
 
-        featurescript = dedent(
-            f"""
-        function(context is Context, queries) {{
+        if not callable(etype):
+            etype = Entity # default to generic entity
 
-            var sketch_query = qSketchRegion(makeId(\"{sketch.id}\"), false);
-            var sketch_entities = evaluateQuery(context, sketch_query);
-            return transientQueriesToStrings(sketch_entities);
-                               
-        }}
-        """
-        )
+        assert issubclass(etype, Entity) or etype is Entity
 
-        result = unwrap(
-            sketch._api.endpoints.eval_featurescript(
-                document_id=sketch.document.id,
-                version=WorkspaceWVM(sketch.document.default_workspace.id),
-                element_id=sketch.partstudio.id,
-                script=featurescript,
-                return_type=model.FeaturescriptResponse,
-            ).result,
-            message="Featurescript has error",
-        )
+        return etype #type: ignore
+    
+    @override
+    def _face_entities(self) -> list[FaceEntity]:
+        return self.is_type(FaceEntity)._available
 
-        transient_ids = [i["value"] for i in result["value"]]
-        query_entities = [Entity(tid) for tid in transient_ids]
 
-        return EntityFilter(feature=sketch, available=query_entities)
-
-    def _apply_query(self, query: "qtypes.QueryType") -> list[Entity]:
+    def _apply_query(self, query: "qtypes.QueryType") -> list[T]:
         """Builds the featurescript to evaluate a query and evaluates the featurescript
 
         Args:
@@ -102,11 +90,11 @@ class EntityFilter:
                 script=script,
                 return_type=model.FeaturescriptResponse,
             ).result,
-            message="Query has error",
+            message=f"Query raised error when evaluating fs. Script:\n\n{script}",
         )
 
         transient_ids = [i["value"] for i in result["value"]]
-        query_entities = [Entity(tid) for tid in transient_ids]
+        query_entities = [self._entity_type(transient_id=tid) for tid in transient_ids]
 
         return query_entities
 
@@ -119,7 +107,7 @@ class EntityFilter:
 
         query = qtypes.qContainsPoint(point=point, units=self._client.units)
 
-        return EntityFilter(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
 
     def closest_to(self, point: tuple[float, float, float]) -> "EntityFilter":
         """Gets the entity closest to the point
@@ -130,21 +118,21 @@ class EntityFilter:
 
         query = qtypes.qClosestTo(point=point, units=self._client.units)
 
-        return EntityFilter(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
 
     def largest(self) -> "EntityFilter":
         """Gets the largest entity"""
 
         query = qtypes.qLargest()
 
-        return EntityFilter(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
 
     def smallest(self) -> "EntityFilter":
         """Gets the smallest entity"""
 
         query = qtypes.qSmallest()
 
-        return EntityFilter(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
 
     def intersects(
         self, origin: tuple[float, float, float], direction: tuple[float, float, float]
@@ -161,9 +149,9 @@ class EntityFilter:
             line_origin=origin, line_direction=direction, units=self._client.units
         )
 
-        return EntityFilter(feature=self._feature, available=self._apply_query(query))
+        return EntityFilter[T](feature=self._feature, available=self._apply_query(query))
 
-    def is_type(self, entity_type: str) -> "EntityFilter":
+    def is_type[E: Entity](self, entity_type: type[E]) -> "EntityFilter[E]":
         """Gets the queries of a specific type
 
         Args:
@@ -172,10 +160,12 @@ class EntityFilter:
         """
 
         query = qtypes.qEntityType(
-            entity_type=qtypes.EntityType.parse_type(entity_type)
+            entity_type=entity_type
         )
 
-        return EntityFilter(feature=self._feature, available=self._apply_query(query))
+        available: list[E] = [entity_type(e.transient_id) for e in self._apply_query(query)] 
+
+        return EntityFilter[E](feature=self._feature, available=available)
 
     def __str__(self) -> str:
         """NOTE: for debugging purposes"""

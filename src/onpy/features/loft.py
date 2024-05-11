@@ -2,10 +2,12 @@
 
 from typing import TYPE_CHECKING, override
 from onpy.api.model import Feature, FeatureAddResponse
-from onpy.features.base import Feature, Extrudable
+from onpy.features.base import Feature
 import onpy.api.model as model
 from onpy.util.misc import unwrap
 from onpy.entities import EntityFilter
+from onpy.entities.protocols import FaceEntityConvertible
+from onpy.entities import FaceEntity
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -17,8 +19,8 @@ class Loft(Feature):
     def __init__(
         self,
         partstudio: "PartStudio",
-        start_face: EntityFilter,
-        end_face: EntityFilter,
+        start_face: FaceEntityConvertible,
+        end_face: FaceEntityConvertible,
         name: str = "Loft",
     ) -> None:
 
@@ -26,8 +28,8 @@ class Loft(Feature):
         self._id: str | None = None
         self._name = name
 
-        self.start_face = start_face
-        self.end_face = end_face
+        self.start_faces: list[FaceEntity] = start_face._face_entities()
+        self.end_faces: list[FaceEntity] = end_face._face_entities()
 
         self._upload_feature()
 
@@ -96,7 +98,7 @@ class Loft(Feature):
                                             "btType": "BTMIndividualQuery-138",
                                             "deterministicIds": [
                                                 e.transient_id
-                                                for e in self.start_face._available
+                                                for e in self.start_faces
                                             ],
                                         }
                                     ],
@@ -114,7 +116,7 @@ class Loft(Feature):
                                             "btType": "BTMIndividualQuery-138",
                                             "deterministicIds": [
                                                 e.transient_id
-                                                for e in self.end_face._available
+                                                for e in self.end_faces
                                             ],
                                         }
                                     ],

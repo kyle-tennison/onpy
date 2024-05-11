@@ -3,13 +3,14 @@
 from loguru import logger
 from onpy.elements.base import Element
 import onpy.api.model as model
-from onpy.features.base import Feature, FeatureList, Extrudable
+from onpy.features.base import Feature, FeatureList
 from onpy.features.planes import DefaultPlane, DefaultPlaneOrientation
 from onpy.api.versioning import WorkspaceWVM
 from onpy.util.exceptions import OnPyFeatureError
 from onpy.util.misc import unwrap
 from onpy.features import Sketch, Extrude, Plane, OffsetPlane, Loft
 from onpy.entities import EntityFilter
+from onpy.entities.protocols import FaceEntityConvertible
 
 from typing import TYPE_CHECKING, override
 
@@ -77,28 +78,28 @@ class PartStudio(Element):
 
     def add_extrude(
         self,
-        targets: EntityFilter | list[Extrudable],
+        faces: FaceEntityConvertible,
         distance: float,
         name: str = "New Extrude",
     ) -> Extrude:
         """Adds a new blind extrude feature to the partstudio
 
         Args:
-            targets: The targets to extrude
+            faces: The faces to extrude
             distance: The distance to extrude
             name: An optional name for the extrusion
 
         Returns:
             An Extrude object
         """
-        return Extrude(partstudio=self, targets=targets, distance=distance, name=name)
+        return Extrude(partstudio=self, faces=faces, distance=distance, name=name)
 
-    def add_loft(self, start: EntityFilter, end: EntityFilter, name: str = "Loft") -> Loft:
+    def add_loft(self, start: FaceEntityConvertible, end: FaceEntityConvertible, name: str = "Loft") -> Loft:
         """Adds a new loft feature to the partstudio
 
         Args:
-            start: The start point(s) of the loft
-            end: The end point(s) of the loft
+            start: The start face(s) of the loft
+            end: The end face(s) of the loft
             name: An optional name for the loft feature
 
         Returns:

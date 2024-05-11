@@ -153,25 +153,3 @@ class FeatureList:
     @property
     def right_plane(self) -> "Plane":
         return self["Right Plane"]  # type: ignore
-
-
-class Extrudable(Protocol):
-    """Marks an object that can be extruded"""
-
-    @property
-    @abstractmethod
-    def _extrusion_query(self) -> Any:
-        """The query used for extrusion"""
-        ...
-
-    @property
-    @abstractmethod
-    def _extrusion_query_key(self) -> str:
-        """The JSON filed that points to the _extrusion_query"""
-        ...
-
-    @property
-    @abstractmethod
-    def _extrusion_parameter_bt_type(self) -> str:
-        """The btType of the extrudable region. e.g., BTMIndividualSketchRegionQuery-140"""
-        ...

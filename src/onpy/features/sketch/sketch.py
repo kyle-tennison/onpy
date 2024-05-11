@@ -1,24 +1,28 @@
 """Interface to OnShape Sketches"""
 
 import math
+from textwrap import dedent
 import numpy as np
 from loguru import logger
 from typing import TYPE_CHECKING, override
 
 import onpy.api.model as model
+from onpy.api.versioning import WorkspaceWVM
 from onpy.entities import EntityFilter
 from onpy.util.exceptions import OnPyFeatureError
-from onpy.features.base import Feature, Extrudable
+from onpy.features.base import Feature
 from onpy.util.misc import unwrap, Point2D, UnitSystem
 from onpy.features.sketch.sketch_items import SketchItem
 from onpy.features.sketch.sketch_items import SketchCircle, SketchLine, SketchArc
+from onpy.entities.protocols import FaceEntityConvertible
+from onpy.entities import FaceEntity
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
     from onpy.features.planes import Plane
 
 
-class Sketch(Feature, Extrudable):
+class Sketch(Feature, FaceEntityConvertible):
     """The OnShape Sketch Feature, used to build 2D geometries"""
 
     def __init__(
@@ -320,27 +324,47 @@ class Sketch(Feature, Extrudable):
         """Loads the feature id from the response"""
         self._id = unwrap(response.feature.featureId)
 
-    @property
+
     @override
-    def _extrusion_query(self) -> str:
-        return unwrap(self.id, "Unable to extrude sketch before adding as a feature")
+    def _face_entities(self) -> list[FaceEntity]:
+
+        script = dedent(
+            f"""
+
+        function(context is Context, queries) {{
+
+            var feature_id = makeId("{self.id}");
+            var faces = evaluateQuery(context, qCreatedBy(feature_id, EntityType.FACE));
+            return transientQueriesToStrings(faces);
+
+        }}
+            """
+        )
+
+        response = self._client._api.endpoints.eval_featurescript(
+            document_id=self.document.id,
+            version=WorkspaceWVM(self.document.default_workspace.id),
+            element_id=self.partstudio.id,
+            script=script,
+            return_type=model.FeaturescriptResponse,
+        )
+
+        response_list = unwrap(
+            response.result,
+            message="Featurescript failed to load face entities for sketch",
+        )["value"]
+        transient_ids = [i["value"] for i in response_list]
+        face_entities = [FaceEntity(tid) for tid in transient_ids]
+
+        return face_entities
+
 
     @property
     @override
-    def _extrusion_parameter_bt_type(self) -> str:
-        return "BTMIndividualSketchRegionQuery-140"
-
-    @property
-    @override
-    def _extrusion_query_key(self) -> str:
-        return "featureId"
-
-    @property
-    @override
-    def entities(self) -> EntityFilter:
+    def entities(self) -> EntityFilter[FaceEntity]:
         """The available queries"""
 
-        return EntityFilter._build_from_sketch(self)
+        return EntityFilter[FaceEntity](self, available=self._face_entities())
 
     def mirror(
         self,
