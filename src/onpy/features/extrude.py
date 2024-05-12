@@ -80,6 +80,20 @@ class Extrude(Feature):
         
         else:
             return "NEW"
+        
+    @property
+    def _boolean_scope(self) -> list[str]:
+        """Returns a list of transient ids that define the boolean scope of 
+        the extrude"""
+
+        if self._subtract_from is not None:
+            return [e.transient_id for e in self._subtract_from._body_entities()]
+        
+        elif self._merge_with is not None:
+            return [e.transient_id for e in self._merge_with._body_entities()]
+        
+        else:
+            return []
 
     @override
     def _to_model(self) -> model.Extrude:
@@ -127,14 +141,7 @@ class Extrude(Feature):
                     "queries": [
                         {
                             "btType": "BTMIndividualQuery-138",
-                            "deterministicIds": (
-                                []
-                                if self._merge_with is None
-                                else [
-                                    e.transient_id
-                                    for e in self._merge_with._body_entities()
-                                ]
-                            ),
+                            "deterministicIds": self._boolean_scope,
                         }
                     ],
                     "parameterId": "booleanScope",
