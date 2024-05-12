@@ -18,7 +18,7 @@ from onpy.features.base import Feature
 from typing import TYPE_CHECKING, override
 from onpy.api.versioning import WorkspaceWVM
 from onpy.api.model import FeatureAddResponse
-from onpy.entities.protocols import FaceEntityConvertible
+from onpy.entities.protocols import FaceEntityConvertible, BodyEntityConvertible
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -32,12 +32,14 @@ class Extrude(Feature):
         faces: FaceEntityConvertible,
         distance: float,
         name: str = "Extrusion",
+        merge_with: BodyEntityConvertible|None = None
     ) -> None:
         self.targets = faces._face_entities()
         self._id: str | None = None
         self._partstudio = partstudio
         self._name = name
         self.distance = distance
+        self._merge_with = merge_with
 
         self._upload_feature()
 
@@ -63,7 +65,7 @@ class Extrude(Feature):
     @property
     @override
     def entities(self) -> EntityFilter:
-        return EntityFilter(self, available=[])  # TODO: load with items
+        return EntityFilter(self.partstudio, available=[])  # TODO: load with items
 
     @override
     def _to_model(self) -> model.Extrude:
@@ -81,7 +83,7 @@ class Extrude(Feature):
                 },
                 {
                     "btType": "BTMParameterEnum-145",
-                    "value": "NEW",
+                    "value": "NEW" if self._merge_with is None else "ADD",
                     "enumName": "NewBodyOperationType",
                     "parameterId": "operationType",
                 },
@@ -105,6 +107,16 @@ class Extrude(Feature):
                     "btType": "BTMParameterQuantity-147",
                     "expression": f"{self.distance} {self._client.units.extension}",
                     "parameterId": "depth",
+                },
+                {
+                "btType": "BTMParameterQueryList-148",
+                "queries": [
+                    {
+                    "btType": "BTMIndividualQuery-138",
+                    "deterministicIds": [] if self._merge_with is None else [e.transient_id for e in self._merge_with._body_entities()]
+                    }
+                ],
+                "parameterId": "booleanScope"
                 },
             ],
         )
