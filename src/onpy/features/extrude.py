@@ -32,7 +32,7 @@ class Extrude(Feature):
         faces: FaceEntityConvertible,
         distance: float,
         name: str = "Extrusion",
-        merge_with: BodyEntityConvertible|None = None
+        merge_with: BodyEntityConvertible | None = None,
     ) -> None:
         self.targets = faces._face_entities()
         self._id: str | None = None
@@ -109,14 +109,21 @@ class Extrude(Feature):
                     "parameterId": "depth",
                 },
                 {
-                "btType": "BTMParameterQueryList-148",
-                "queries": [
-                    {
-                    "btType": "BTMIndividualQuery-138",
-                    "deterministicIds": [] if self._merge_with is None else [e.transient_id for e in self._merge_with._body_entities()]
-                    }
-                ],
-                "parameterId": "booleanScope"
+                    "btType": "BTMParameterQueryList-148",
+                    "queries": [
+                        {
+                            "btType": "BTMIndividualQuery-138",
+                            "deterministicIds": (
+                                []
+                                if self._merge_with is None
+                                else [
+                                    e.transient_id
+                                    for e in self._merge_with._body_entities()
+                                ]
+                            ),
+                        }
+                    ],
+                    "parameterId": "booleanScope",
                 },
             ],
         )

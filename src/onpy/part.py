@@ -97,7 +97,7 @@ class Part(BodyEntityConvertible):
     def _body_entity(self) -> BodyEntity:
         """The body entity of this part"""
         return BodyEntity(self.id)
-    
+
     @override
     def _body_entities(self) -> list["BodyEntity"]:
         """Converts the current object into a list of body entities"""
