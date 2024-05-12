@@ -9,11 +9,14 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
+from textwrap import dedent
 import onpy.api.model as model
+from onpy.part import Part
 from onpy.util.misc import unwrap
 from onpy.entities import EntityFilter
 from onpy.features.base import Feature
 from typing import TYPE_CHECKING, override
+from onpy.api.versioning import WorkspaceWVM
 from onpy.api.model import FeatureAddResponse
 from onpy.entities.protocols import FaceEntityConvertible
 
@@ -37,6 +40,40 @@ class Extrude(Feature):
         self.distance = distance
 
         self._upload_feature()
+
+
+    def get_created_parts(self) -> list[Part]:
+        """Gets a list of the parts this feature created"""
+
+        script = dedent(f"""
+            function(context is Context, queries) {{
+                var query = qCreatedBy(makeId("{self.id}"), EntityType.BODY);
+
+                return transientQueriesToStrings( evaluateQuery(context, query) ); 
+            }}
+            """)
+        
+        response = self._client._api.endpoints.eval_featurescript(
+            document_id=self._partstudio.document.id,
+            version=WorkspaceWVM(self._partstudio.document.default_workspace.id),
+            element_id=self._partstudio.id,
+            script=script,
+            return_type=model.FeaturescriptResponse,
+        )
+        
+        part_ids_raw = unwrap(
+            response.result, message="Featurescript failed get parts created by feature"
+        )["value"]
+
+        part_ids = [i["value"] for i in part_ids_raw]
+
+        available_parts = self._api.endpoints.list_parts(
+            document_id=self._partstudio.document.id,
+            version=WorkspaceWVM(self._partstudio.document.default_workspace.id),
+            element_id=self._partstudio.id
+        )
+
+        return [Part(self._partstudio, part) for part in available_parts if part.partId in part_ids]
 
     @property
     @override
