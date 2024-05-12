@@ -92,6 +92,7 @@ class PartStudio(Element):
         distance: float,
         name: str = "New Extrude",
         merge_with: BodyEntityConvertible | None = None,
+        subtract_from: BodyEntityConvertible | None = None,
     ) -> Extrude:
         """Adds a new blind extrude feature to the partstudio
 
@@ -109,6 +110,7 @@ class PartStudio(Element):
             distance=distance,
             name=name,
             merge_with=merge_with,
+            subtract_from=subtract_from
         )
 
     def add_loft(

@@ -33,6 +33,7 @@ class Extrude(Feature):
         distance: float,
         name: str = "Extrusion",
         merge_with: BodyEntityConvertible | None = None,
+        subtract_from: BodyEntityConvertible | None = None,
     ) -> None:
         self.targets = faces._face_entities()
         self._id: str | None = None
@@ -40,6 +41,7 @@ class Extrude(Feature):
         self._name = name
         self.distance = distance
         self._merge_with = merge_with
+        self._subtract_from = subtract_from
 
         self._upload_feature()
 
@@ -66,6 +68,18 @@ class Extrude(Feature):
     @override
     def entities(self) -> EntityFilter:
         return EntityFilter(self.partstudio, available=[])  # TODO: load with items
+    
+    @property
+    def _extrude_bool_type(self) -> str:
+        """Gets the boolean type of the extrude. Can be NEW, ADD, or REMOVE"""
+        if self._subtract_from is not None:
+            return "REMOVE"
+        
+        elif self._merge_with is not None:
+            return "ADD"
+        
+        else:
+            return "NEW"
 
     @override
     def _to_model(self) -> model.Extrude:
@@ -83,7 +97,7 @@ class Extrude(Feature):
                 },
                 {
                     "btType": "BTMParameterEnum-145",
-                    "value": "NEW" if self._merge_with is None else "ADD",
+                    "value": self._extrude_bool_type,
                     "enumName": "NewBodyOperationType",
                     "parameterId": "operationType",
                 },
