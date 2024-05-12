@@ -110,7 +110,7 @@ class PartStudio(Element):
             distance=distance,
             name=name,
             merge_with=merge_with,
-            subtract_from=subtract_from
+            subtract_from=subtract_from,
         )
 
     def add_loft(

@@ -158,7 +158,7 @@ def test_part_query():
     extrude = partstudio.add_extrude(sketch4.faces.smallest(), distance=3)
 
     sketch_cut = partstudio.add_sketch(partstudio.features.top_plane)
-    sketch_cut.add_circle((0,0), 0.4)
+    sketch_cut.add_circle((0, 0), 0.4)
 
     main_part = partstudio.parts[0]
 

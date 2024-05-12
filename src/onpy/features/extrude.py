@@ -68,30 +68,30 @@ class Extrude(Feature):
     @override
     def entities(self) -> EntityFilter:
         return EntityFilter(self.partstudio, available=[])  # TODO: load with items
-    
+
     @property
     def _extrude_bool_type(self) -> str:
         """Gets the boolean type of the extrude. Can be NEW, ADD, or REMOVE"""
         if self._subtract_from is not None:
             return "REMOVE"
-        
+
         elif self._merge_with is not None:
             return "ADD"
-        
+
         else:
             return "NEW"
-        
+
     @property
     def _boolean_scope(self) -> list[str]:
-        """Returns a list of transient ids that define the boolean scope of 
+        """Returns a list of transient ids that define the boolean scope of
         the extrude"""
 
         if self._subtract_from is not None:
             return [e.transient_id for e in self._subtract_from._body_entities()]
-        
+
         elif self._merge_with is not None:
             return [e.transient_id for e in self._merge_with._body_entities()]
-        
+
         else:
             return []
 
