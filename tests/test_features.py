@@ -128,9 +128,7 @@ def test_pseudo_elements():
 
     sketch.translate(*sketch.sketch_items, x=1, y=1)
     sketch.rotate(*sketch.sketch_items, origin=(0, 0), theta=180)
-    partstudio.add_extrude(
-        faces=sketch.faces.contains_point((-1, -1, 0)), distance=1
-    )
+    partstudio.add_extrude(faces=sketch.faces.contains_point((-1, -1, 0)), distance=1)
 
     document.delete()
 
