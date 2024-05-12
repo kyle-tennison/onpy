@@ -125,24 +125,25 @@ class Feature(ABC):
         else:
             logger.debug(f"Successfully updated feature '{self.name}'")
 
-
     def _get_created_parts_inner(self) -> list[Part]:
         """Gets the parts created by the current feature. Wrap this
         function in `get_created_parts` to expose it to the user, ONLY if
         it is applicable to the feature
-        
+
         Returns:
             A list of Part objects
         """
 
-        script = dedent(f"""
+        script = dedent(
+            f"""
             function(context is Context, queries) {{
                 var query = qCreatedBy(makeId("{self.id}"), EntityType.BODY);
 
                 return transientQueriesToStrings( evaluateQuery(context, query) ); 
             }}
-            """)
-        
+            """
+        )
+
         response = self._client._api.endpoints.eval_featurescript(
             document_id=self.partstudio.document.id,
             version=WorkspaceWVM(self.partstudio.document.default_workspace.id),
@@ -150,7 +151,7 @@ class Feature(ABC):
             script=script,
             return_type=model.FeaturescriptResponse,
         )
-        
+
         part_ids_raw = unwrap(
             response.result, message="Featurescript failed get parts created by feature"
         )["value"]
@@ -160,15 +161,17 @@ class Feature(ABC):
         available_parts = self._api.endpoints.list_parts(
             document_id=self.partstudio.document.id,
             version=WorkspaceWVM(self.partstudio.document.default_workspace.id),
-            element_id=self.partstudio.id
+            element_id=self.partstudio.id,
         )
 
-        return [Part(self.partstudio, part) for part in available_parts if part.partId in part_ids]
+        return [
+            Part(self.partstudio, part)
+            for part in available_parts
+            if part.partId in part_ids
+        ]
 
 
 class FeatureList:
-
-
 
     def __init__(self, features: list[Feature]):
         self._features = features

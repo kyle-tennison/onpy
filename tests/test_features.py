@@ -134,29 +134,31 @@ def test_pseudo_elements():
 
     document.delete()
 
+
 def test_part_query():
     """Tests the ability to query a part"""
-
 
     document = onpy.create_document("test_features::test_part_query")
     partstudio = document.get_partstudio()
     partstudio.wipe()
 
     sketch1 = partstudio.add_sketch(partstudio.features.top_plane)
-    sketch1.add_circle((0,0), radius=1)
-    
+    sketch1.add_circle((0, 0), radius=1)
+
     extrude = partstudio.add_extrude(sketch1, distance=3)
 
     new_part = extrude.get_created_parts()[0]
 
-    sketch3 = partstudio.add_sketch(new_part.faces.closest_to((0,0,1000)))
+    sketch3 = partstudio.add_sketch(new_part.faces.closest_to((0, 0, 1000)))
     sketch3.add_corner_rectangle((0.5, 0.5), (-0.5, -0.5))
 
     extrude = partstudio.add_extrude(sketch3, distance=0.5)
 
-    sketch4 = partstudio.add_sketch(plane=extrude.get_created_parts()[0].faces.closest_to((0,0,10000)))
-    sketch4.add_circle((0,0), radius=3)
-    sketch4.add_circle((0,4), radius=1)
+    sketch4 = partstudio.add_sketch(
+        plane=extrude.get_created_parts()[0].faces.closest_to((0, 0, 10000))
+    )
+    sketch4.add_circle((0, 0), radius=3)
+    sketch4.add_circle((0, 4), radius=1)
 
     extrude = partstudio.add_extrude(sketch4.faces.smallest(), distance=3)
 
@@ -164,4 +166,3 @@ def test_part_query():
     print(partstudio.parts)
 
     document.delete()
-

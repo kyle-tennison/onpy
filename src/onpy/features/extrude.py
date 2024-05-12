@@ -41,7 +41,6 @@ class Extrude(Feature):
 
         self._upload_feature()
 
-
     def get_created_parts(self) -> list[Part]:
         """Gets a list of the parts this feature created"""
         return self._get_created_parts_inner()

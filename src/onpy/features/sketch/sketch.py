@@ -35,7 +35,10 @@ class Sketch(Feature, FaceEntityConvertible):
     """The OnShape Sketch Feature, used to build 2D geometries"""
 
     def __init__(
-        self, partstudio: "PartStudio", plane: "Plane|FaceEntityConvertible", name: str = "New Sketch"
+        self,
+        partstudio: "PartStudio",
+        plane: "Plane|FaceEntityConvertible",
+        name: str = "New Sketch",
     ) -> None:
         self.plane = plane
         self._partstudio = partstudio
@@ -329,10 +332,10 @@ class Sketch(Feature, FaceEntityConvertible):
                     parameterId="sketchPlane",
                 ).model_dump(exclude_none=True),
                 {
-                "btType": "BTMParameterBoolean-144",
-                "value": True,
-                "parameterId": "disableImprinting"
-                }
+                    "btType": "BTMParameterBoolean-144",
+                    "value": True,
+                    "parameterId": "disableImprinting",
+                },
             ],
             entities=[i.to_model().model_dump(exclude_none=True) for i in self._items],
         )
@@ -346,19 +349,21 @@ class Sketch(Feature, FaceEntityConvertible):
     @override
     def entities(self) -> EntityFilter:
         """All of the entities on this sketch
-        
+
         Returns:
             An EntityFilter object used to query entities
         """
 
-        script = dedent(f"""
+        script = dedent(
+            f"""
             function(context is Context, queries) {{
                 var feature_id = makeId("{self.id}");
                 var faces = evaluateQuery(context, qCreatedBy(feature_id));
                 return transientQueriesToStrings(faces);
             }}
-            """)
-        
+            """
+        )
+
         response = self._client._api.endpoints.eval_featurescript(
             document_id=self._partstudio.document.id,
             version=WorkspaceWVM(self._partstudio.document.default_workspace.id),
@@ -366,7 +371,7 @@ class Sketch(Feature, FaceEntityConvertible):
             script=script,
             return_type=model.FeaturescriptResponse,
         )
-        
+
         transient_ids_raw = unwrap(
             response.result, message="Featurescript failed get entities owned by part"
         )["value"]
@@ -382,17 +387,26 @@ class Sketch(Feature, FaceEntityConvertible):
     @property
     def vertices(self) -> EntityFilter[VertexEntity]:
         """An object used for interfacing with vertex entities on this sketch"""
-        return EntityFilter(partstudio=self._partstudio, available=self.entities.is_type(VertexEntity)._available)
-    
+        return EntityFilter(
+            partstudio=self._partstudio,
+            available=self.entities.is_type(VertexEntity)._available,
+        )
+
     @property
     def edges(self) -> EntityFilter[EdgeEntity]:
         """An object used for interfacing with edge entities on this sketch"""
-        return EntityFilter(partstudio=self._partstudio, available=self.entities.is_type(EdgeEntity)._available)
-    
+        return EntityFilter(
+            partstudio=self._partstudio,
+            available=self.entities.is_type(EdgeEntity)._available,
+        )
+
     @property
     def faces(self) -> EntityFilter[FaceEntity]:
         """An object used for interfacing with face entities on this sketch"""
-        return EntityFilter(partstudio=self._partstudio, available=self.entities.is_type(FaceEntity)._available)
+        return EntityFilter(
+            partstudio=self._partstudio,
+            available=self.entities.is_type(FaceEntity)._available,
+        )
 
     def mirror(
         self,

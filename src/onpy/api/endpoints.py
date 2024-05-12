@@ -154,9 +154,9 @@ class EndpointContainer:
                 documentId=document_id, name=name, workspaceId=workspace_id
             ),
         )
-    
+
     def list_parts(
-            self, document_id: str, version: VersionTarget, element_id: str
+        self, document_id: str, version: VersionTarget, element_id: str
     ) -> list[model.Part]:
         """Lists all the parts in an element"""
 
