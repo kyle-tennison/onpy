@@ -72,7 +72,7 @@ class PartStudio(Element):
 
         return default_planes
 
-    def add_sketch(self, plane: Plane, name: str = "New Sketch") -> Sketch:
+    def add_sketch(self, plane: Plane|FaceEntityConvertible, name: str = "New Sketch") -> Sketch:
         """Adds a new sketch to the partstudio
 
         Args:

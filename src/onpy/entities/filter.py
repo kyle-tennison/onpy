@@ -22,23 +22,28 @@ from onpy.api.versioning import WorkspaceWVM
 from onpy.entities.protocols import FaceEntityConvertible
 
 if TYPE_CHECKING:
-    from onpy.features.base import Feature
+    from onpy.elements.partstudio import PartStudio
 
 
 class EntityFilter[T: Entity](FaceEntityConvertible):
     """Object used to list and filter queries"""
 
-    def __init__(self, feature: "Feature", available: list[T]) -> None:
+    def __init__(self, partstudio: "PartStudio", available: list[T]) -> None:
         self._available = available
-        self._feature = feature
-        self._client = feature._client
-        self._api = feature._api
+        self._partstudio = partstudio
+        self._client = partstudio._client
+        self._api = partstudio._api
 
     @property
     def _entity_type(self) -> type[T]:
         """The class of the generic type T"""
 
-        etype = self.__orig_class__.__args__[0]  # type: ignore
+        orig_class = getattr(self, "__orig__class__", None)
+
+        if orig_class:
+            etype = orig_class.__args__[0]
+        else:
+            etype = Entity
 
         if not callable(etype):
             etype = Entity  # default to generic entity
@@ -92,9 +97,9 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
 
         result = unwrap(
             self._api.endpoints.eval_featurescript(
-                self._feature.document.id,
-                version=WorkspaceWVM(self._feature.document.default_workspace.id),
-                element_id=unwrap(self._feature.partstudio.id),
+                self._partstudio.document.id,
+                version=WorkspaceWVM(self._partstudio.document.default_workspace.id),
+                element_id=unwrap(self._partstudio.id),
                 script=script,
                 return_type=model.FeaturescriptResponse,
             ).result,
@@ -116,7 +121,7 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
         query = qtypes.qContainsPoint(point=point, units=self._client.units)
 
         return EntityFilter[T](
-            feature=self._feature, available=self._apply_query(query)
+            partstudio=self._partstudio, available=self._apply_query(query)
         )
 
     def closest_to(self, point: tuple[float, float, float]) -> "EntityFilter":
@@ -129,7 +134,7 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
         query = qtypes.qClosestTo(point=point, units=self._client.units)
 
         return EntityFilter[T](
-            feature=self._feature, available=self._apply_query(query)
+            partstudio=self._partstudio, available=self._apply_query(query)
         )
 
     def largest(self) -> "EntityFilter":
@@ -138,7 +143,7 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
         query = qtypes.qLargest()
 
         return EntityFilter[T](
-            feature=self._feature, available=self._apply_query(query)
+            partstudio=self._partstudio, available=self._apply_query(query)
         )
 
     def smallest(self) -> "EntityFilter":
@@ -147,7 +152,7 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
         query = qtypes.qSmallest()
 
         return EntityFilter[T](
-            feature=self._feature, available=self._apply_query(query)
+            partstudio=self._partstudio, available=self._apply_query(query)
         )
 
     def intersects(
@@ -166,7 +171,7 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
         )
 
         return EntityFilter[T](
-            feature=self._feature, available=self._apply_query(query)
+            partstudio=self._partstudio, available=self._apply_query(query)
         )
 
     def is_type[E: Entity](self, entity_type: type[E]) -> "EntityFilter[E]":
@@ -183,7 +188,7 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
             entity_type(e.transient_id) for e in self._apply_query(query)
         ]
 
-        return EntityFilter[E](feature=self._feature, available=available)
+        return EntityFilter[E](partstudio=self._partstudio, available=available)
 
     def __str__(self) -> str:
         """NOTE: for debugging purposes"""

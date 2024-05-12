@@ -35,7 +35,7 @@ class Sketch(Feature, FaceEntityConvertible):
     """The OnShape Sketch Feature, used to build 2D geometries"""
 
     def __init__(
-        self, partstudio: "PartStudio", plane: "Plane", name: str = "New Sketch"
+        self, partstudio: "PartStudio", plane: "Plane|FaceEntityConvertible", name: str = "New Sketch"
     ) -> None:
         self.plane = plane
         self._partstudio = partstudio
@@ -308,6 +308,12 @@ class Sketch(Feature, FaceEntityConvertible):
 
     @override
     def _to_model(self) -> model.Sketch:
+
+        if isinstance(self.plane, FaceEntityConvertible):
+            transient_ids = [e.transient_id for e in self.plane._face_entities()]
+        else:
+            transient_ids = [self.plane.transient_id]
+
         return model.Sketch(
             name=self.name,
             featureId=self._id,
@@ -317,11 +323,16 @@ class Sketch(Feature, FaceEntityConvertible):
                     queries=[
                         {
                             "btType": "BTMIndividualQuery-138",
-                            "deterministicIds": [self.plane.transient_id],
+                            "deterministicIds": transient_ids,
                         }
                     ],
                     parameterId="sketchPlane",
-                ).model_dump(exclude_none=True)
+                ).model_dump(exclude_none=True),
+                {
+                "btType": "BTMParameterBoolean-144",
+                "value": True,
+                "parameterId": "disableImprinting"
+                }
             ],
             entities=[i.to_model().model_dump(exclude_none=True) for i in self._items],
         )
@@ -369,7 +380,7 @@ class Sketch(Feature, FaceEntityConvertible):
     def entities(self) -> EntityFilter[FaceEntity]:
         """The available queries"""
 
-        return EntityFilter[FaceEntity](self, available=self._face_entities())
+        return EntityFilter[FaceEntity](self.partstudio, available=self._face_entities())
 
     def mirror(
         self,
