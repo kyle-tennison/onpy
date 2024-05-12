@@ -13,6 +13,7 @@ OnPy - May 2024 - Kyle Tennison
 
 from typing import TYPE_CHECKING, override
 
+from onpy.part import Part
 import onpy.api.model as model
 from onpy.util.misc import unwrap
 from onpy.elements.base import Element
@@ -135,6 +136,17 @@ class PartStudio(Element):
         """
 
         return OffsetPlane(partstudio=self, owner=target, distance=distance, name=name)
+    
+    def list_parts(self) -> list[Part]:
+        """Gets a list of parts attached to the partstudio"""
+
+        parts = self._api.endpoints.list_parts(
+            document_id=self.document.id,
+            version=WorkspaceWVM(self.document.default_workspace.id),
+            element_id=self.id
+        )
+
+        return [Part(self, pmodel) for pmodel in parts]
 
     def wipe(self) -> None:
         """Removes all features from the current partstudio. Stores in another version"""

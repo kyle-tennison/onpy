@@ -39,17 +39,17 @@ class Entity:
             "An entity of unknown type should never be parsed into featurescript"
         )
 
-    @property
-    def as_query(self) -> str:
-        """Featurescript expression to convert into query of self"""
-        return '{ "queryType" : QueryType.TRANSIENT, "transientId" : "TRANSIENT_ID" } as Query'.replace(
-            "TRANSIENT_ID", self.transient_id
-        )
+    # @property
+    # def as_query(self) -> str:
+    #     """Featurescript expression to convert into query of self"""
+    #     return '{ "queryType" : QueryType.TRANSIENT, "transientId" : "TRANSIENT_ID" } as Query'.replace(
+    #         "TRANSIENT_ID", self.transient_id
+    #     )
 
-    @property
-    def as_entity(self) -> str:
-        """Featurescript expression to get a reference to this entity"""
-        return f"evaluateQuery(context, {self.as_query})[0] "
+    # @property
+    # def as_entity(self) -> str:
+    #     """Featurescript expression to get a reference to this entity"""
+    #     return f"evaluateQuery(context, {self.as_query})[0] "
 
     @staticmethod
     def match_string_type(string: str) -> type["Entity"]:
