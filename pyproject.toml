@@ -22,7 +22,8 @@ dependencies = [
     "loguru",
     "requests",
     "pydantic",
-    "numpy"
+    "numpy",
+    "prettytable"
 ]
 [project.optional-dependencies]
 dev = [

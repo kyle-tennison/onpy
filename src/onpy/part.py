@@ -10,9 +10,10 @@ OnPy - May 2024 - Kyle Tennison
 """
 
 from textwrap import dedent
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from loguru import logger
+from prettytable import PrettyTable
 
 import onpy.api.model as model
 from onpy.api.versioning import WorkspaceWVM
@@ -116,4 +117,42 @@ class Part:
     
     def __str__(self) -> str:
         return repr(self)
+        
+
+
+class PartList:
+    """Interface to listing/getting parts"""
+
+    def __init__(self, parts: list[Part]) -> None:
+        self.parts = parts
+
+    def __getitem__(self, index: int) -> Any:
+        return self.parts[index]
+    
+    def get(self, name: str) -> Part:
+        """Gets a part by name. Raises KeyError if not found"""
+
+        try:
+            return next(filter(lambda x: x.name.lower() == name.lower(), self.parts))
+        except StopIteration:
+            raise KeyError(f"No part named '{name}'")
+
+    def get_id(self, id: str) -> Part:
+        """Gets a part by id. Raises KeyError if not found"""
+
+        try:
+            return next(filter(lambda x: x.id == id.upper(), self.parts))
+        except StopIteration:
+            raise KeyError(f"No part with id '{id}'")
+
+    def __str__(self) -> str:
+
+        table = PrettyTable(field_names=("Index", "Part Name", "Part ID"))
+        for i, part in enumerate(self.parts):
+            table.add_row([i, part.name, part.id])
+
+        return str(table)
+    
+    def __repr__(self) -> str:
+        return f"PartList({[p.id for p in self.parts]})"
         
