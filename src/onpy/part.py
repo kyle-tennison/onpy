@@ -9,23 +9,23 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from textwrap import dedent
-from typing import TYPE_CHECKING, Any
-
 from loguru import logger
+from textwrap import dedent
 from prettytable import PrettyTable
+from typing import TYPE_CHECKING, Any, override
 
 import onpy.api.model as model
 from onpy.api.versioning import WorkspaceWVM
 from onpy.util.misc import unwrap
 from onpy.entities import VertexEntity, EdgeEntity, FaceEntity, BodyEntity
 from onpy.entities.filter import EntityFilter
+from onpy.entities.protocols import BodyEntityConvertible
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
 
 
-class Part:
+class Part(BodyEntityConvertible):
     """Represents a Part in an OnShape partstudio"""
 
     def __init__(self, partstudio: "PartStudio", model: model.Part) -> None:
@@ -97,6 +97,11 @@ class Part:
     def _body_entity(self) -> BodyEntity:
         """The body entity of this part"""
         return BodyEntity(self.id)
+
+    @override
+    def _body_entities(self) -> list["BodyEntity"]:
+        """Converts the current object into a list of body entities"""
+        return [self._body_entity()]
 
     @property
     def vertices(self) -> EntityFilter[VertexEntity]:

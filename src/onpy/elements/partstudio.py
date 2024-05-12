@@ -19,9 +19,9 @@ from onpy.part import Part, PartList
 from onpy.elements.base import Element
 from onpy.api.versioning import WorkspaceWVM
 from onpy.features.base import Feature, FeatureList
-from onpy.entities.protocols import FaceEntityConvertible
 from onpy.features import Sketch, Extrude, Plane, OffsetPlane, Loft
 from onpy.features.planes import DefaultPlane, DefaultPlaneOrientation
+from onpy.entities.protocols import FaceEntityConvertible, BodyEntityConvertible
 
 if TYPE_CHECKING:
     from onpy.document import Document
@@ -91,6 +91,7 @@ class PartStudio(Element):
         faces: FaceEntityConvertible,
         distance: float,
         name: str = "New Extrude",
+        merge_with: BodyEntityConvertible | None = None,
     ) -> Extrude:
         """Adds a new blind extrude feature to the partstudio
 
@@ -102,7 +103,13 @@ class PartStudio(Element):
         Returns:
             An Extrude object
         """
-        return Extrude(partstudio=self, faces=faces, distance=distance, name=name)
+        return Extrude(
+            partstudio=self,
+            faces=faces,
+            distance=distance,
+            name=name,
+            merge_with=merge_with,
+        )
 
     def add_loft(
         self,
