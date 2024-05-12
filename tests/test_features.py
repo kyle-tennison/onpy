@@ -1,6 +1,5 @@
 import onpy
 from onpy import Client
-from onpy.features import Sketch, Extrude
 from onpy.api.versioning import WorkspaceWVM
 
 
