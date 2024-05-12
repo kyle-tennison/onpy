@@ -151,9 +151,7 @@ def test_part_query():
 
     extrude = partstudio.add_extrude(sketch3, distance=0.5, merge_with=new_part)
 
-    sketch4 = partstudio.add_sketch(
-        plane=extrude.get_created_parts()[0].faces.closest_to((0, 0, 10000))
-    )
+    sketch4 = partstudio.add_sketch(plane=new_part.faces.closest_to((0, 0, 10000)))
     sketch4.add_circle((0, 0), radius=3)
     sketch4.add_circle((0, 4), radius=1)
 
