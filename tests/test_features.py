@@ -1,5 +1,5 @@
+import onpy
 from onpy import Client
-from onpy.features import Sketch, Extrude
 from onpy.api.versioning import WorkspaceWVM
 
 
@@ -31,7 +31,7 @@ def test_sketch_extrude():
     )
 
     partstudio.add_extrude(
-        faces=new_sketch.entities.contains_point((3.5, 3.5, 0)),
+        faces=new_sketch.faces.contains_point((3.5, 3.5, 0)),
         distance=1,
     )
 
@@ -42,13 +42,13 @@ def test_sketch_extrude():
     offset_sketch = partstudio.add_sketch(new_plane)
     offset_sketch.add_circle((0, 0), 1)
     partstudio.add_extrude(
-        faces=offset_sketch.entities.contains_point((0, 0, 3)), distance=-3
+        faces=offset_sketch.faces.contains_point((0, 0, 3)), distance=-3
     )
 
     # try to extrude between the sketches
     loft_start = partstudio.add_sketch(partstudio.features.top_plane)
     loft_start.add_circle((1, 0), 2)
-    partstudio.add_loft(loft_start.entities.largest(), offset_sketch.entities.largest())
+    partstudio.add_loft(loft_start.faces.largest(), offset_sketch.faces.largest())
 
     doc.delete()
 
@@ -67,11 +67,11 @@ def test_sketch_queries():
 
     sketch.add_line((-2, -1), (2, 2))
 
-    print(sketch.entities.contains_point((1, -1, 0)))
+    print(sketch.faces.contains_point((1, -1, 0)))
 
-    partstudio.add_extrude(faces=sketch.entities.largest(), distance=1)
-    partstudio.add_extrude(faces=sketch.entities.smallest(), distance=0.5)
-    partstudio.add_extrude(faces=sketch.entities.contains_point((0, 0, 0)), distance=-3)
+    partstudio.add_extrude(faces=sketch.faces.largest(), distance=1)
+    partstudio.add_extrude(faces=sketch.faces.smallest(), distance=0.5)
+    partstudio.add_extrude(faces=sketch.faces.contains_point((0, 0, 0)), distance=-3)
 
     document.delete()
 
@@ -127,8 +127,39 @@ def test_pseudo_elements():
 
     sketch.translate(*sketch.sketch_items, x=1, y=1)
     sketch.rotate(*sketch.sketch_items, origin=(0, 0), theta=180)
-    partstudio.add_extrude(
-        faces=sketch.entities.contains_point((-1, -1, 0)), distance=1
+    partstudio.add_extrude(faces=sketch.faces.contains_point((-1, -1, 0)), distance=1)
+
+    document.delete()
+
+
+def test_part_query():
+    """Tests the ability to query a part"""
+
+    document = onpy.create_document("test_features::test_part_query")
+    partstudio = document.get_partstudio()
+    partstudio.wipe()
+
+    sketch1 = partstudio.add_sketch(partstudio.features.top_plane)
+    sketch1.add_circle((0, 0), radius=1)
+
+    extrude = partstudio.add_extrude(sketch1, distance=3)
+
+    new_part = extrude.get_created_parts()[0]
+
+    sketch3 = partstudio.add_sketch(new_part.faces.closest_to((0, 0, 1000)))
+    sketch3.add_corner_rectangle((0.5, 0.5), (-0.5, -0.5))
+
+    extrude = partstudio.add_extrude(sketch3, distance=0.5)
+
+    sketch4 = partstudio.add_sketch(
+        plane=extrude.get_created_parts()[0].faces.closest_to((0, 0, 10000))
     )
+    sketch4.add_circle((0, 0), radius=3)
+    sketch4.add_circle((0, 4), radius=1)
+
+    extrude = partstudio.add_extrude(sketch4.faces.smallest(), distance=3)
+
+    print("available parts")
+    print(partstudio.parts)
 
     document.delete()

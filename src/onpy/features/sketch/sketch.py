@@ -16,10 +16,10 @@ from loguru import logger
 from typing import TYPE_CHECKING, override
 
 import onpy.api.model as model
-from onpy.entities import FaceEntity
 from onpy.entities import EntityFilter
 from onpy.features.base import Feature
 from onpy.api.versioning import WorkspaceWVM
+from onpy.entities import Entity, FaceEntity, VertexEntity, EdgeEntity
 from onpy.util.exceptions import OnPyFeatureError
 from onpy.util.misc import unwrap, Point2D, UnitSystem
 from onpy.features.sketch.sketch_items import SketchItem
@@ -35,7 +35,10 @@ class Sketch(Feature, FaceEntityConvertible):
     """The OnShape Sketch Feature, used to build 2D geometries"""
 
     def __init__(
-        self, partstudio: "PartStudio", plane: "Plane", name: str = "New Sketch"
+        self,
+        partstudio: "PartStudio",
+        plane: "Plane|FaceEntityConvertible",
+        name: str = "New Sketch",
     ) -> None:
         self.plane = plane
         self._partstudio = partstudio
@@ -308,6 +311,12 @@ class Sketch(Feature, FaceEntityConvertible):
 
     @override
     def _to_model(self) -> model.Sketch:
+
+        if isinstance(self.plane, FaceEntityConvertible):
+            transient_ids = [e.transient_id for e in self.plane._face_entities()]
+        else:
+            transient_ids = [self.plane.transient_id]
+
         return model.Sketch(
             name=self.name,
             featureId=self._id,
@@ -317,11 +326,16 @@ class Sketch(Feature, FaceEntityConvertible):
                     queries=[
                         {
                             "btType": "BTMIndividualQuery-138",
-                            "deterministicIds": [self.plane.transient_id],
+                            "deterministicIds": transient_ids,
                         }
                     ],
                     parameterId="sketchPlane",
-                ).model_dump(exclude_none=True)
+                ).model_dump(exclude_none=True),
+                {
+                    "btType": "BTMParameterBoolean-144",
+                    "value": True,
+                    "parameterId": "disableImprinting",
+                },
             ],
             entities=[i.to_model().model_dump(exclude_none=True) for i in self._items],
         )
@@ -331,45 +345,68 @@ class Sketch(Feature, FaceEntityConvertible):
         """Loads the feature id from the response"""
         self._id = unwrap(response.feature.featureId)
 
+    @property
     @override
-    def _face_entities(self) -> list[FaceEntity]:
+    def entities(self) -> EntityFilter:
+        """All of the entities on this sketch
+
+        Returns:
+            An EntityFilter object used to query entities
+        """
 
         script = dedent(
             f"""
-
-        function(context is Context, queries) {{
-
-            var feature_id = makeId("{self.id}");
-            var faces = evaluateQuery(context, qCreatedBy(feature_id, EntityType.FACE));
-            return transientQueriesToStrings(faces);
-
-        }}
+            function(context is Context, queries) {{
+                var feature_id = makeId("{self.id}");
+                var faces = evaluateQuery(context, qCreatedBy(feature_id));
+                return transientQueriesToStrings(faces);
+            }}
             """
         )
 
         response = self._client._api.endpoints.eval_featurescript(
-            document_id=self.document.id,
-            version=WorkspaceWVM(self.document.default_workspace.id),
-            element_id=self.partstudio.id,
+            document_id=self._partstudio.document.id,
+            version=WorkspaceWVM(self._partstudio.document.default_workspace.id),
+            element_id=self._partstudio.id,
             script=script,
             return_type=model.FeaturescriptResponse,
         )
 
-        response_list = unwrap(
-            response.result,
-            message="Featurescript failed to load face entities for sketch",
+        transient_ids_raw = unwrap(
+            response.result, message="Featurescript failed get entities owned by part"
         )["value"]
-        transient_ids = [i["value"] for i in response_list]
-        face_entities = [FaceEntity(tid) for tid in transient_ids]
 
-        return face_entities
+        entities = [Entity(i["value"]) for i in transient_ids_raw]
+
+        return EntityFilter(partstudio=self.partstudio, available=entities)
+
+    @override
+    def _face_entities(self) -> list[FaceEntity]:
+        return self.faces._available
 
     @property
-    @override
-    def entities(self) -> EntityFilter[FaceEntity]:
-        """The available queries"""
+    def vertices(self) -> EntityFilter[VertexEntity]:
+        """An object used for interfacing with vertex entities on this sketch"""
+        return EntityFilter(
+            partstudio=self._partstudio,
+            available=self.entities.is_type(VertexEntity)._available,
+        )
 
-        return EntityFilter[FaceEntity](self, available=self._face_entities())
+    @property
+    def edges(self) -> EntityFilter[EdgeEntity]:
+        """An object used for interfacing with edge entities on this sketch"""
+        return EntityFilter(
+            partstudio=self._partstudio,
+            available=self.entities.is_type(EdgeEntity)._available,
+        )
+
+    @property
+    def faces(self) -> EntityFilter[FaceEntity]:
+        """An object used for interfacing with face entities on this sketch"""
+        return EntityFilter(
+            partstudio=self._partstudio,
+            available=self.entities.is_type(FaceEntity)._available,
+        )
 
     def mirror(
         self,

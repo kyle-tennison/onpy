@@ -154,3 +154,13 @@ class EndpointContainer:
                 documentId=document_id, name=name, workspaceId=workspace_id
             ),
         )
+
+    def list_parts(
+        self, document_id: str, version: VersionTarget, element_id: str
+    ) -> list[model.Part]:
+        """Lists all the parts in an element"""
+
+        return self.api.list_get(
+            endpoint=f"/parts/d/{document_id}/{version.wvm}/{version.wvmid}/e/{element_id}",
+            response_type=model.Part,
+        )

@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, override
 
 import onpy.api.model as model
 from onpy.util.misc import unwrap
+from onpy.part import Part, PartList
 from onpy.elements.base import Element
 from onpy.api.versioning import WorkspaceWVM
 from onpy.features.base import Feature, FeatureList
@@ -71,7 +72,9 @@ class PartStudio(Element):
 
         return default_planes
 
-    def add_sketch(self, plane: Plane, name: str = "New Sketch") -> Sketch:
+    def add_sketch(
+        self, plane: Plane | FaceEntityConvertible, name: str = "New Sketch"
+    ) -> Sketch:
         """Adds a new sketch to the partstudio
 
         Args:
@@ -135,6 +138,22 @@ class PartStudio(Element):
         """
 
         return OffsetPlane(partstudio=self, owner=target, distance=distance, name=name)
+
+    def list_parts(self) -> list[Part]:
+        """Gets a list of parts attached to the partstudio"""
+
+        parts = self._api.endpoints.list_parts(
+            document_id=self.document.id,
+            version=WorkspaceWVM(self.document.default_workspace.id),
+            element_id=self.id,
+        )
+
+        return [Part(self, pmodel) for pmodel in parts]
+
+    @property
+    def parts(self) -> PartList:
+        """A PartList object used to list available parts"""
+        return PartList(self.list_parts())
 
     def wipe(self) -> None:
         """Removes all features from the current partstudio. Stores in another version"""

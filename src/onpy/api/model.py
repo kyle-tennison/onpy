@@ -227,3 +227,12 @@ class Loft(Feature):
 
     btType: str = "BTMFeature-134"
     featureType: str = "loft"
+
+
+class Part(ApiModel):
+    """Represents a Part"""
+
+    name: str
+    partId: str
+    bodyType: str
+    partQuery: str

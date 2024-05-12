@@ -11,6 +11,7 @@ OnPy - May 2024 - Kyle Tennison
 
 from typing import TYPE_CHECKING, override
 
+from onpy.part import Part
 import onpy.api.model as model
 from onpy.util.misc import unwrap
 from onpy.entities import FaceEntity
@@ -42,6 +43,10 @@ class Loft(Feature):
         self.end_faces: list[FaceEntity] = end_face._face_entities()
 
         self._upload_feature()
+
+    def get_created_parts(self) -> list[Part]:
+        """Gets a list of the parts this feature created"""
+        return self._get_created_parts_inner()
 
     @property
     @override
