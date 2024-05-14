@@ -133,7 +133,10 @@ class PartStudio(Element):
         return Loft(partstudio=self, start_face=start, end_face=end, name=name)
 
     def add_offset_plane(
-        self, target: Plane|FaceEntityConvertible, distance: float, name: str = "Offset Plane"
+        self,
+        target: Plane | FaceEntityConvertible,
+        distance: float,
+        name: str = "Offset Plane",
     ) -> OffsetPlane:
         """Adds a new offset plane to the partstudio
 
