@@ -82,7 +82,7 @@ class Document(model.NameIdFetchable):
     ) -> PartStudio:
         """Fetches a partstudio by name or id. By default, the partstudio
         will be wiped of all features.
-        
+
         Args:
             id: The id of the partstudio OR
             name: The name of the partstudio
@@ -99,7 +99,7 @@ class Document(model.NameIdFetchable):
                 "Unable to find a partstudio with "
                 + (f"name {name}" if name else f"id {id}")
             )
-        
+
         if wipe:
             match.wipe()
 
