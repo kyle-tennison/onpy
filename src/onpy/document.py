@@ -78,9 +78,16 @@ class Document(model.NameIdFetchable):
         return [e for e in self.elements if isinstance(e, PartStudio)]
 
     def get_partstudio(
-        self, id: str | None = None, name: str | None = None
+        self, id: str | None = None, name: str | None = None, wipe: bool = True
     ) -> PartStudio:
-        """Fetches a partstudio by name or id"""
+        """Fetches a partstudio by name or id. By default, the partstudio
+        will be wiped of all features.
+
+        Args:
+            id: The id of the partstudio OR
+            name: The name of the partstudio
+            wipe: Wipes the partstudio of all features. DEFAULTS TO TRUE!
+        """
 
         if name is None and id is None:
             return self.list_partstudios()[0]
@@ -92,6 +99,9 @@ class Document(model.NameIdFetchable):
                 "Unable to find a partstudio with "
                 + (f"name {name}" if name else f"id {id}")
             )
+
+        if wipe:
+            match.wipe()
 
         return match
 

@@ -133,7 +133,10 @@ class PartStudio(Element):
         return Loft(partstudio=self, start_face=start, end_face=end, name=name)
 
     def add_offset_plane(
-        self, target: Plane, distance: float, name: str = "Offset Plane"
+        self,
+        target: Plane | FaceEntityConvertible,
+        distance: float,
+        name: str = "Offset Plane",
     ) -> OffsetPlane:
         """Adds a new offset plane to the partstudio
 
@@ -174,6 +177,8 @@ class PartStudio(Element):
             version=WorkspaceWVM(self._document.default_workspace.id),
             element_id=self.id,
         )
+
+        features.reverse()
 
         for feature in features:
             self._api.endpoints.delete_feature(

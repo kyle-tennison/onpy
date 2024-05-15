@@ -20,6 +20,7 @@ from onpy.util.misc import unwrap
 from onpy.entities import EntityFilter
 from onpy.features.base import Feature
 from onpy.api.versioning import WorkspaceWVM
+from onpy.entities.protocols import FaceEntityConvertible
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -32,7 +33,7 @@ class Plane(Feature):
     @override
     def entities(self):
         """NOTE: Plane cannot contain entities, this will always be empty"""
-        return EntityFilter(self, available=[])
+        return EntityFilter(self.partstudio, available=[])
 
     @property
     @abstractmethod
@@ -128,7 +129,7 @@ class OffsetPlane(Plane):
     def __init__(
         self,
         partstudio: "PartStudio",
-        owner: Plane,
+        owner: Plane | FaceEntityConvertible,
         distance: float,
         name: str = "Offset Plane",
     ):
@@ -142,7 +143,7 @@ class OffsetPlane(Plane):
         self._upload_feature()
 
     @property
-    def owner(self) -> Plane:
+    def owner(self) -> Plane | FaceEntityConvertible:
         return self._owner
 
     @property
@@ -191,6 +192,14 @@ class OffsetPlane(Plane):
         )["value"]
         return plane_id
 
+    def _get_owner_transient_ids(self) -> list[str]:
+        """Gets the transient id(s) of the owner"""
+
+        if isinstance(self.owner, Plane):
+            return [self.owner.transient_id]
+        else:
+            return [e.transient_id for e in self.owner._face_entities()]
+
     @override
     def _to_model(self) -> model.Plane:
         return model.Plane(
@@ -201,7 +210,7 @@ class OffsetPlane(Plane):
                     "queries": [
                         {
                             "btType": "BTMIndividualQuery-138",
-                            "deterministicIds": [self.owner.transient_id],
+                            "deterministicIds": self._get_owner_transient_ids(),
                         }
                     ],
                     "parameterId": "entities",
@@ -218,8 +227,14 @@ class OffsetPlane(Plane):
                     "isInteger": False,
                     "value": 0,
                     "units": "",
-                    "expression": f"{self.distance} {self._client.units.extension}",
+                    "expression": f"{abs(self.distance)} {self._client.units.extension}",
                     "parameterId": "offset",
+                },
+                {
+                    "btType": "BTMParameterBoolean-144",
+                    "value": self.distance < 0,
+                    "nodeId": "MMaw54aRdL0c7OmQp",
+                    "parameterId": "oppositeDirection",
                 },
             ],
             suppressed=False,
