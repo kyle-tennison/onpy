@@ -59,7 +59,7 @@ OnShape natively supports [FeatureScript](https://cad.onshape.com/FsDoc/); an On
 
 Instead, OnPy interfaces with OnShape's APIs to create designs that function the same as ones generated in the web ui.
 
-### Syntax
+### Syntax Overview
 
 The following is from [`examples/cylinder.py`](examples/cylinder.py) :
 
@@ -89,6 +89,10 @@ extrude = partstudio.add_extrude(
 If we look in our browser, we'll see a new document aptly named "Cylinder Example."
 
 ![A screenshot of the code output](.github/media/readme_screenshot.png)
+
+## User Guide
+
+For a more in-depth guide on how to use OnPy, view the [user guide](/guide.md). This gives a detailed explanation on how to use all of OnPy's features.
 
 ## Contributing
 
