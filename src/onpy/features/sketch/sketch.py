@@ -222,8 +222,6 @@ class Sketch(Feature, FaceEntityConvertible):
 
         Returns
             A SketchArc of the added arc. Updates line_1 and line_2
-
-        Raises OnPyFeatureError if
         """
 
         if self._client.units is UnitSystem.INCH:
