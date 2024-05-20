@@ -9,11 +9,12 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
+import copy
 import math
 from textwrap import dedent
 import numpy as np
 from loguru import logger
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Sequence, override
 
 import onpy.api.model as model
 from onpy.entities import EntityFilter
@@ -224,16 +225,31 @@ class Sketch(Feature, FaceEntityConvertible):
             A SketchArc of the added arc. Updates line_1 and line_2
         """
 
+        if line_1 == line_2:
+            raise OnPyFeatureError(f"Cannot create a fillet between the same line")
+
         if self._client.units is UnitSystem.INCH:
             radius *= 0.0254
 
-        if line_1.start == line_2.start:
+        if Point2D.approx(line_1.start, line_2.start):
+            line_1.start = line_2.start
             center = line_1.start
             vertex_1 = line_1.end
             vertex_2 = line_2.end
-        elif line_1.end == line_2.start:
+        elif Point2D.approx(line_1.end, line_2.start):
+            line_1.end = line_2.start
             center = line_1.end
             vertex_1 = line_1.start
+            vertex_2 = line_2.end
+        elif Point2D.approx(line_1.start, line_2.end):
+            line_1.start = line_2.end
+            center = line_1.start
+            vertex_1 = line_1.end 
+            vertex_2 = line_2.start
+        elif Point2D.approx(line_1.end, line_2.end):
+            line_1.end = line_2.end
+            center = line_1.end
+            vertex_1 = line_1.start 
             vertex_2 = line_2.end
         else:
             raise OnPyFeatureError(f"Line entities need to share a point for a fillet")
@@ -263,10 +279,7 @@ class Sketch(Feature, FaceEntityConvertible):
         )  # really is a vector, not a point
 
         # find which direction to apply the offset
-        if math.degrees(np.dot(np.array(line_dir.as_tuple), line_1_vec)) < 0:
-            arc_center = line_dir * arc_center_offset + center  # make an initial guess
-        else:
-            arc_center = line_dir * -arc_center_offset + center  # make an initial guess
+        arc_center = line_dir * arc_center_offset + center  # make an initial guess
 
         # find the closest point to the line
         t = (arc_center.x - line_1.start.x) * math.cos(line_1_angle) + (
@@ -284,13 +297,57 @@ class Sketch(Feature, FaceEntityConvertible):
             math.sin(line_2_angle) * t + line_2.start.y,
         )
 
-        # shorten line segments
-        if center == line_1.start:
+        # check to see if distance increased or decreased
+
+        line_1_copy = copy.copy(line_1)
+        line_2_copy = copy.copy(line_2)
+
+        # Try shortening lines
+        if Point2D.approx(line_1.start, line_2.start):
+            line_1_copy.start = line_1_tangent_point
+            line_2_copy.start = line_2_tangent_point
+        elif Point2D.approx(line_1.end, line_2.start):
+            line_1_copy.end = line_1_tangent_point
+            line_2_copy.start = line_2_tangent_point
+        elif Point2D.approx(line_1.start, line_2.end):
+            line_1_copy.start = line_1_tangent_point
+            line_2_copy.end = line_2_tangent_point
+        elif Point2D.approx(line_1.end, line_2.end):
+            line_1_copy.end = line_1_tangent_point
+            line_2_copy.end = line_2_tangent_point
+
+        # Check if lines got bigger
+        if line_1_copy.length > line_1.length:
+            arc_center = line_dir * -arc_center_offset + center  # make an initial guess
+            t = (arc_center.x - line_1.start.x) * math.cos(line_1_angle) + (
+                arc_center.y - line_1.start.y
+            ) * math.sin(line_1_angle)
+            line_1_tangent_point = Point2D(
+                math.cos(line_1_angle) * t + line_1.start.x,
+                math.sin(line_1_angle) * t + line_1.start.y,
+            )
+            t = (arc_center.x - line_2.start.x) * math.cos(line_2_angle) + (
+                arc_center.y - line_2.start.y
+            ) * math.sin(line_2_angle)
+            line_2_tangent_point = Point2D(
+                math.cos(line_2_angle) * t + line_2.start.x,
+                math.sin(line_2_angle) * t + line_2.start.y,
+            )
+
+        # Shorten lines
+        if Point2D.approx(line_1.start, line_2.start):
             line_1.start = line_1_tangent_point
             line_2.start = line_2_tangent_point
-        else:
+        elif Point2D.approx(line_1.end, line_2.start):
             line_1.end = line_1_tangent_point
             line_2.start = line_2_tangent_point
+        elif Point2D.approx(line_1.start, line_2.end):
+            line_1.start = line_1_tangent_point
+            line_2.end = line_2_tangent_point
+        elif Point2D.approx(line_1.end, line_2.end):
+            line_1.end = line_1_tangent_point
+            line_2.end = line_2_tangent_point
+
 
         # add arc
         arc = SketchArc.three_point_with_midpoint(
@@ -408,7 +465,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
     def mirror(
         self,
-        *items: SketchItem,
+        items: Sequence[SketchItem],
         line_point: tuple[float, float],
         line_dir: tuple[float, float],
         copy: bool = True,
@@ -416,7 +473,7 @@ class Sketch(Feature, FaceEntityConvertible):
         """Mirrors sketch items about a line
 
         Args:
-            *items: Any number of sketch items to mirror
+            items: Any number of sketch items to mirror
             line_point: Any point that lies on the mirror line
             line_dir: The direction of the mirror line
             copy: Whether or not to save a copy of the original entity. Defaults
@@ -433,7 +490,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
     def rotate(
         self,
-        *items: SketchItem,
+        items: Sequence[SketchItem],
         origin: tuple[float, float],
         theta: float,
         copy: bool = False,
@@ -441,7 +498,7 @@ class Sketch(Feature, FaceEntityConvertible):
         """Rotates sketch items about a point
 
         Args:
-            *items: Any number of sketch items to rotate
+            items: Any number of sketch items to rotate
             origin: The point to pivot about
             theta: The degrees to rotate by
             copy: Whether or not to save a copy of the original entity. Defaults
@@ -457,12 +514,12 @@ class Sketch(Feature, FaceEntityConvertible):
         return [i.rotate(origin, theta) for i in items]
 
     def translate(
-        self, *items: SketchItem, x: float = 0, y: float = 0, copy: bool = False
+        self, items: Sequence[SketchItem], x: float = 0, y: float = 0, copy: bool = False
     ) -> list[SketchItem]:
         """Translates sketch items in a cartesian system
 
         Args:
-            *items: Any number of sketch items to translate
+            items: Any number of sketch items to translate
             x: The amount to translate in the x-axis
             y: The amount to translate in the y-axis
             copy: Whether or not to save a copy of the original entity. Defaults

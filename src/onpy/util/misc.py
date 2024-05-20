@@ -9,6 +9,7 @@ OnPy - May 2024 - Kyle Tennison
 """
 
 from enum import Enum
+import math
 from typing import Self
 from dataclasses import dataclass
 
@@ -162,3 +163,9 @@ class Point2D:
     @property
     def as_tuple(self) -> tuple[float, float]:
         return (self.x, self.y)
+    
+    @staticmethod
+    def approx(point1: "Point2D", point2: "Point2D", error: float = 1e-8) -> bool:
+        """Checks if two points are approximately equal"""
+        distance = math.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2)
+        return distance < error
