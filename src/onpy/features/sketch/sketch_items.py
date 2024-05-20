@@ -166,10 +166,11 @@ class SketchItem(ABC):
             y_step: The y distance to translate per step
 
         Returns:
-            A list of the entities that compose the linear pattern
+            A list of the entities that compose the linear pattern, including the
+            original item.
         """
 
-        entities: list["SketchItem"] = [self]
+        entities: list[Self] = [self]
 
         for _ in range(num_steps):
             entities.append(entities[-1].clone().translate(x_step, y_step))
@@ -187,7 +188,8 @@ class SketchItem(ABC):
             theta: The degrees to rotate per step
 
         Returns:
-            A list of entities that compose the circular pattern
+            A list of entities that compose the circular pattern, including the
+            original item.
         """
 
         entities: list[Self] = [self]

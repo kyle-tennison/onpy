@@ -533,6 +533,51 @@ class Sketch(Feature, FaceEntityConvertible):
             items = tuple([i.clone() for i in items])
 
         return [i.translate(x, y) for i in items]
+    
+    def circular_pattern[T: SketchItem](
+            self, items: Sequence[T], origin: tuple[float, float], num_steps: int, theta: float
+    ) -> list[T]:
+        """Creates a circular pattern of sketch items
+
+        Args:
+            items: Any number of sketch items to include in the pattern
+            num_steps: The number of steps to take. Does not include original position
+            theta: The degrees to rotate per step
+
+        Returns:
+            A list of the entities that compose the circular pattern, including the
+            original items.
+        """
+
+        new_items = []
+        
+        for item in items:
+            new_items.extend(item.circular_pattern(origin, num_steps, theta))
+
+        return new_items
+    
+    def linear_pattern[T: SketchItem](
+            self, items: Sequence[T], num_steps: int, x: float = 0, y: float =0
+    ) -> list[T]:
+        """Creates a linear pattern of sketch items
+        
+        Args: 
+            items: Any number of sketch items to include in the pattern
+            num_steps: THe number of steps to take. Does not include original position
+            x: The x distance to travel each step. Defaults to zero
+            y: The y distance to travel each step. Defaults to zero
+        
+        Returns:
+            A list of the entities that compose the linear pattern, including the
+            original item.
+        """
+        new_items = []
+        
+        for item in items:
+            new_items.extend(item.linear_pattern(num_steps, x, y))
+
+        return new_items
+
 
     def __str__(self) -> str:
         return repr(self)
