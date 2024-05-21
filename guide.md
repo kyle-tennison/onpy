@@ -43,7 +43,7 @@ This partstudio will be the entry to everything else that happens in OnPy.
 
 ## Creating Models
 
-#### Overview
+### Overview
 
 As mentioned, in OnPy, only a select number of features are supported. These will be detailed soon. In general, however, use this following logic to guide your project development:
 
@@ -55,7 +55,7 @@ After you have created a sketch, perform some 3D operation on it. Currently, OnP
 
 After you have created a 3D object, also known as a Part, you can perform additional queries and operations on it. You can reference part faces, edges, vertices, etc. in order to define additional sketches.
 
-### Defining a Sketch
+## Defining a Sketch
 
 Sketches are features that belong to a partstudio. We can create a sketch on our partstudio with:
 
@@ -83,7 +83,7 @@ partstudio.features.right_plane
 
 In the example above, we create a sketch on the top plane, i.e., on the x-y plane.
 
-#### Sketch Items
+### Sketch Items
 
 We build a sketch by using a series of `SketchItem`s. Sketches are made up of:
 
@@ -189,21 +189,23 @@ These are:
 1. Mirroring
 2. Translations
 3. Rotations
+4. Linear Pattern
+5. Circular Pattern
 
 You can use these with the following functions. The signatures are shown:
 
 ```python
-def mirror(
+def mirror[T: SketchItem](
     self,
-    *items: SketchItem,
+    items: Sequence[T],
     line_point: tuple[float, float],
     line_dir: tuple[float, float],
     copy: bool = True,
-) -> list[SketchItem]:
+) -> list[T]:
     """Mirrors sketch items about a line
 
     Args:
-        *items: Any number of sketch items to mirror
+        items: Any number of sketch items to mirror
         line_point: Any point that lies on the mirror line
         line_dir: The direction of the mirror line
         copy: Whether or not to save a copy of the original entity. Defaults
@@ -214,17 +216,17 @@ def mirror(
     """
     ...
 
-def rotate(
+def rotate[T: SketchItem](
     self,
-    *items: SketchItem,
+    items: Sequence[T],
     origin: tuple[float, float],
     theta: float,
     copy: bool = False,
-) -> list[SketchItem]:
+) -> list[T]:
     """Rotates sketch items about a point
 
     Args:
-        *items: Any number of sketch items to rotate
+        items: Any number of sketch items to rotate
         origin: The point to pivot about
         theta: The degrees to rotate by
         copy: Whether or not to save a copy of the original entity. Defaults
@@ -235,13 +237,13 @@ def rotate(
     """
     ...
 
-def translate(
-    self, *items: SketchItem, x: float = 0, y: float = 0, copy: bool = False
-) -> list[SketchItem]:
+def translate[T: SketchItem](
+    self, items: Sequence[T], x: float = 0, y: float = 0, copy: bool = False
+) -> list[T]:
     """Translates sketch items in a cartesian system
 
     Args:
-        *items: Any number of sketch items to translate
+        items: Any number of sketch items to translate
         x: The amount to translate in the x-axis
         y: The amount to translate in the y-axis
         copy: Whether or not to save a copy of the original entity. Defaults
@@ -251,6 +253,39 @@ def translate(
         A lit of the new items added
     """
     ...
+
+def circular_pattern[T: SketchItem](
+        self, items: Sequence[T], origin: tuple[float, float], num_steps: int, theta: float
+) -> list[T]:
+    """Creates a circular pattern of sketch items
+
+    Args:
+        items: Any number of sketch items to include in the pattern
+        num_steps: The number of steps to take. Does not include original position
+        theta: The degrees to rotate per step
+
+    Returns:
+        A list of the entities that compose the circular pattern, including the
+        original items.
+    """
+    ...
+
+def linear_pattern[T: SketchItem](
+        self, items: Sequence[T], num_steps: int, x: float = 0, y: float =0
+) -> list[T]:
+    """Creates a linear pattern of sketch items
+    
+    Args: 
+        items: Any number of sketch items to include in the pattern
+        num_steps: THe number of steps to take. Does not include original position
+        x: The x distance to travel each step. Defaults to zero
+        y: The y distance to travel each step. Defaults to zero
+    
+    Returns:
+        A list of the entities that compose the linear pattern, including the
+        original item.
+    """
+    ...
 ```
 
 The general idea is to pass sketch items that were previously created and
@@ -258,7 +293,68 @@ perform operations on them. When performing operations, you can use the
 copy keyword argument to tell OnPy if it should copy the items (and perform
 the operation on the copy), or if it should modify the original item.
 
-#### Sketch Entities
+Consider the following examples:
+
+1) Here, we use the `translate`, and `mirror` operations on SketchItems
+created by `add_centerpoint_arc` and `add_line` to create two hearts.
+
+```python
+sketch = partstudio.add_sketch(plane=partstudio.features.top_plane, name="Heart Sketch")
+
+# Define a line and an arc
+line = sketch.add_line((0,-1), (1, 1))
+arc = sketch.add_centerpoint_arc(centerpoint=(0.5, 1), radius=0.5, start_angle=0, end_angle=180)
+
+# Mirror across vertical axis
+new_items = sketch.mirror(items=[line, arc], line_point=(0,0), line_dir=(0,1))
+
+# Translate and copy the entire heart
+sketch.translate(
+    items=[*new_items, line, arc],
+    x=3,
+    y=0,
+    copy=True
+)
+
+# Extrude the heart closest to the origin
+heart_extrude = partstudio.add_extrude(sketch.faces.closest_to((0,0,0)), distance=1, name="Heart extrude")
+```
+
+2) In this next example, we use the `circular_pattern` tool so create a hexagon,
+and then we use the `add_fillet` method to add fillets on the corners of the
+hexagon.
+
+```python
+import math
+sketch = partstudio.add_sketch(plane=partstudio.features.top_plane, name="Hexagon Profile")
+
+# Keep a list of hexagon sides
+sides = []
+
+# A side of a unit hexagon can be defined as:
+hexagon_side = sketch.add_line(
+    (-0.5, math.sqrt(3)/2),
+    (0.5, math.sqrt(3)/2),
+)
+
+# Rotate and copy this side five times to create the full hexagon
+sides = hexagon_side.circular_pattern(origin=(0,0), num_steps=5, theta=60)
+
+# Fillet between each side
+for i in range(len(sides)):
+    side_1 = sides[i-1]
+    side_2 = sides[i]
+
+    sketch.add_fillet(side_1, side_2, radius=0.1)
+
+# Add a hole in the middle of the hexagon
+sketch.add_circle(center=(0,0), radius=5/32)
+
+# Extrude the part of the sketch that isn't the hole
+partstudio.add_extrude(sketch.faces.largest(), distance=3)
+```
+
+### Sketch Entities
 
 As you build a OnShape sketch with sketch items, more geometry is being created
 under the hood. For instance, when you add a circle and a line to a sketch,
@@ -343,7 +439,7 @@ Here, we first query all of the faces that contain the origin (on the sketch),
 then we get the largest of that set. We would not be able to achieve this
 behavior with one query.
 
-### Features
+## Features
 
 Once we have defined a sketch feature, we can continue onto defining more
 complex, 3D features. OnPy supports the following features, all of which
@@ -430,7 +526,137 @@ are some subtle differences.
 
 Examples for adding features are shown below.
 
-### Parts
+### Extrusions
+
+Extrusions are the most basic of 3D operations. They allow you to pull a 2D shape by a linear distance
+to create a 3D shape.
+
+OnShape supports three types of extrusions:
+
+1) New Extrusion
+2) Add Extrusions
+3) Subtract Extrusions
+
+New extrusions _always_ create a new part. Parts will be discussed in more
+detail later.
+
+Add extrusions _add_ geometry to an existing part. In OnPy, you can add
+to an existing part by passing it to the `merge_with` parameter. If you
+try to add geometry that does not touch the existing part, OnShape will throw an
+error. Each part must be one, continuous body; no disconnections are allowed.
+
+Subtract extrusions _remove_ geometry from an existing part. In OnPy, you can
+subtract from a part by passing it to the `subtract_from` parameter. By default,
+all extrusions are blind, i.e., you specify how "deep" to extrude/cut. If you
+want to preform a through cut, you should provide a large value to the
+distance parameter.
+
+The following example shows how a user can use extrusions to create a moderately
+complex part:
+
+```python
+sketch = partstudio.add_sketch(plane=partstudio.features.top_plane, name="Main Sketch")
+
+# create a 2x10 bar
+lines = sketch.trace_points(
+    (-5, -1), (-5,1), (5, 1), (5, -1), end_connect=True
+)
+
+# fillet the sides of the bar
+for i in range(len(lines)):
+    side_1 = lines[i-1]
+    side_2 = lines[i]
+
+    sketch.add_fillet(side_1, side_2, radius=0.1)
+
+# add holes every half inch, starting at (-4, 0)
+hole_profile = sketch.add_circle(center=(-4, 0), radius=0.125)
+sketch.linear_pattern([hole_profile], num_steps=15, x=0.5)
+
+# add a line through the center
+sketch.add_line((0, -5), (0, 5))
+
+# extrude the left part of the bar by 1 inch
+extrusion_left = partstudio.add_extrude(
+    faces=sketch.faces.closest_to((-100,0,0)), # pick the furthest left region
+    distance=2,
+    name="Left Extrude"
+    )
+
+# get a reference to the new part
+bar_part = extrusion_left.get_created_parts()[0]
+
+# extrude the right side by 1.25 inches and add it to the first part
+extrusion_right = partstudio.add_extrude(
+    faces=sketch.faces.closest_to((100,0,0)), # pick the furthest right region
+    distance=1.25,
+    merge_with=bar_part, # <-- add to the bar part
+    name="Right Extrude",
+    )
+
+# create a new sketch on top of the part
+sketch_on_part = partstudio.add_sketch(
+    plane=bar_part.faces.closest_to((0,0,100)), # get the highest face
+    name="Sketch on part"
+)
+
+# draw a slot 
+sketch_on_part.add_corner_rectangle((-5, 0.25), (5, -0.25))
+
+# cut extrude this slot into the existing slot
+cut_extrude = partstudio.add_extrude(
+    faces=sketch_on_part,
+    distance=-1, # <-- flip the direction of the extrude using a negative sign
+    subtract_from=bar_part, # <-- subtract from the bar part
+    name="Slot cut"
+)
+```
+
+### Offset Plane
+
+In OnShape, planes are construction geometry; they are used to define models,
+but are not part of the model itself. Offset planes allow you to create a new plane
+based off another plane.
+
+The following example shows how to create and reference an offset plane. On their
+own, these planes are not very useful, but they are integral to using more advanced
+features like Lofts.
+
+```python
+offset_plane = partstudio.add_offset_plane(
+    target=partstudio.features.top_plane, # <-- based on the default top plane
+    distance=3.0 # offset by a distance of 3 inches
+    )
+
+bottom_sketch = partstudio.add_sketch(plane=partstudio.features.top_plane, name="Bottom Profile")
+top_sketch = partstudio.add_sketch(
+    plane=offset_plane # <-- create this sketch on the offset plane
+)
+
+bottom_sketch.add_circle((0,0), radius=2)
+top_sketch.add_circle((0,0), radius=0.1)
+
+partstudio.add_loft(bottom_sketch, top_sketch) # loft between the two sketches, offset by the offset plane
+```
+
+Here, we create an offset plane. We add one sketch to it, and another sketch
+on the default plane under it. Then, because these sketches are offset, we can loft between these
+two profiles.
+
+### Lofts
+
+Lofts are an easy way to create a solid that extends between two offset
+profiles. These profiles must be orthogional, but they can be apart by any
+distance.
+
+Lofts are usually used to loft between one profile to another, but sometimes
+they can split into multiple profiles. However, this is discouraged as it
+often leads to feature errors.
+
+Lofts take two parameters, start and end, with a third, optional name parameter.
+The example above in the "Offset Plane" section exemplifies how to use lofts.
+
+## Parts
 
 Sometimes, features will result in a new part. For instance, when you extrude a sketch for the first time, a new part is made.
 We will often want to reference this part so that we can query it's faces and entities to create even more complex geometries.
@@ -440,7 +666,7 @@ To get the part(s) created by a feature, you can run the `.get_created_parts()` 
 If you want to get a list of all parts in a partstudio, you can run `partstudio.parts`. This returns an object used to interface
 with parts. If you want to get an idea of what parts are available, you can run:
 
-```
+```txt
 >>> print(partstudio.parts)
 +-------+----------------+---------+
 | Index |   Part Name    | Part ID |
@@ -451,16 +677,16 @@ with parts. If you want to get an idea of what parts are available, you can run:
 +-------+----------------+---------+
 ```
 
-This will display the parts available. Then, you can access the parts by index (`partstudio.parts[0]`), 
+This will display the parts available. Then, you can access the parts by index (`partstudio.parts[0]`),
 name (`partstudio.parts.get("Housing")`), or id (`partstudio.parts.get_id("JKD")`)
 
 If you want to manually iterate over a list of parts, you can call `partstudio.list_parts()`
 and this will return a plain list of Part objects.
 
-### Example Model
+## Example Model
 
-Using everything discussed so far, let's see OnPy in work. This script will
-create a new document
+Using everything discussed so far, let's see OnPy in work. This script
+will use many of the features we discussed to create a tri-part lamp model.
 
 ```python
 import onpy
