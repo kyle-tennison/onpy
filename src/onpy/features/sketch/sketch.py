@@ -244,13 +244,13 @@ class Sketch(Feature, FaceEntityConvertible):
         elif Point2D.approx(line_1.start, line_2.end):
             line_1.start = line_2.end
             center = line_1.start
-            vertex_1 = line_1.end 
+            vertex_1 = line_1.end
             vertex_2 = line_2.start
         elif Point2D.approx(line_1.end, line_2.end):
             line_1.end = line_2.end
             center = line_1.end
             vertex_1 = line_1.start
-            vertex_2 = line_2.start 
+            vertex_2 = line_2.start
         else:
             raise OnPyFeatureError(f"Line entities need to share a point for a fillet")
 
@@ -261,7 +261,6 @@ class Sketch(Feature, FaceEntityConvertible):
 
         opening_angle = math.acos((a**2 + b**2 - c**2) / (2 * a * b))
 
-
         # find the vector that is between the two lines
         line_1_vec = np.array(((vertex_1.x - center.x), (vertex_1.y - center.y)))
         line_2_vec = np.array(((vertex_2.x - center.x), (vertex_2.y - center.y)))
@@ -269,11 +268,7 @@ class Sketch(Feature, FaceEntityConvertible):
         line_1_angle = math.atan2(line_1_vec[1], line_1_vec[0]) % (math.pi * 2)
         line_2_angle = math.atan2(line_2_vec[1], line_2_vec[0]) % (math.pi * 2)
 
-
-        center_angle = (
-            np.average((line_1_angle, line_2_angle))
-        )  # relative to x-axis
-
+        center_angle = np.average((line_1_angle, line_2_angle))  # relative to x-axis
 
         # find the distance of the fillet centerpoint from the intersection point
         arc_center_offset = radius / math.sin(opening_angle / 2)
@@ -350,7 +345,6 @@ class Sketch(Feature, FaceEntityConvertible):
         elif Point2D.approx(line_1.end, line_2.end):
             line_1.end = line_1_tangent_point
             line_2.end = line_2_tangent_point
-
 
         # add arc
         arc = SketchArc.three_point_with_midpoint(
@@ -466,7 +460,9 @@ class Sketch(Feature, FaceEntityConvertible):
             available=self.entities.is_type(FaceEntity)._available,
         )
 
-    def mirror[T: SketchItem](
+    def mirror[
+        T: SketchItem
+    ](
         self,
         items: Sequence[T],
         line_point: tuple[float, float],
@@ -491,7 +487,9 @@ class Sketch(Feature, FaceEntityConvertible):
 
         return [i.mirror(line_point, line_dir) for i in items]
 
-    def rotate[T: SketchItem](
+    def rotate[
+        T: SketchItem
+    ](
         self,
         items: Sequence[T],
         origin: tuple[float, float],
@@ -516,9 +514,11 @@ class Sketch(Feature, FaceEntityConvertible):
 
         return [i.rotate(origin, theta) for i in items]
 
-    def translate[T: SketchItem](
-        self, items: Sequence[T], x: float = 0, y: float = 0, copy: bool = False
-    ) -> list[T]:
+    def translate[
+        T: SketchItem
+    ](self, items: Sequence[T], x: float = 0, y: float = 0, copy: bool = False) -> list[
+        T
+    ]:
         """Translates sketch items in a cartesian system
 
         Args:
@@ -536,9 +536,15 @@ class Sketch(Feature, FaceEntityConvertible):
             items = tuple([i.clone() for i in items])
 
         return [i.translate(x, y) for i in items]
-    
-    def circular_pattern[T: SketchItem](
-            self, items: Sequence[T], origin: tuple[float, float], num_steps: int, theta: float
+
+    def circular_pattern[
+        T: SketchItem
+    ](
+        self,
+        items: Sequence[T],
+        origin: tuple[float, float],
+        num_steps: int,
+        theta: float,
     ) -> list[T]:
         """Creates a circular pattern of sketch items
 
@@ -553,34 +559,33 @@ class Sketch(Feature, FaceEntityConvertible):
         """
 
         new_items = []
-        
+
         for item in items:
             new_items.extend(item.circular_pattern(origin, num_steps, theta))
 
         return new_items
-    
-    def linear_pattern[T: SketchItem](
-            self, items: Sequence[T], num_steps: int, x: float = 0, y: float =0
-    ) -> list[T]:
+
+    def linear_pattern[
+        T: SketchItem
+    ](self, items: Sequence[T], num_steps: int, x: float = 0, y: float = 0) -> list[T]:
         """Creates a linear pattern of sketch items
-        
-        Args: 
+
+        Args:
             items: Any number of sketch items to include in the pattern
             num_steps: THe number of steps to take. Does not include original position
             x: The x distance to travel each step. Defaults to zero
             y: The y distance to travel each step. Defaults to zero
-        
+
         Returns:
             A list of the entities that compose the linear pattern, including the
             original item.
         """
         new_items = []
-        
+
         for item in items:
             new_items.extend(item.linear_pattern(num_steps, x, y))
 
         return new_items
-
 
     def __str__(self) -> str:
         return repr(self)
