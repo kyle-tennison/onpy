@@ -82,7 +82,7 @@ class Loft(Feature):
                 {
                     "btType": "BTMParameterEnum-145",
                     "namespace": "",
-                    "enumName": "ToolBodyType",
+                    "enumName": "ExtendedToolBodyType",
                     "value": "SOLID",
                     "parameterId": "bodyType",
                 },

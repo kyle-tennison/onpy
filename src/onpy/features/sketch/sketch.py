@@ -9,11 +9,12 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
+import copy
 import math
 from textwrap import dedent
 import numpy as np
 from loguru import logger
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Sequence, override
 
 import onpy.api.model as model
 from onpy.entities import EntityFilter
@@ -44,7 +45,7 @@ class Sketch(Feature, FaceEntityConvertible):
         self._partstudio = partstudio
         self._name = name
         self._id: str | None = None
-        self._items: list[SketchItem] = []
+        self._items: set[SketchItem] = set()
 
         self._upload_feature()
 
@@ -63,9 +64,9 @@ class Sketch(Feature, FaceEntityConvertible):
         return self._name
 
     @property
-    def sketch_items(self) -> list[SketchItem]:
+    def sketch_items(self) -> Sequence[SketchItem]:
         """A list of items that were added to the sketch"""
-        return self._items
+        return list(self._items)
 
     def add_circle(
         self,
@@ -94,7 +95,7 @@ class Sketch(Feature, FaceEntityConvertible):
         )
 
         logger.info(f"Added circle to sketch: {item}")
-        self._items.append(item)
+        self._items.add(item)
         self._update_feature()
 
         return item
@@ -120,7 +121,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
         logger.info(f"Added line to sketch: {item}")
 
-        self._items.append(item)
+        self._items.add(item)
         self._update_feature()
         return item
 
@@ -201,7 +202,7 @@ class Sketch(Feature, FaceEntityConvertible):
             units=self._client.units,
         )
 
-        self._items.append(item)
+        self._items.add(item)
         logger.info("Successfully added arc to sketch")
         self._update_feature()
         return item
@@ -224,17 +225,32 @@ class Sketch(Feature, FaceEntityConvertible):
             A SketchArc of the added arc. Updates line_1 and line_2
         """
 
+        if line_1 == line_2:
+            raise OnPyFeatureError(f"Cannot create a fillet between the same line")
+
         if self._client.units is UnitSystem.INCH:
             radius *= 0.0254
 
-        if line_1.start == line_2.start:
+        if Point2D.approx(line_1.start, line_2.start):
+            line_1.start = line_2.start
             center = line_1.start
             vertex_1 = line_1.end
             vertex_2 = line_2.end
-        elif line_1.end == line_2.start:
+        elif Point2D.approx(line_1.end, line_2.start):
+            line_1.end = line_2.start
             center = line_1.end
             vertex_1 = line_1.start
             vertex_2 = line_2.end
+        elif Point2D.approx(line_1.start, line_2.end):
+            line_1.start = line_2.end
+            center = line_1.start
+            vertex_1 = line_1.end
+            vertex_2 = line_2.start
+        elif Point2D.approx(line_1.end, line_2.end):
+            line_1.end = line_2.end
+            center = line_1.end
+            vertex_1 = line_1.start
+            vertex_2 = line_2.start
         else:
             raise OnPyFeatureError(f"Line entities need to share a point for a fillet")
 
@@ -246,15 +262,13 @@ class Sketch(Feature, FaceEntityConvertible):
         opening_angle = math.acos((a**2 + b**2 - c**2) / (2 * a * b))
 
         # find the vector that is between the two lines
-        line_1_vec = np.array(line_1.dir.as_tuple)
-        line_2_vec = np.array(line_2.dir.as_tuple)
+        line_1_vec = np.array(((vertex_1.x - center.x), (vertex_1.y - center.y)))
+        line_2_vec = np.array(((vertex_2.x - center.x), (vertex_2.y - center.y)))
 
         line_1_angle = math.atan2(line_1_vec[1], line_1_vec[0]) % (math.pi * 2)
         line_2_angle = math.atan2(line_2_vec[1], line_2_vec[0]) % (math.pi * 2)
 
-        center_angle = (
-            np.average((line_1_angle, line_2_angle)) + math.pi / 2
-        )  # relative to x-axis
+        center_angle = np.average((line_1_angle, line_2_angle))  # relative to x-axis
 
         # find the distance of the fillet centerpoint from the intersection point
         arc_center_offset = radius / math.sin(opening_angle / 2)
@@ -263,10 +277,7 @@ class Sketch(Feature, FaceEntityConvertible):
         )  # really is a vector, not a point
 
         # find which direction to apply the offset
-        if math.degrees(np.dot(np.array(line_dir.as_tuple), line_1_vec)) < 0:
-            arc_center = line_dir * arc_center_offset + center  # make an initial guess
-        else:
-            arc_center = line_dir * -arc_center_offset + center  # make an initial guess
+        arc_center = line_dir * arc_center_offset + center  # make an initial guess
 
         # find the closest point to the line
         t = (arc_center.x - line_1.start.x) * math.cos(line_1_angle) + (
@@ -284,13 +295,56 @@ class Sketch(Feature, FaceEntityConvertible):
             math.sin(line_2_angle) * t + line_2.start.y,
         )
 
-        # shorten line segments
-        if center == line_1.start:
+        # check to see if distance increased or decreased
+
+        line_1_copy = copy.copy(line_1)
+        line_2_copy = copy.copy(line_2)
+
+        # Try shortening lines
+        if Point2D.approx(line_1.start, line_2.start):
+            line_1_copy.start = line_1_tangent_point
+            line_2_copy.start = line_2_tangent_point
+        elif Point2D.approx(line_1.end, line_2.start):
+            line_1_copy.end = line_1_tangent_point
+            line_2_copy.start = line_2_tangent_point
+        elif Point2D.approx(line_1.start, line_2.end):
+            line_1_copy.start = line_1_tangent_point
+            line_2_copy.end = line_2_tangent_point
+        elif Point2D.approx(line_1.end, line_2.end):
+            line_1_copy.end = line_1_tangent_point
+            line_2_copy.end = line_2_tangent_point
+
+        # Check if lines got bigger
+        if line_1_copy.length > line_1.length or line_2_copy.length > line_2.length:
+            arc_center = line_dir * -arc_center_offset + center  # make an initial guess
+            t = (arc_center.x - line_1.start.x) * math.cos(line_1_angle) + (
+                arc_center.y - line_1.start.y
+            ) * math.sin(line_1_angle)
+            line_1_tangent_point = Point2D(
+                math.cos(line_1_angle) * t + line_1.start.x,
+                math.sin(line_1_angle) * t + line_1.start.y,
+            )
+            t = (arc_center.x - line_2.start.x) * math.cos(line_2_angle) + (
+                arc_center.y - line_2.start.y
+            ) * math.sin(line_2_angle)
+            line_2_tangent_point = Point2D(
+                math.cos(line_2_angle) * t + line_2.start.x,
+                math.sin(line_2_angle) * t + line_2.start.y,
+            )
+
+        # Shorten lines
+        if Point2D.approx(line_1.start, line_2.start):
             line_1.start = line_1_tangent_point
             line_2.start = line_2_tangent_point
-        else:
+        elif Point2D.approx(line_1.end, line_2.start):
             line_1.end = line_1_tangent_point
             line_2.start = line_2_tangent_point
+        elif Point2D.approx(line_1.start, line_2.end):
+            line_1.start = line_1_tangent_point
+            line_2.end = line_2_tangent_point
+        elif Point2D.approx(line_1.end, line_2.end):
+            line_1.end = line_1_tangent_point
+            line_2.end = line_2_tangent_point
 
         # add arc
         arc = SketchArc.three_point_with_midpoint(
@@ -301,7 +355,7 @@ class Sketch(Feature, FaceEntityConvertible):
             endpoint_2=line_2_tangent_point,
             units=self._client.units,
         )
-        self._items.append(arc)
+        self._items.add(arc)
 
         self._update_feature()
 
@@ -406,17 +460,19 @@ class Sketch(Feature, FaceEntityConvertible):
             available=self.entities.is_type(FaceEntity)._available,
         )
 
-    def mirror(
+    def mirror[
+        T: SketchItem
+    ](
         self,
-        *items: SketchItem,
+        items: Sequence[T],
         line_point: tuple[float, float],
         line_dir: tuple[float, float],
         copy: bool = True,
-    ) -> list[SketchItem]:
+    ) -> list[T]:
         """Mirrors sketch items about a line
 
         Args:
-            *items: Any number of sketch items to mirror
+            items: Any number of sketch items to mirror
             line_point: Any point that lies on the mirror line
             line_dir: The direction of the mirror line
             copy: Whether or not to save a copy of the original entity. Defaults
@@ -431,17 +487,19 @@ class Sketch(Feature, FaceEntityConvertible):
 
         return [i.mirror(line_point, line_dir) for i in items]
 
-    def rotate(
+    def rotate[
+        T: SketchItem
+    ](
         self,
-        *items: SketchItem,
+        items: Sequence[T],
         origin: tuple[float, float],
         theta: float,
         copy: bool = False,
-    ) -> list[SketchItem]:
+    ) -> list[T]:
         """Rotates sketch items about a point
 
         Args:
-            *items: Any number of sketch items to rotate
+            items: Any number of sketch items to rotate
             origin: The point to pivot about
             theta: The degrees to rotate by
             copy: Whether or not to save a copy of the original entity. Defaults
@@ -456,13 +514,15 @@ class Sketch(Feature, FaceEntityConvertible):
 
         return [i.rotate(origin, theta) for i in items]
 
-    def translate(
-        self, *items: SketchItem, x: float = 0, y: float = 0, copy: bool = False
-    ) -> list[SketchItem]:
+    def translate[
+        T: SketchItem
+    ](self, items: Sequence[T], x: float = 0, y: float = 0, copy: bool = False) -> list[
+        T
+    ]:
         """Translates sketch items in a cartesian system
 
         Args:
-            *items: Any number of sketch items to translate
+            items: Any number of sketch items to translate
             x: The amount to translate in the x-axis
             y: The amount to translate in the y-axis
             copy: Whether or not to save a copy of the original entity. Defaults
@@ -474,8 +534,61 @@ class Sketch(Feature, FaceEntityConvertible):
 
         if copy:
             items = tuple([i.clone() for i in items])
+            # self._items.update(items)
 
         return [i.translate(x, y) for i in items]
+
+    def circular_pattern[
+        T: SketchItem
+    ](
+        self,
+        items: Sequence[T],
+        origin: tuple[float, float],
+        num_steps: int,
+        theta: float,
+    ) -> list[T]:
+        """Creates a circular pattern of sketch items
+
+        Args:
+            items: Any number of sketch items to include in the pattern
+            num_steps: The number of steps to take. Does not include original position
+            theta: The degrees to rotate per step
+
+        Returns:
+            A list of the entities that compose the circular pattern, including the
+            original items.
+        """
+
+        new_items = []
+
+        for item in items:
+            new_items.extend(item.circular_pattern(origin, num_steps, theta))
+
+        self._items.update(new_items)
+        return new_items
+
+    def linear_pattern[
+        T: SketchItem
+    ](self, items: Sequence[T], num_steps: int, x: float = 0, y: float = 0) -> list[T]:
+        """Creates a linear pattern of sketch items
+
+        Args:
+            items: Any number of sketch items to include in the pattern
+            num_steps: THe number of steps to take. Does not include original position
+            x: The x distance to travel each step. Defaults to zero
+            y: The y distance to travel each step. Defaults to zero
+
+        Returns:
+            A list of the entities that compose the linear pattern, including the
+            original item.
+        """
+        new_items = []
+
+        for item in items:
+            new_items.extend(item.linear_pattern(num_steps, x, y))
+
+        self._items.update(new_items)
+        return new_items
 
     def __str__(self) -> str:
         return repr(self)

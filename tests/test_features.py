@@ -123,10 +123,10 @@ def test_pseudo_elements():
         centerpoint=(0.5, 0), radius=1, start_angle=0, end_angle=90
     )
 
-    sketch.mirror(*lines, fillet_arc, main_arc, line_point=(0, 0), line_dir=(1, 0))
+    sketch.mirror([*lines, fillet_arc, main_arc], line_point=(0, 0), line_dir=(1, 0))
 
-    sketch.translate(*sketch.sketch_items, x=1, y=1)
-    sketch.rotate(*sketch.sketch_items, origin=(0, 0), theta=180)
+    sketch.translate(sketch.sketch_items, x=1, y=1)
+    sketch.rotate(sketch.sketch_items, origin=(0, 0), theta=180)
     partstudio.add_extrude(faces=sketch.faces.contains_point((-1, -1, 0)), distance=1)
 
     document.delete()

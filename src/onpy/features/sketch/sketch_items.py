@@ -15,9 +15,10 @@ OnPy - May 2024 - Kyle Tennison
 import copy
 import math
 import uuid
+from loguru import logger
 import numpy as np
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Self, override
 
 import onpy.api.model as model
 from onpy.util.misc import UnitSystem, Point2D
@@ -41,7 +42,7 @@ class SketchItem(ABC):
         ...
 
     @abstractmethod
-    def translate(self, x: float = 0, y: float = 0) -> "SketchItem":
+    def translate(self, x: float = 0, y: float = 0) -> Self:
         """Linear translation of the entity
 
         Args:
@@ -54,7 +55,7 @@ class SketchItem(ABC):
         ...
 
     @abstractmethod
-    def rotate(self, origin: tuple[float, float], theta: float) -> "SketchItem":
+    def rotate(self, origin: tuple[float, float], theta: float) -> Self:
         """Rotates the entity about a point
 
         Args:
@@ -69,7 +70,7 @@ class SketchItem(ABC):
     @abstractmethod
     def mirror(
         self, line_start: tuple[float, float], line_end: tuple[float, float]
-    ) -> "SketchItem":
+    ) -> Self:
         """Mirror the entity about a line
 
         Args:
@@ -144,20 +145,21 @@ class SketchItem(ABC):
             new_entity: The entity to replace with
         """
 
-        self.sketch.sketch_items.remove(self)
-        self.sketch.sketch_items.append(new_entity)
+        self.sketch._items.remove(self)
+        self.sketch._items.add(new_entity)
         self.sketch._update_feature()
 
-    def clone(self) -> "SketchItem":
+    def clone(self) -> Self:
         """Creates a copy of the entity"""
+        logger.debug(f"Created a close of {self}")
 
         new_entity = copy.copy(self)
-        self.sketch.sketch_items.append(new_entity)
+        self.sketch._items.add(new_entity)
         return new_entity
 
     def linear_pattern(
         self, num_steps: int, x_step: float, y_step: float
-    ) -> list["SketchItem"]:
+    ) -> list[Self]:
         """Creates a linear pattern of the sketch entity
 
         Args:
@@ -166,10 +168,12 @@ class SketchItem(ABC):
             y_step: The y distance to translate per step
 
         Returns:
-            A list of the entities that compose the linear pattern
+            A list of the entities that compose the linear pattern, including the
+            original item.
         """
+        logger.debug(f"Creating a linear pattern of {self} for {num_steps}")
 
-        entities: list["SketchItem"] = [self]
+        entities: list[Self] = [self]
 
         for _ in range(num_steps):
             entities.append(entities[-1].clone().translate(x_step, y_step))
@@ -178,7 +182,7 @@ class SketchItem(ABC):
 
     def circular_pattern(
         self, origin: tuple[float, float], num_steps: int, theta: float
-    ) -> list["SketchItem"]:
+    ) -> list[Self]:
         """Creates a circular pattern of the sketch entity about a point
 
         Args:
@@ -187,10 +191,12 @@ class SketchItem(ABC):
             theta: The degrees to rotate per step
 
         Returns:
-            A list of entities that compose the circular pattern
+            A list of entities that compose the circular pattern, including the
+            original item.
         """
+        logger.debug(f"Creating a circular pattern of {self} for {num_steps}")
 
-        entities: list["SketchItem"] = [self]
+        entities: list[Self] = [self]
 
         for _ in range(num_steps):
             entities.append(entities[-1].clone().rotate(origin, theta))
