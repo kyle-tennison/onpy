@@ -45,7 +45,7 @@ class Sketch(Feature, FaceEntityConvertible):
         self._partstudio = partstudio
         self._name = name
         self._id: str | None = None
-        self._items: list[SketchItem] = []
+        self._items: set[SketchItem] = set()
 
         self._upload_feature()
 
@@ -64,9 +64,9 @@ class Sketch(Feature, FaceEntityConvertible):
         return self._name
 
     @property
-    def sketch_items(self) -> list[SketchItem]:
+    def sketch_items(self) -> Sequence[SketchItem]:
         """A list of items that were added to the sketch"""
-        return self._items
+        return list(self._items)
 
     def add_circle(
         self,
@@ -95,7 +95,7 @@ class Sketch(Feature, FaceEntityConvertible):
         )
 
         logger.info(f"Added circle to sketch: {item}")
-        self._items.append(item)
+        self._items.add(item)
         self._update_feature()
 
         return item
@@ -121,7 +121,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
         logger.info(f"Added line to sketch: {item}")
 
-        self._items.append(item)
+        self._items.add(item)
         self._update_feature()
         return item
 
@@ -202,7 +202,7 @@ class Sketch(Feature, FaceEntityConvertible):
             units=self._client.units,
         )
 
-        self._items.append(item)
+        self._items.add(item)
         logger.info("Successfully added arc to sketch")
         self._update_feature()
         return item
@@ -355,7 +355,7 @@ class Sketch(Feature, FaceEntityConvertible):
             endpoint_2=line_2_tangent_point,
             units=self._client.units,
         )
-        self._items.append(arc)
+        self._items.add(arc)
 
         self._update_feature()
 
@@ -534,6 +534,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
         if copy:
             items = tuple([i.clone() for i in items])
+            # self._items.update(items)
 
         return [i.translate(x, y) for i in items]
 
@@ -563,6 +564,7 @@ class Sketch(Feature, FaceEntityConvertible):
         for item in items:
             new_items.extend(item.circular_pattern(origin, num_steps, theta))
 
+        self._items.update(new_items)
         return new_items
 
     def linear_pattern[
@@ -585,6 +587,7 @@ class Sketch(Feature, FaceEntityConvertible):
         for item in items:
             new_items.extend(item.linear_pattern(num_steps, x, y))
 
+        self._items.update(new_items)
         return new_items
 
     def __str__(self) -> str:

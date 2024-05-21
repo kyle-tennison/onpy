@@ -15,6 +15,7 @@ OnPy - May 2024 - Kyle Tennison
 import copy
 import math
 import uuid
+from loguru import logger
 import numpy as np
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Self, override
@@ -144,15 +145,16 @@ class SketchItem(ABC):
             new_entity: The entity to replace with
         """
 
-        self.sketch.sketch_items.remove(self)
-        self.sketch.sketch_items.append(new_entity)
+        self.sketch._items.remove(self)
+        self.sketch._items.add(new_entity)
         self.sketch._update_feature()
 
     def clone(self) -> Self:
         """Creates a copy of the entity"""
+        logger.debug(f"Created a close of {self}")
 
         new_entity = copy.copy(self)
-        self.sketch.sketch_items.append(new_entity)
+        self.sketch._items.add(new_entity)
         return new_entity
 
     def linear_pattern(
@@ -169,6 +171,7 @@ class SketchItem(ABC):
             A list of the entities that compose the linear pattern, including the
             original item.
         """
+        logger.debug(f"Creating a linear pattern of {self} for {num_steps}")
 
         entities: list[Self] = [self]
 
@@ -191,6 +194,7 @@ class SketchItem(ABC):
             A list of entities that compose the circular pattern, including the
             original item.
         """
+        logger.debug(f"Creating a circular pattern of {self} for {num_steps}")
 
         entities: list[Self] = [self]
 
