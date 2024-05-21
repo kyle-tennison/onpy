@@ -249,8 +249,8 @@ class Sketch(Feature, FaceEntityConvertible):
         elif Point2D.approx(line_1.end, line_2.end):
             line_1.end = line_2.end
             center = line_1.end
-            vertex_1 = line_1.start 
-            vertex_2 = line_2.end
+            vertex_1 = line_1.start
+            vertex_2 = line_2.start 
         else:
             raise OnPyFeatureError(f"Line entities need to share a point for a fillet")
 
@@ -261,16 +261,19 @@ class Sketch(Feature, FaceEntityConvertible):
 
         opening_angle = math.acos((a**2 + b**2 - c**2) / (2 * a * b))
 
+
         # find the vector that is between the two lines
-        line_1_vec = np.array(line_1.dir.as_tuple)
-        line_2_vec = np.array(line_2.dir.as_tuple)
+        line_1_vec = np.array(((vertex_1.x - center.x), (vertex_1.y - center.y)))
+        line_2_vec = np.array(((vertex_2.x - center.x), (vertex_2.y - center.y)))
 
         line_1_angle = math.atan2(line_1_vec[1], line_1_vec[0]) % (math.pi * 2)
         line_2_angle = math.atan2(line_2_vec[1], line_2_vec[0]) % (math.pi * 2)
 
+
         center_angle = (
-            np.average((line_1_angle, line_2_angle)) + math.pi / 2
+            np.average((line_1_angle, line_2_angle))
         )  # relative to x-axis
+
 
         # find the distance of the fillet centerpoint from the intersection point
         arc_center_offset = radius / math.sin(opening_angle / 2)
@@ -317,7 +320,7 @@ class Sketch(Feature, FaceEntityConvertible):
             line_2_copy.end = line_2_tangent_point
 
         # Check if lines got bigger
-        if line_1_copy.length > line_1.length:
+        if line_1_copy.length > line_1.length or line_2_copy.length > line_2.length:
             arc_center = line_dir * -arc_center_offset + center  # make an initial guess
             t = (arc_center.x - line_1.start.x) * math.cos(line_1_angle) + (
                 arc_center.y - line_1.start.y
@@ -463,13 +466,13 @@ class Sketch(Feature, FaceEntityConvertible):
             available=self.entities.is_type(FaceEntity)._available,
         )
 
-    def mirror(
+    def mirror[T: SketchItem](
         self,
-        items: Sequence[SketchItem],
+        items: Sequence[T],
         line_point: tuple[float, float],
         line_dir: tuple[float, float],
         copy: bool = True,
-    ) -> list[SketchItem]:
+    ) -> list[T]:
         """Mirrors sketch items about a line
 
         Args:
@@ -488,13 +491,13 @@ class Sketch(Feature, FaceEntityConvertible):
 
         return [i.mirror(line_point, line_dir) for i in items]
 
-    def rotate(
+    def rotate[T: SketchItem](
         self,
-        items: Sequence[SketchItem],
+        items: Sequence[T],
         origin: tuple[float, float],
         theta: float,
         copy: bool = False,
-    ) -> list[SketchItem]:
+    ) -> list[T]:
         """Rotates sketch items about a point
 
         Args:
@@ -513,9 +516,9 @@ class Sketch(Feature, FaceEntityConvertible):
 
         return [i.rotate(origin, theta) for i in items]
 
-    def translate(
-        self, items: Sequence[SketchItem], x: float = 0, y: float = 0, copy: bool = False
-    ) -> list[SketchItem]:
+    def translate[T: SketchItem](
+        self, items: Sequence[T], x: float = 0, y: float = 0, copy: bool = False
+    ) -> list[T]:
         """Translates sketch items in a cartesian system
 
         Args:
