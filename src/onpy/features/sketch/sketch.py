@@ -479,7 +479,7 @@ class Sketch(Feature, FaceEntityConvertible):
                 to True.
 
         Returns:
-            A lit of the new items added
+            A list of the new items added
         """
 
         if copy:
@@ -506,7 +506,7 @@ class Sketch(Feature, FaceEntityConvertible):
                 to False.
 
         Returns:
-            A lit of the new items added
+            A list of the new items added
         """
 
         if copy:
@@ -529,7 +529,7 @@ class Sketch(Feature, FaceEntityConvertible):
                 to False.
 
         Returns:
-            A lit of the new items added
+            A list of the new items added
         """
 
         if copy:
