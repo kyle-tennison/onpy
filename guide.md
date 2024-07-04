@@ -439,6 +439,12 @@ Here, we first query all of the faces that contain the origin (on the sketch),
 then we get the largest of that set. We would not be able to achieve this
 behavior with one query.
 
+To apply a query, return the `EntityFilter` object to the corresponding function.
+
+```python
+partstudio.add_extrude(faces=leg_sketch.faces, distance=32, name="legs")
+```
+
 ## Features
 
 Once we have defined a sketch feature, we can continue onto defining more
