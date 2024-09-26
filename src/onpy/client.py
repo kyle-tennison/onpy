@@ -19,7 +19,12 @@ from onpy.util.misc import find_by_name_or_id, UnitSystem
 class Client:
     """Handles project management, authentication, and other related items"""
 
-    def __init__(self, units: str = "inch", onshape_access_token: str|None = None, onshape_secret_token: str|None = None) -> None:
+    def __init__(
+        self,
+        units: str = "inch",
+        onshape_access_token: str | None = None,
+        onshape_secret_token: str | None = None,
+    ) -> None:
         """
         Args:
             units: The unit system to use. Supports 'inch' and 'metric'
@@ -37,11 +42,12 @@ class Client:
             self.list_documents()
         except OnPyApiError as e:
             if e.response is not None and e.response.status_code == 401:
-                raise OnPyAuthError("The provided API token is not valid or is no longer valid.") from e
+                raise OnPyAuthError(
+                    "The provided API token is not valid or is no longer valid."
+                ) from e
             else:
                 print("whati")
                 raise e
-
 
     def list_documents(self) -> list[Document]:
         """Gets a list of available documents

@@ -9,14 +9,12 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from textwrap import dedent
 import onpy.api.model as model
 from onpy.part import Part
 from onpy.util.misc import unwrap
 from onpy.entities import EntityFilter
 from onpy.features.base import Feature
 from typing import TYPE_CHECKING, override
-from onpy.api.versioning import WorkspaceWVM
 from onpy.api.model import FeatureAddResponse
 from onpy.entities.protocols import FaceEntityConvertible, BodyEntityConvertible
 

@@ -106,7 +106,7 @@ class RestApi:
                 f"{http_method.name} {endpoint} responded with:\n"
                 f"{json.dumps(response_dict, indent=4)}"
             )
-        except requests.JSONDecodeError as e:
+        except requests.JSONDecodeError:
             raise OnPyApiError("Response is not json", r)
 
         if issubclass(response_type, ApiModel):

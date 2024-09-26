@@ -226,7 +226,7 @@ class Sketch(Feature, FaceEntityConvertible):
         """
 
         if line_1 == line_2:
-            raise OnPyFeatureError(f"Cannot create a fillet between the same line")
+            raise OnPyFeatureError("Cannot create a fillet between the same line")
 
         if self._client.units is UnitSystem.INCH:
             radius *= 0.0254
@@ -252,7 +252,7 @@ class Sketch(Feature, FaceEntityConvertible):
             vertex_1 = line_1.start
             vertex_2 = line_2.start
         else:
-            raise OnPyFeatureError(f"Line entities need to share a point for a fillet")
+            raise OnPyFeatureError("Line entities need to share a point for a fillet")
 
         # draw a triangle to find the angle between the two lines using law of cosines
         a = math.sqrt((vertex_1.x - center.x) ** 2 + (vertex_1.y - center.y) ** 2)
