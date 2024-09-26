@@ -81,7 +81,7 @@ class VertexEntity(Entity, VertexEntityConvertible):
     @classmethod
     @override
     def as_featurescript(cls) -> str:
-        return f"EntityType.VERTEX"
+        return "EntityType.VERTEX"
 
     @override
     def _vertex_entities(self) -> list["VertexEntity"]:
@@ -94,7 +94,7 @@ class EdgeEntity(Entity, EdgeEntityConvertible):
     @classmethod
     @override
     def as_featurescript(cls) -> str:
-        return f"EntityType.EDGE"
+        return "EntityType.EDGE"
 
     @override
     def _edge_entities(self) -> list["EdgeEntity"]:
@@ -107,7 +107,7 @@ class FaceEntity(Entity, FaceEntityConvertible):
     @classmethod
     @override
     def as_featurescript(cls) -> str:
-        return f"EntityType.FACE"
+        return "EntityType.FACE"
 
     @override
     def _face_entities(self) -> list["FaceEntity"]:
@@ -120,7 +120,7 @@ class BodyEntity(Entity, BodyEntityConvertible):
     @classmethod
     @override
     def as_featurescript(cls) -> str:
-        return f"EntityType.BODY"
+        return "EntityType.BODY"
 
     @override
     def _body_entities(self) -> list["BodyEntity"]:

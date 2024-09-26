@@ -16,7 +16,6 @@ import onpy.api.model as model
 from onpy.elements.base import Element
 
 if TYPE_CHECKING:
-    from onpy.client import Client
     from onpy.document import Document
 
 

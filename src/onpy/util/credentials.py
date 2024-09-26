@@ -20,7 +20,7 @@ from onpy.util.exceptions import OnPyAuthError
 class CredentialManager:
     """Manages token retrieval and credential storing"""
 
-    credential_path = os.path.expanduser(f"~/.onpy/config.json")
+    credential_path = os.path.expanduser("~/.onpy/config.json")
 
     @staticmethod
     def is_secret_key(token: str | None) -> bool:

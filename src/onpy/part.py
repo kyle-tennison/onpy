@@ -9,7 +9,6 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from loguru import logger
 from textwrap import dedent
 from prettytable import PrettyTable
 from typing import TYPE_CHECKING, Any, override
