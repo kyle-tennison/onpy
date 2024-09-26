@@ -12,21 +12,36 @@ OnPy - May 2024 - Kyle Tennison
 from onpy.document import Document
 from onpy.api.rest_api import RestApi
 from onpy.util.credentials import CredentialManager
-from onpy.util.exceptions import OnPyParameterError
+from onpy.util.exceptions import OnPyParameterError, OnPyApiError, OnPyAuthError
 from onpy.util.misc import find_by_name_or_id, UnitSystem
 
 
 class Client:
     """Handles project management, authentication, and other related items"""
 
-    def __init__(self, units: str = "inch") -> None:
+    def __init__(self, units: str = "inch", onshape_access_token: str|None = None, onshape_secret_token: str|None = None) -> None:
         """
         Args:
             units: The unit system to use. Supports 'inch' and 'metric'
         """
         self.units = UnitSystem.from_string(units)
-        self._credentials = CredentialManager.fetch_or_prompt()
+
+        if onshape_access_token and onshape_secret_token:
+            self._credentials = (onshape_access_token, onshape_secret_token)
+        else:
+            self._credentials = CredentialManager.fetch_or_prompt()
         self._api = RestApi(self)
+
+        # check that a request can be made
+        try:
+            self.list_documents()
+        except OnPyApiError as e:
+            if e.response is not None and e.response.status_code == 401:
+                raise OnPyAuthError("The provided API token is not valid or is no longer valid.") from e
+            else:
+                print("whati")
+                raise e
+
 
     def list_documents(self) -> list[Document]:
         """Gets a list of available documents
