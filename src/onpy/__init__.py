@@ -51,3 +51,9 @@ def configure() -> None:
     """CLI interface to update OnShape credentials."""
     tokens = CredentialManager.prompt_tokens()
     CredentialManager.configure_file(*tokens)
+
+
+def configure() -> None:
+    """CLI interface to update OnShape credentials."""
+    tokens = CredentialManager.prompt_tokens()
+    CredentialManager.configure_file(*tokens)

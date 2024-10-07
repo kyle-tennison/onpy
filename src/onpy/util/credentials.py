@@ -132,6 +132,8 @@ class CredentialManager:
     @staticmethod
     def prompt_tokens() -> tuple[str, str]:
         """Prompt the user in the CLI for secret tokens.
+    def prompt_tokens() -> tuple[str, str]:
+        """Prompt the user in the CLI for secret tokens.
 
         Returns:
             A tuple of the (access_key, secret_key)
