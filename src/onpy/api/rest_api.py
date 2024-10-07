@@ -78,7 +78,9 @@ class RestApi:
             HttpMethod.Get: requests.get,
             HttpMethod.Delete: requests.delete,
             HttpMethod.Put: requests.put,
-        }[http_method] # type: ignore[assignment]
+        }[
+            http_method
+        ]  # type: ignore[assignment]
 
         payload_json = None
 
@@ -103,7 +105,7 @@ class RestApi:
         )
 
         if not r.ok:
-            msg =f"Bad response {r.status_code}"
+            msg = f"Bad response {r.status_code}"
             raise OnPyApiError(msg, r)
 
         # deserialize response

@@ -50,8 +50,8 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
         if not callable(etype):
             etype = Entity  # default to generic entity
 
-        if not issubclass(etype, Entity) or etype is Entity:
-            msg = "Found illegal etype"
+        if not issubclass(etype, Entity) or etype is not Entity:
+            msg = f"Found illegal etype: {etype}"
             raise OnPyInternalError(msg)
 
         return cast(type[T], etype)

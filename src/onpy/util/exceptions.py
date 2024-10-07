@@ -136,7 +136,7 @@ def maybe_exit(exit_code: int) -> None:
 def handle_exception(
     exc_type: type[BaseException],
     exc_value: BaseException,
-    exc_traceback: TracebackType|None,
+    exc_traceback: TracebackType | None,
 ) -> None:
     """Handle an exception.
 

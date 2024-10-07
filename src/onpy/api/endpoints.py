@@ -64,10 +64,9 @@ class EndpointContainer:
         version: VersionTarget,
         element_id: str,
         script: str,
-        return_type: type[T] = str, # type: ignore[assignment]
+        return_type: type[T] = str,  # type: ignore[assignment]
     ) -> T:
         """Evaluate a snipit of featurescript."""
-        
         return self.api.post(
             endpoint=f"/partstudios/d/{document_id}/{version.wvm}/{version.wvmid}/e/{element_id}/featurescript",
             response_type=return_type,

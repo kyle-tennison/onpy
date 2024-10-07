@@ -30,11 +30,13 @@ class NameIdFetchable(Protocol):
     @property
     @abstractmethod
     def name(self) -> str:
+        """The name of the item."""
         ...
 
     @property
     @abstractmethod
     def id(self) -> str:
+        """The ID of the item."""
         ...
 
 

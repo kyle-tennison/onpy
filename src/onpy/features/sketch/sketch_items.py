@@ -301,7 +301,7 @@ class SketchCircle(SketchItem):
         return new_entity
 
     @override
-    def translate(self, x: float =0 , y: float =0 ) -> "SketchCircle":
+    def translate(self, x: float = 0, y: float = 0) -> "SketchCircle":
 
         if self._sketch._client.units is UnitSystem.INCH:
             x *= 0.0254
