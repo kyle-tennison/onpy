@@ -92,11 +92,30 @@ class OnPyFeatureError(OnPyException):
         return f"\nOnPyFeatureError({self.message})"
 
 
+def is_interactive() -> bool:
+    """Check if the script is being run in an interactive Python shell."""
+    return hasattr(sys, "ps1")
+
+
+def maybe_exit(exit_code: int) -> None:
+    """Exit the program if running from a Python file. Will not exit if running
+    in an interactive shell.
+
+    Args:
+        exit_code: Bash exit code
+
+    """
+    if not is_interactive():
+        sys.exit(exit_code)
+
+
 def handle_exception(exc_type, exc_value, exc_traceback):
+    """Custom excepthook."""
     if issubclass(exc_type, OnPyException):
         logger.trace(str(exc_traceback))
         logger.error(exc_value.display())
-        sys.exit(1)
+        maybe_exit(1)
+        return
 
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
