@@ -35,3 +35,7 @@ jobs:
           ONSHAPE_DEV_ACCESS: ${{ secrets.ONSHAPE_DEV_ACCESS }}
 
       - name: Test examples
+        run: python .ci/test-examples.py
+        env:
+          ONSHAPE_DEV_SECRET: ${{ secrets.ONSHAPE_DEV_SECRET }}
+          ONSHAPE_DEV_ACCESS: ${{ secrets.ONSHAPE_DEV_ACCESS }}

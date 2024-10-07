@@ -29,7 +29,10 @@ dependencies = [
 dev = [
     "black",
     "pytest",
-    "ruff"
+    "ruff",
+    "mypy",
+    "types-requests",
+    "nbconvert",
 ]
 
 [tool.ruff]
