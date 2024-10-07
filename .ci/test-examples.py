@@ -1,5 +1,6 @@
 """Run the examples in examples/ and check for a good status code"""
 
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -62,7 +63,7 @@ for example in examples:
     logger.debug(f"Running file '{filename}'...")
 
     # change dir into example dir
-    process = subprocess.run([sys.executable, file.resolve()], check=False)
+    process = subprocess.run([sys.executable, file.resolve()], check=False, env=os.environ)
     if process.returncode != 0:
         logger.error(f"Error in example '{example}'")
         exit(1)
