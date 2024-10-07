@@ -2,6 +2,7 @@ import sys
 from loguru import logger
 from onpy.document import Document
 from onpy.client import Client
+from onpy.util.credentials import CredentialManager
 
 # --- configure loguru ---
 logger.remove()
@@ -38,3 +39,9 @@ def create_document(name: str, description: str | None = None) -> Document:
         A Document object of the new document
     """
     return Client().create_document(name, description)
+
+
+def configure() -> None:
+    """CLI interface to update OnShape credentials."""
+    tokens = CredentialManager.prompt_tokens()
+    CredentialManager.configure_file(*tokens)
