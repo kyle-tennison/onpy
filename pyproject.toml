@@ -29,7 +29,8 @@ dependencies = [
 dev = [
     "black",
     "pytest",
-    "ruff"
+    "ruff",
+    "mypy"
 ]
 
 [tool.ruff]
