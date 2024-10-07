@@ -43,7 +43,8 @@ class Client:
         except OnPyApiError as e:
             if e.response is not None and e.response.status_code == 401:
                 raise OnPyAuthError(
-                    "The provided API token is not valid or is no longer valid."
+                    "The provided API token is not valid or is no longer valid. "
+                    "Run onpy.configure() to update your API tokens."
                 ) from e
             else:
                 print("whati")

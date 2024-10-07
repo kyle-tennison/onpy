@@ -66,7 +66,18 @@ class CredentialManager:
         dev_access = os.environ.get("ONSHAPE_DEV_ACCESS")
 
         # look in file if no env var set
-        if not dev_secret or not dev_access:
+        if dev_secret and dev_access:
+            if not os.path.exists(p := CredentialManager.credential_path):
+                logger.warning(
+                    f"Credentials are set in both '{p}' and in env vars. "
+                    "Using the env vars; ignoring config file."
+                )
+            logger.trace(
+                f"Using tokens from environment vars:\n{dev_access}, {dev_secret}"
+            )
+
+        else:
+            logger.trace("Using tokens from environment vars.")
 
             if not os.path.exists(CredentialManager.credential_path):
                 return None
@@ -111,17 +122,12 @@ class CredentialManager:
             json.dump(contents, f)
 
     @staticmethod
-    def fetch_or_prompt() -> tuple[str, str]:
-        """Fetches the dev and secret tokens if available, prompts user
-        through CLI otherwise.
+    def prompt_tokens() -> tuple[str, str]:
+        """Prompt the user in the CLI for secret tokens.
 
         Returns:
             A tuple of the (access_key, secret_key)
         """
-
-        tokens = CredentialManager.fetch_dev_tokens()
-        if tokens:
-            return tokens
 
         print(
             "\nOnPy needs your OnShape credentials. \n"
@@ -148,6 +154,23 @@ class CredentialManager:
                 continue
 
             break
+
+        return (access_key, secret_key)
+
+    @classmethod
+    def fetch_or_prompt(cls) -> tuple[str, str]:
+        """Fetches the dev and secret tokens if available, prompts user
+        through CLI otherwise.
+
+        Returns:
+            A tuple of the (access_key, secret_key)
+        """
+
+        tokens = CredentialManager.fetch_dev_tokens()
+        if tokens:
+            return tokens
+
+        access_key, secret_key = cls.prompt_tokens()
 
         CredentialManager.configure_file(access_key, secret_key)
         tokens = CredentialManager.fetch_dev_tokens()
