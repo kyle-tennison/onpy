@@ -30,7 +30,8 @@ dev = [
     "black",
     "pytest",
     "ruff",
-    "mypy"
+    "mypy",
+    "types-requests"
 ]
 
 [tool.ruff]
