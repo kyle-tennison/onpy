@@ -121,23 +121,6 @@ def is_interactive() -> bool:
 
 
 def maybe_exit(exit_code: int) -> None:
-    """Exit the program if running from a Python file. Will not exit if running
-    in an interactive shell.
-
-    Args:
-        exit_code: Bash exit code
-
-    """
-    if not is_interactive():
-        sys.exit(exit_code)
-
-
-def is_interactive() -> bool:
-    """Check if the script is being run in an interactive Python shell."""
-    return hasattr(sys, "ps1")
-
-
-def maybe_exit(exit_code: int) -> None:
     """Exit the program if running from a Python file.
 
     Will not exit if running in an interactive shell.
@@ -169,8 +152,6 @@ def handle_exception(
         logger.trace(str(exc_traceback))
         exc_value = cast(OnPyError, exc_value)
         logger.error(exc_value.display())
-        maybe_exit(1)
-        return
         maybe_exit(1)
         return
 
