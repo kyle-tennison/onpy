@@ -13,7 +13,13 @@ examples_path = Path(__file__).parent.parent.joinpath("examples").resolve()
 examples: list[Path] = []
 for dir in examples_path.iterdir():
     if dir.is_dir():
-        examples.extend([f for f in dir.iterdir() if f.suffix in (".ipynb", ".py") and not f.name.endswith("-tmp.py")])
+        examples.extend(
+            [
+                f
+                for f in dir.iterdir()
+                if f.suffix in (".ipynb", ".py") and not f.name.endswith("-tmp.py")
+            ]
+        )
 
 # Use nbconvert to convert notebooks into python files
 for example in examples:
