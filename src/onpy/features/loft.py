@@ -1,6 +1,4 @@
-"""
-
-Interface to the Loft Feature
+"""Interface to the Loft Feature.
 
 This script defines the Loft feature. Lofts generate a solid between
 two offset 2D regions
@@ -11,21 +9,20 @@ OnPy - May 2024 - Kyle Tennison
 
 from typing import TYPE_CHECKING, override
 
-from onpy.part import Part
-import onpy.api.model as model
-from onpy.util.misc import unwrap
-from onpy.entities import FaceEntity
-from onpy.entities import EntityFilter
-from onpy.features.base import Feature
-from onpy.api.model import FeatureAddResponse
+from onpy.api import schema
+from onpy.api.schema import FeatureAddResponse
+from onpy.entities import EntityFilter, FaceEntity
 from onpy.entities.protocols import FaceEntityConvertible
+from onpy.features.base import Feature
+from onpy.part import Part
+from onpy.util.misc import unwrap
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
 
 
 class Loft(Feature):
-    """Interface to lofting between two 2D profiles"""
+    """Interface to lofting between two 2D profiles."""
 
     def __init__(
         self,
@@ -34,7 +31,15 @@ class Loft(Feature):
         end_face: FaceEntityConvertible,
         name: str = "Loft",
     ) -> None:
+        """Construct a loft feature.
 
+        Args:
+            partstudio: The owning partstudio
+            start_face: The face to start the loft on
+            end_face: The face to end the loft on
+            name: The name of the loft feature
+
+        """
         self._partstudio = partstudio
         self._id: str | None = None
         self._name = name
@@ -45,7 +50,7 @@ class Loft(Feature):
         self._upload_feature()
 
     def get_created_parts(self) -> list[Part]:
-        """Gets a list of the parts this feature created"""
+        """Get a list of the parts this feature created."""
         return self._get_created_parts_inner()
 
     @property
@@ -66,16 +71,17 @@ class Loft(Feature):
     @property
     @override
     def entities(self) -> EntityFilter:
-        return EntityFilter(self, available=[])  # TODO: load with items
+        #  TODO @kyle-tennison: Not currently implemented. Need to load with items.
+        return EntityFilter(self.partstudio, available=[])
 
     @override
     def _load_response(self, response: FeatureAddResponse) -> None:
         self._id = response.feature.featureId
 
     @override
-    def _to_model(self) -> model.Loft:
+    def _to_model(self) -> schema.Loft:
 
-        return model.Loft(
+        return schema.Loft(
             name=self.name,
             suppressed=False,
             parameters=[
@@ -114,10 +120,10 @@ class Loft(Feature):
                                             "deterministicIds": [
                                                 e.transient_id for e in self.start_faces
                                             ],
-                                        }
+                                        },
                                     ],
                                     "parameterId": "sheetProfileEntities",
-                                }
+                                },
                             ],
                         },
                         {
@@ -131,10 +137,10 @@ class Loft(Feature):
                                             "deterministicIds": [
                                                 e.transient_id for e in self.end_faces
                                             ],
-                                        }
+                                        },
                                     ],
                                     "parameterId": "sheetProfileEntities",
-                                }
+                                },
                             ],
                         },
                     ],

@@ -1,6 +1,4 @@
-"""
-
-Interface to the Extrude Feature
+"""Interface to the Extrude Feature.
 
 This script defines the Extrude feature. Currently, only blind, solid extrusions
 are supported.
@@ -9,20 +7,22 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-import onpy.api.model as model
+from typing import TYPE_CHECKING, override
+
+from onpy.api import schema
+from onpy.api.schema import FeatureAddResponse
+from onpy.entities import EntityFilter
+from onpy.entities.protocols import BodyEntityConvertible, FaceEntityConvertible
+from onpy.features.base import Feature
 from onpy.part import Part
 from onpy.util.misc import unwrap
-from onpy.entities import EntityFilter
-from onpy.features.base import Feature
-from typing import TYPE_CHECKING, override
-from onpy.api.model import FeatureAddResponse
-from onpy.entities.protocols import FaceEntityConvertible, BodyEntityConvertible
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
 
 
 class Extrude(Feature):
+    """Represents an extrusion feature."""
 
     def __init__(
         self,
@@ -33,6 +33,18 @@ class Extrude(Feature):
         merge_with: BodyEntityConvertible | None = None,
         subtract_from: BodyEntityConvertible | None = None,
     ) -> None:
+        """Construct an extrude feature.
+
+        Args:
+            partstudio: The owning partstudio
+            faces: The faces to extrude
+            distance: The distance to extrude the faces.
+            name: The name of the extrusion feature
+            merge_with: Optional body to merge the extrude with.
+            subtract_from: Optional body to subtract the extrude volume from.
+                Makes the extrusion act as a subtraction.
+
+        """
         self.targets = faces._face_entities()
         self._id: str | None = None
         self._partstudio = partstudio
@@ -44,7 +56,7 @@ class Extrude(Feature):
         self._upload_feature()
 
     def get_created_parts(self) -> list[Part]:
-        """Gets a list of the parts this feature created"""
+        """Get a list of the parts this feature created."""
         return self._get_created_parts_inner()
 
     @property
@@ -65,38 +77,37 @@ class Extrude(Feature):
     @property
     @override
     def entities(self) -> EntityFilter:
-        return EntityFilter(self.partstudio, available=[])  # TODO: load with items
+        # TODO @kyle-tennison: Not currently implemented. Load with items
+        return EntityFilter(self.partstudio, available=[])
 
     @property
     def _extrude_bool_type(self) -> str:
-        """Gets the boolean type of the extrude. Can be NEW, ADD, or REMOVE"""
+        """Get the boolean type of the extrude. Can be NEW, ADD, or REMOVE."""
         if self._subtract_from is not None:
             return "REMOVE"
 
-        elif self._merge_with is not None:
+        if self._merge_with is not None:
             return "ADD"
 
-        else:
-            return "NEW"
+        return "NEW"
 
     @property
     def _boolean_scope(self) -> list[str]:
         """Returns a list of transient ids that define the boolean scope of
-        the extrude"""
-
+        the extrude.
+        """
         if self._subtract_from is not None:
             return [e.transient_id for e in self._subtract_from._body_entities()]
 
-        elif self._merge_with is not None:
+        if self._merge_with is not None:
             return [e.transient_id for e in self._merge_with._body_entities()]
 
-        else:
-            return []
+        return []
 
     @override
-    def _to_model(self) -> model.Extrude:
+    def _to_model(self) -> schema.Extrude:
 
-        return model.Extrude(
+        return schema.Extrude(
             name=self.name,
             featureId=self._id,
             suppressed=False,
@@ -119,7 +130,7 @@ class Extrude(Feature):
                         {
                             "btType": "BTMIndividualQuery-138",
                             "deterministicIds": [e.transient_id for e in self.targets],
-                        }
+                        },
                     ],
                     "parameterId": "entities",
                 },
@@ -140,7 +151,7 @@ class Extrude(Feature):
                         {
                             "btType": "BTMIndividualQuery-138",
                             "deterministicIds": self._boolean_scope,
-                        }
+                        },
                     ],
                     "parameterId": "booleanScope",
                 },

@@ -1,6 +1,4 @@
-"""
-
-Custom Exceptions 
+"""Custom Exceptions.
 
 OnPy features some custom exceptions, which are defined here. Their implementation
 is aimed at being maximally readable and descriptive.
@@ -9,44 +7,66 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-import sys
+from __future__ import annotations
+
 import json
-from loguru import logger
-from typing import override
-from requests import Response
+import sys
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, cast, override
+
+from loguru import logger
+
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from requests import Response
 
 
-class OnPyException(Exception, ABC):
+class OnPyError(Exception, ABC):
+    """An abstract method for OnPy exceptions."""
 
-    def __init__(self, message: str):
+    def __init__(self, message: str) -> None:
+        """Construct a base OnPyError.
+
+        Args:
+            message: The message of the exception
+
+        """
         self.message = message
         super().__init__(message)
 
     @abstractmethod
     def display(self) -> str:
-        """Display the exception as a user-friendly string"""
+        """Display the exception as a user-friendly string."""
         ...
 
 
-class OnPyAuthError(OnPyException):
+class OnPyAuthError(OnPyError):
+    """Represents an error caused by bad authentication tokens."""
 
     @override
     def display(self) -> str:
-        """Display the exception as a user-friendly string"""
+        """Display the exception as a user-friendly string."""
         return f"\nOnPyAuthError({self.message})"
 
 
-class OnPyApiError(OnPyException):
+class OnPyApiError(OnPyError):
+    """Represents an error caused by an API calls. Should only be used internally."""
 
     def __init__(self, message: str, response: Response | None = None) -> None:
+        """Construct an OnPyApiError.
+
+        Args:
+            message: The message of the error
+            response: An optional HTTP response to include
+
+        """
         self.response = response
         super().__init__(message)
 
     @override
     def display(self) -> str:
-        """Display the exception as a user-friendly string"""
-
+        """Display the exception as a user-friendly string."""
         response_pretty = ""
         url = "None"
 
@@ -68,27 +88,30 @@ class OnPyApiError(OnPyException):
         )
 
 
-class OnPyInternalError(OnPyException):
+class OnPyInternalError(OnPyError):
+    """Represents an error caused by an internal OnPy bug."""
 
     @override
     def display(self) -> str:
-        """Display the exception as a user-friendly string"""
+        """Display the exception as a user-friendly string."""
         return f"\nOnPyInternalError({self.message})"
 
 
-class OnPyParameterError(OnPyException):
+class OnPyParameterError(OnPyError):
+    """Represents an error caused by an invalid user input."""
 
     @override
     def display(self) -> str:
-        """Display the exception as a user-friendly string"""
+        """Display the exception as a user-friendly string."""
         return f"\nOnPyParameterError({self.message})"
 
 
-class OnPyFeatureError(OnPyException):
+class OnPyFeatureError(OnPyError):
+    """Represents an error caused by an OnShape feature during (re)generation."""
 
     @override
     def display(self) -> str:
-        """Display the exception as a user-friendly string"""
+        """Display the exception as a user-friendly string."""
         return f"\nOnPyFeatureError({self.message})"
 
 
@@ -98,8 +121,9 @@ def is_interactive() -> bool:
 
 
 def maybe_exit(exit_code: int) -> None:
-    """Exit the program if running from a Python file. Will not exit if running
-    in an interactive shell.
+    """Exit the program if running from a Python file.
+
+    Will not exit if running in an interactive shell.
 
     Args:
         exit_code: Bash exit code
@@ -109,10 +133,24 @@ def maybe_exit(exit_code: int) -> None:
         sys.exit(exit_code)
 
 
-def handle_exception(exc_type, exc_value, exc_traceback):
-    """Custom excepthook."""
-    if issubclass(exc_type, OnPyException):
+def handle_exception(
+    exc_type: type[BaseException],
+    exc_value: BaseException,
+    exc_traceback: TracebackType|None,
+) -> None:
+    """Handle an exception.
+
+    Used to override the default system excepthook to catch OnPy errors.
+
+    Args:
+        exc_type: The type of the exception
+        exc_value: The instance of the exception
+        exc_traceback: A traceback object
+
+    """
+    if issubclass(exc_type, OnPyError):
         logger.trace(str(exc_traceback))
+        exc_value = cast(OnPyError, exc_value)
         logger.error(exc_value.display())
         maybe_exit(1)
         return

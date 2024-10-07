@@ -1,6 +1,4 @@
-"""
-
-Interface to OnShape Planes
+"""Interface to OnShape Planes.
 
 There are multiple types of planes in OnShape, all of which are defined here.
 There is an abstract plane class used to reconcile these multiple classes.
@@ -9,47 +7,56 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from enum import Enum
-from functools import cache
-from textwrap import dedent
+import functools
 from abc import abstractmethod
-from typing import TYPE_CHECKING, override
+from enum import Enum
+from textwrap import dedent
+from typing import TYPE_CHECKING, Never, override
 
-import onpy.api.model as model
-from onpy.util.misc import unwrap
-from onpy.entities import EntityFilter
-from onpy.features.base import Feature
+from onpy.api import schema
 from onpy.api.versioning import WorkspaceWVM
+from onpy.entities import EntityFilter
 from onpy.entities.protocols import FaceEntityConvertible
+from onpy.features.base import Feature
+from onpy.util.misc import unwrap
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
 
 
 class Plane(Feature):
-    """Abstract Base Class for all Planes"""
+    """Abstract Base Class for all Planes."""
 
     @property
     @override
-    def entities(self):
-        """NOTE: Plane cannot contain entities, this will always be empty"""
+    def entities(self) -> EntityFilter:
+        """The entities in the plane.
+
+        Plane cannot contain entities, this will always be empty.
+
+        Returns:
+            An EntityFilter object.
+
+        """
         return EntityFilter(self.partstudio, available=[])
 
     @property
     @abstractmethod
     def transient_id(self) -> str:
-        """Gets the transient ID of the plane"""
+        """Get the transient ID of the plane."""
         ...
 
     def __repr__(self) -> str:
+        """Printable representation of the string."""
         return f'Plane("{self.name}")'
 
     def __str__(self) -> str:
+        """Pretty string representation of the string."""
         return repr(self)
 
 
 class DefaultPlaneOrientation(Enum):
-    """The different orientations that the DefaultPlane can be"""
+    """The different orientations that the DefaultPlane can be."""
 
     TOP = "Top"
     FRONT = "Front"
@@ -57,9 +64,20 @@ class DefaultPlaneOrientation(Enum):
 
 
 class DefaultPlane(Plane):
-    """Used to reference the default planes that OnShape generates"""
+    """Used to reference the default planes that OnShape generates."""
 
-    def __init__(self, partstudio: "PartStudio", orientation: DefaultPlaneOrientation):
+    def __init__(
+        self,
+        partstudio: "PartStudio",
+        orientation: DefaultPlaneOrientation,
+    ) -> None:
+        """Construct a default plane.
+
+        Args:
+            partstudio: The owning partstudio
+            orientation: The orientation of the plane.
+
+        """
         self._partstudio = partstudio
         self.orientation = orientation
 
@@ -73,9 +91,8 @@ class DefaultPlane(Plane):
     def id(self) -> str:
         return self.transient_id  # we don't need the feature id of the default plane
 
-    @property
+    @functools.cached_property
     @override
-    @cache
     def transient_id(self) -> str:
         return self._load_plane_id()
 
@@ -85,20 +102,21 @@ class DefaultPlane(Plane):
         return f"{self.orientation.value} Plane"
 
     def _load_plane_id(self) -> str:
-        """Loads the plane id
+        """Load the plane id.
 
         Returns:
             The plane ID
-        """
 
+        """
         plane_script = dedent(
             """
             function(context is Context, queries) {
-                return transientQueriesToStrings(evaluateQuery(context, qCreatedBy(makeId("ORIENTATION"), EntityType.FACE))); 
+                return transientQueriesToStrings(evaluateQuery(context, qCreatedBy(makeId("ORIENTATION"), EntityType.FACE)));
             }
-            """.replace(
-                "ORIENTATION", self.orientation.value
-            )
+            """.replace(  # noqa: E501
+                "ORIENTATION",
+                self.orientation.value,
+            ),
         )
 
         response = self._client._api.endpoints.eval_featurescript(
@@ -106,25 +124,27 @@ class DefaultPlane(Plane):
             version=WorkspaceWVM(self.document.default_workspace.id),
             element_id=self.partstudio.id,
             script=plane_script,
-            return_type=model.FeaturescriptResponse,
+            return_type=schema.FeaturescriptResponse,
         )
 
-        plane_id = unwrap(
-            response.result, message="Featurescript failed to load default plane"
+        return unwrap(
+            response.result,
+            message="Featurescript failed to load default plane",
         )["value"][0]["value"]
-        return plane_id
 
     @override
-    def _to_model(self):
-        raise NotImplementedError("Default planes cannot be converted to a model")
+    def _to_model(self) -> Never:
+        msg = "Default planes cannot be converted to a model"
+        raise NotImplementedError(msg)
 
     @override
-    def _load_response(self, response: model.FeatureAddResponse) -> None:
-        raise NotImplementedError("DefaultPlane should not receive a response object")
+    def _load_response(self, response: schema.FeatureAddResponse) -> None:
+        msg = "DefaultPlane should not receive a response object"
+        raise NotImplementedError(msg)
 
 
 class OffsetPlane(Plane):
-    """Represents a linearly offset plane"""
+    """Represents a linearly offset plane."""
 
     def __init__(
         self,
@@ -132,7 +152,16 @@ class OffsetPlane(Plane):
         owner: Plane | FaceEntityConvertible,
         distance: float,
         name: str = "Offset Plane",
-    ):
+    ) -> None:
+        """Construct an offset plane.
+
+        Args:
+            partstudio: The owning partstudio
+            owner: The entity to base the offset plane off of
+            distance: The offset distance
+            name: The name of the offset plane entity
+
+        """
         self._partstudio = partstudio
         self._owner = owner
         self._name = name
@@ -144,27 +173,31 @@ class OffsetPlane(Plane):
 
     @property
     def owner(self) -> Plane | FaceEntityConvertible:
+        """The owning entity of the offset plane."""
         return self._owner
 
     @property
     @override
     def partstudio(self) -> "PartStudio":
+        """The owning partstudio."""
         return self._partstudio
 
     @property
     @override
     def name(self) -> str:
+        """The name of the offset plane."""
         return self._name
 
     @property
     @override
     def id(self) -> str:
+        """The element id of the plane."""
         return unwrap(self._id, "Plane id unbound")
 
     @property
     @override
     def transient_id(self) -> str:
-
+        """The transient ID of the plane."""
         script = dedent(
             f"""
 
@@ -175,7 +208,7 @@ class OffsetPlane(Plane):
             return transientQueriesToStrings(face);
 
         }}
-            """
+            """,
         )
 
         response = self._client._api.endpoints.eval_featurescript(
@@ -183,26 +216,23 @@ class OffsetPlane(Plane):
             version=WorkspaceWVM(self.document.default_workspace.id),
             element_id=self.partstudio.id,
             script=script,
-            return_type=model.FeaturescriptResponse,
+            return_type=schema.FeaturescriptResponse,
         )
 
-        plane_id = unwrap(
+        return unwrap(
             response.result,
             message="Featurescript failed to load offset plane transient id",
         )["value"]
-        return plane_id
 
     def _get_owner_transient_ids(self) -> list[str]:
-        """Gets the transient id(s) of the owner"""
-
+        """Get the transient id(s) of the owner."""
         if isinstance(self.owner, Plane):
             return [self.owner.transient_id]
-        else:
-            return [e.transient_id for e in self.owner._face_entities()]
+        return [e.transient_id for e in self.owner._face_entities()]
 
     @override
-    def _to_model(self) -> model.Plane:
-        return model.Plane(
+    def _to_model(self) -> schema.Plane:
+        return schema.Plane(
             name=self.name,
             parameters=[
                 {
@@ -211,7 +241,7 @@ class OffsetPlane(Plane):
                         {
                             "btType": "BTMIndividualQuery-138",
                             "deterministicIds": self._get_owner_transient_ids(),
-                        }
+                        },
                     ],
                     "parameterId": "entities",
                 },
@@ -241,5 +271,5 @@ class OffsetPlane(Plane):
         )
 
     @override
-    def _load_response(self, response: model.FeatureAddResponse) -> None:
+    def _load_response(self, response: schema.FeatureAddResponse) -> None:
         self._id = response.feature.featureId

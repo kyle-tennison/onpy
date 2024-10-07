@@ -1,6 +1,4 @@
-"""
-
-Models for OnShape API payloads & responses.
+"""Models for OnShape API payloads & responses.
 
 The API uses pydantic to serialize and deserialize API calls. The models
 to do this are stored here.
@@ -9,13 +7,17 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from enum import Enum
+from abc import abstractmethod
 from datetime import datetime
-from typing import Optional, Protocol
+from enum import Enum
+from typing import Protocol
+
 from pydantic import BaseModel, ConfigDict
 
 
 class HttpMethod(Enum):
+    """Enumeration of available HTTP methods."""
+
     Post = "post"
     Get = "get"
     Put = "put"
@@ -23,17 +25,27 @@ class HttpMethod(Enum):
 
 
 class NameIdFetchable(Protocol):
-    name: str | None
-    id: str | None
+    """A protocol for an object that can be fetched by name or id."""
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        ...
+
+    @property
+    @abstractmethod
+    def id(self) -> str:
+        ...
 
 
 class ApiModel(BaseModel):
+    """Base model for OnShape APIs."""
 
     model_config = ConfigDict(extra="ignore")
 
 
 class UserReference(ApiModel):
-    """Represents a reference to a user"""
+    """Represents a reference to a user."""
 
     href: str
     id: str
@@ -41,14 +53,14 @@ class UserReference(ApiModel):
 
 
 class Workspace(ApiModel):
-    """Represents an instance of OnShape's workspace versioning"""
+    """Represents an instance of OnShape's workspace versioning."""
 
     name: str
     id: str
 
 
 class Document(ApiModel):
-    """Represents surface-level document information"""
+    """Represents surface-level document information."""
 
     createdAt: datetime
     createdBy: UserReference
@@ -60,32 +72,32 @@ class Document(ApiModel):
 
 
 class DocumentsResponse(ApiModel):
-    """Response model of GET /documents"""
+    """Response model of GET /documents."""
 
     items: list[Document]
 
 
 class DocumentCreateRequest(ApiModel):
-    """Request model of POST /documents"""
+    """Request model of POST /documents."""
 
     name: str
     description: str | None
-    isPublic: Optional[bool] = True
+    isPublic: bool | None = True
 
 
 class DocumentVersion(ApiModel):
-    """Represents a document version"""
+    """Represents a document version."""
 
     documentId: str
     name: str
     id: str
     microversion: str
     createdAt: datetime
-    description: Optional[str] = ""
+    description: str | None = ""
 
 
 class DocumentVersionUpload(ApiModel):
-    """Represents a partial document version, used for upload"""
+    """Represents a partial document version, used for upload."""
 
     documentId: str
     name: str
@@ -93,7 +105,7 @@ class DocumentVersionUpload(ApiModel):
 
 
 class Element(ApiModel):
-    """Represents an OnShape element"""
+    """Represents an OnShape element."""
 
     angleUnits: str | None
     areaUnits: str | None
@@ -106,7 +118,7 @@ class Element(ApiModel):
 
 
 class FeatureParameter(ApiModel):
-    """Represents a feature parameter"""
+    """Represents a feature parameter."""
 
     btType: str
     queries: list[dict | ApiModel]
@@ -114,20 +126,20 @@ class FeatureParameter(ApiModel):
 
 
 class FeatureParameterQueryList(FeatureParameter):
-    """Represents a BTMParameterQueryList-148"""
+    """Represents a BTMParameterQueryList-148."""
 
     btType: str = "BTMParameterQueryList-148"
 
 
 class FeatureEntity(ApiModel):
-    """Represents a feature entity"""
+    """Represents a feature entity."""
 
-    btType: Optional[str] = None
+    btType: str | None = None
     entityId: str
 
 
 class SketchCurveEntity(FeatureEntity):
-    """Represents a sketch's curve"""
+    """Represents a sketch's curve."""
 
     geometry: dict
     centerId: str
@@ -135,7 +147,7 @@ class SketchCurveEntity(FeatureEntity):
 
 
 class SketchCurveSegmentEntity(FeatureEntity):
-    """Represents a sketch curve segment"""
+    """Represents a sketch curve segment."""
 
     btType: str = "BTMSketchCurveSegment-155"
     startPointId: str
@@ -147,90 +159,92 @@ class SketchCurveSegmentEntity(FeatureEntity):
 
 
 class Feature(ApiModel):
-    """Represents an OnShape feature"""
+    """Represents an OnShape feature."""
 
     name: str
-    namespace: Optional[str] = None
-    # nodeId: str
+    namespace: str | None = None
     featureType: str
     suppressed: bool
-    parameters: Optional[list[dict]] = (
-        []
-    )  # dict is FeatureParameter TODO: use the actual models again
-    featureId: Optional[str] = None
+    parameters: list[dict] | None = []  # dict is FeatureParameter
 
-    # TODO: is there any way to use inheritance in pydantic w/o filtering off attributes
+    # TODO @kyle-tennison: use the actual models again
+    featureId: str | None = None
+
+    # TODO @kyle-tennison: is there any way to use inheritance in
+    # pydantic w/o filtering off attributes
 
 
 class FeatureState(ApiModel):
-    """Contains information about the health of a feature"""
+    """Contains information about the health of a feature."""
 
     featureStatus: str
     inactive: bool
 
 
 class FeatureAddRequest(ApiModel):
-    """API Request to add a feature"""
+    """API Request to add a feature."""
 
     feature: dict
 
 
 class FeatureAddResponse(ApiModel):
-    """API Response after adding a feature"""
+    """API Response after adding a feature."""
 
     feature: Feature
     featureState: FeatureState
 
 
 class FeatureListResponse(ApiModel):
-    """API Response of GET /partstudios/DWE/features"""
+    """API Response of GET /partstudios/DWE/features."""
 
     features: list[Feature]
     defaultFeatures: list[Feature]
 
 
 class FeaturescriptUpload(ApiModel):
-    """Request model of POST /partstudios/DWE/featurescript"""
+    """Request model of POST /partstudios/DWE/featurescript."""
 
     script: str
 
 
 class FeaturescriptResponse(ApiModel):
+    """The response from a featurescript upload."""
+
     result: dict | None
 
 
 class Sketch(Feature):
-    """Represents a Sketch Feature"""
+    """Represents a Sketch Feature."""
 
     btType: str = "BTMSketch-151"
     featureType: str = "newSketch"
-    constraints: Optional[list[dict]] = []
-    entities: Optional[list[dict]]  # dict is FeatureEntity
+    constraints: list[dict] | None = []
+    entities: list[dict] | None  # dict is FeatureEntity
 
 
 class Extrude(Feature):
-    """Represents an Extrude Feature"""
+    """Represents an Extrude Feature."""
 
     btType: str = "BTMFeature-134"
     featureType: str = "extrude"
 
 
 class Plane(Feature):
-    """Represents a Plane Feature"""
+    """Represents a Plane Feature."""
 
     btType: str = "BTMFeature-134"
     featureType: str = "cPlane"
 
 
 class Loft(Feature):
-    """Represents a Loft Feature"""
+    """Represents a Loft Feature."""
 
     btType: str = "BTMFeature-134"
     featureType: str = "loft"
 
 
 class Part(ApiModel):
-    """Represents a Part"""
+    """Represents a Part."""
 
     name: str
     partId: str

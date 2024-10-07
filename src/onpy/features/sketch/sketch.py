@@ -1,6 +1,4 @@
-"""
-
-Interface to the Sketch Feature
+"""Interface to the Sketch Feature.
 
 This script defines the Sketch feature. Because sketches are naturally the
 most complex feature, it has been moved to its own submodule.
@@ -11,21 +9,26 @@ OnPy - May 2024 - Kyle Tennison
 
 import copy
 import math
+from collections.abc import Sequence
 from textwrap import dedent
+from typing import TYPE_CHECKING, override
+
 import numpy as np
 from loguru import logger
-from typing import TYPE_CHECKING, Sequence, override
 
-import onpy.api.model as model
-from onpy.entities import EntityFilter
-from onpy.features.base import Feature
+from onpy.api import schema
 from onpy.api.versioning import WorkspaceWVM
-from onpy.entities import Entity, FaceEntity, VertexEntity, EdgeEntity
-from onpy.util.exceptions import OnPyFeatureError
-from onpy.util.misc import unwrap, Point2D, UnitSystem
-from onpy.features.sketch.sketch_items import SketchItem
+from onpy.entities import EdgeEntity, Entity, EntityFilter, FaceEntity, VertexEntity
 from onpy.entities.protocols import FaceEntityConvertible
-from onpy.features.sketch.sketch_items import SketchCircle, SketchLine, SketchArc
+from onpy.features.base import Feature
+from onpy.features.sketch.sketch_items import (
+    SketchArc,
+    SketchCircle,
+    SketchItem,
+    SketchLine,
+)
+from onpy.util.exceptions import OnPyFeatureError
+from onpy.util.misc import Point2D, UnitSystem, unwrap
 
 if TYPE_CHECKING:
     from onpy.elements.partstudio import PartStudio
@@ -33,7 +36,7 @@ if TYPE_CHECKING:
 
 
 class Sketch(Feature, FaceEntityConvertible):
-    """The OnShape Sketch Feature, used to build 2D geometries"""
+    """The OnShape Sketch Feature, used to build 2D geometries."""
 
     def __init__(
         self,
@@ -41,6 +44,14 @@ class Sketch(Feature, FaceEntityConvertible):
         plane: "Plane|FaceEntityConvertible",
         name: str = "New Sketch",
     ) -> None:
+        """Construct a new sketch.
+
+        Args:
+            partstudio: The partstudio that owns the sketch.
+            plane: The plane to base the sketch on.
+            name: The name of the sketch entity.
+
+        """
         self.plane = plane
         self._partstudio = partstudio
         self._name = name
@@ -61,11 +72,12 @@ class Sketch(Feature, FaceEntityConvertible):
 
     @property
     def name(self) -> str:
+        """The name of the sketch."""
         return self._name
 
     @property
     def sketch_items(self) -> Sequence[SketchItem]:
-        """A list of items that were added to the sketch"""
+        """A list of items that were added to the sketch."""
         return list(self._items)
 
     def add_circle(
@@ -74,12 +86,13 @@ class Sketch(Feature, FaceEntityConvertible):
         radius: float,
         units: UnitSystem | None = None,
     ) -> SketchCircle:
-        """Adds a circle to the sketch
+        """Add a circle to the sketch.
 
         Args:
             center: An (x,y) pair of the center of the circle
             radius: The radius of the circle
             units: An optional other unit system to use
+
         """
         center_point = Point2D.from_pair(center)
 
@@ -91,7 +104,10 @@ class Sketch(Feature, FaceEntityConvertible):
             radius *= 0.0254
 
         item = SketchCircle(
-            sketch=self, radius=radius, center=center_point, units=self._client.units
+            sketch=self,
+            radius=radius,
+            center=center_point,
+            units=self._client.units,
         )
 
         logger.info(f"Added circle to sketch: {item}")
@@ -101,15 +117,17 @@ class Sketch(Feature, FaceEntityConvertible):
         return item
 
     def add_line(
-        self, start: tuple[float, float], end: tuple[float, float]
+        self,
+        start: tuple[float, float],
+        end: tuple[float, float],
     ) -> SketchLine:
-        """Adds a line to the sketch
+        """Add a line to the sketch.
 
         Args:
             start: The starting point of the line
             end: The ending point of the line
-        """
 
+        """
         start_point = Point2D.from_pair(start)
         end_point = Point2D.from_pair(end)
 
@@ -126,16 +144,18 @@ class Sketch(Feature, FaceEntityConvertible):
         return item
 
     def trace_points(
-        self, *points: tuple[float, float], end_connect: bool = True
+        self,
+        *points: tuple[float, float],
+        end_connect: bool = True,
     ) -> list[SketchLine]:
-        """Traces a series of points
+        """Traces a series of points.
 
         Args:
             points: A list of points to trace. Uses list order for line
             end_connect: Connects end points of the trace with an extra segment
                 to create a closed loop. Defaults to True.
-        """
 
+        """
         segments: list[tuple[Point2D, Point2D]] = []
 
         for idx in range(1, len(points)):
@@ -147,7 +167,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
         if end_connect:
             segments.append(
-                (Point2D.from_pair(points[0]), Point2D.from_pair(points[-1]))
+                (Point2D.from_pair(points[0]), Point2D.from_pair(points[-1])),
             )
 
         lines = []
@@ -158,15 +178,17 @@ class Sketch(Feature, FaceEntityConvertible):
         return lines
 
     def add_corner_rectangle(
-        self, corner_1: tuple[float, float], corner_2: tuple[float, float]
+        self,
+        corner_1: tuple[float, float],
+        corner_2: tuple[float, float],
     ) -> None:
-        """Adds a corner rectangle to the sketch
+        """Add a corner rectangle to the sketch.
 
         Args:
             corner_1: The point of the first corner
             corner_2: The point of the corner opposite to corner 1
-        """
 
+        """
         p1 = Point2D.from_pair(corner_1)
         p2 = Point2D.from_pair(corner_2)
 
@@ -179,15 +201,15 @@ class Sketch(Feature, FaceEntityConvertible):
         start_angle: float,
         end_angle: float,
     ) -> SketchArc:
-        """Adds a centerpoint arc to the sketch
+        """Add a centerpoint arc to the sketch.
 
         Args:
             centerpoint: The centerpoint of the arc
             radius: The radius of the arc
             start_angle: The angle to start drawing the arc at
             end_angle: The angle to stop drawing the arc at
-        """
 
+        """
         center = Point2D.from_pair(centerpoint)
 
         if self._client.units is UnitSystem.INCH:
@@ -213,7 +235,7 @@ class Sketch(Feature, FaceEntityConvertible):
         line_2: SketchLine,
         radius: float,
     ) -> SketchArc:
-        """Creates a fillet between two lines by shortening them and adding an
+        """Create a fillet between two lines by shortening them and adding an
         arc in between. Returns the added arc.
 
         Args:
@@ -221,10 +243,10 @@ class Sketch(Feature, FaceEntityConvertible):
             line_2: Other line to fillet
             radius: Radius of the fillet
 
-        Returns
+        Returns:
             A SketchArc of the added arc. Updates line_1 and line_2
-        """
 
+        """
         if line_1 == line_2:
             raise OnPyFeatureError("Cannot create a fillet between the same line")
 
@@ -273,7 +295,8 @@ class Sketch(Feature, FaceEntityConvertible):
         # find the distance of the fillet centerpoint from the intersection point
         arc_center_offset = radius / math.sin(opening_angle / 2)
         line_dir = Point2D(
-            math.cos(center_angle), math.sin(center_angle)
+            math.cos(center_angle),
+            math.sin(center_angle),
         )  # really is a vector, not a point
 
         # find which direction to apply the offset
@@ -362,24 +385,24 @@ class Sketch(Feature, FaceEntityConvertible):
         return arc
 
     @override
-    def _to_model(self) -> model.Sketch:
+    def _to_model(self) -> schema.Sketch:
 
         if isinstance(self.plane, FaceEntityConvertible):
             transient_ids = [e.transient_id for e in self.plane._face_entities()]
         else:
             transient_ids = [self.plane.transient_id]
 
-        return model.Sketch(
+        return schema.Sketch(
             name=self.name,
             featureId=self._id,
             suppressed=False,
             parameters=[
-                model.FeatureParameterQueryList(
+                schema.FeatureParameterQueryList(
                     queries=[
                         {
                             "btType": "BTMIndividualQuery-138",
                             "deterministicIds": transient_ids,
-                        }
+                        },
                     ],
                     parameterId="sketchPlane",
                 ).model_dump(exclude_none=True),
@@ -393,19 +416,19 @@ class Sketch(Feature, FaceEntityConvertible):
         )
 
     @override
-    def _load_response(self, response: model.FeatureAddResponse) -> None:
-        """Loads the feature id from the response"""
+    def _load_response(self, response: schema.FeatureAddResponse) -> None:
+        """Load the feature id from the response."""
         self._id = unwrap(response.feature.featureId)
 
     @property
     @override
     def entities(self) -> EntityFilter:
-        """All of the entities on this sketch
+        """All of the entities on this sketch.
 
         Returns:
             An EntityFilter object used to query entities
-        """
 
+        """
         script = dedent(
             f"""
             function(context is Context, queries) {{
@@ -413,7 +436,7 @@ class Sketch(Feature, FaceEntityConvertible):
                 var faces = evaluateQuery(context, qCreatedBy(feature_id));
                 return transientQueriesToStrings(faces);
             }}
-            """
+            """,
         )
 
         response = self._client._api.endpoints.eval_featurescript(
@@ -421,11 +444,12 @@ class Sketch(Feature, FaceEntityConvertible):
             version=WorkspaceWVM(self._partstudio.document.default_workspace.id),
             element_id=self._partstudio.id,
             script=script,
-            return_type=model.FeaturescriptResponse,
+            return_type=schema.FeaturescriptResponse,
         )
 
         transient_ids_raw = unwrap(
-            response.result, message="Featurescript failed get entities owned by part"
+            response.result,
+            message="Featurescript failed get entities owned by part",
         )["value"]
 
         entities = [Entity(i["value"]) for i in transient_ids_raw]
@@ -438,7 +462,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
     @property
     def vertices(self) -> EntityFilter[VertexEntity]:
-        """An object used for interfacing with vertex entities on this sketch"""
+        """An object used for interfacing with vertex entities on this sketch."""
         return EntityFilter(
             partstudio=self._partstudio,
             available=self.entities.is_type(VertexEntity)._available,
@@ -446,7 +470,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
     @property
     def edges(self) -> EntityFilter[EdgeEntity]:
-        """An object used for interfacing with edge entities on this sketch"""
+        """An object used for interfacing with edge entities on this sketch."""
         return EntityFilter(
             partstudio=self._partstudio,
             available=self.entities.is_type(EdgeEntity)._available,
@@ -454,7 +478,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
     @property
     def faces(self) -> EntityFilter[FaceEntity]:
-        """An object used for interfacing with face entities on this sketch"""
+        """An object used for interfacing with face entities on this sketch."""
         return EntityFilter(
             partstudio=self._partstudio,
             available=self.entities.is_type(FaceEntity)._available,
@@ -467,9 +491,10 @@ class Sketch(Feature, FaceEntityConvertible):
         items: Sequence[T],
         line_point: tuple[float, float],
         line_dir: tuple[float, float],
+        *,
         copy: bool = True,
     ) -> list[T]:
-        """Mirrors sketch items about a line
+        """Mirrors sketch items about a line.
 
         Args:
             items: Any number of sketch items to mirror
@@ -480,8 +505,8 @@ class Sketch(Feature, FaceEntityConvertible):
 
         Returns:
             A list of the new items added
-        """
 
+        """
         if copy:
             items = tuple([i.clone() for i in items])
 
@@ -494,9 +519,10 @@ class Sketch(Feature, FaceEntityConvertible):
         items: Sequence[T],
         origin: tuple[float, float],
         theta: float,
+        *,
         copy: bool = False,
     ) -> list[T]:
-        """Rotates sketch items about a point
+        """Rotates sketch items about a point.
 
         Args:
             items: Any number of sketch items to rotate
@@ -507,8 +533,8 @@ class Sketch(Feature, FaceEntityConvertible):
 
         Returns:
             A list of the new items added
-        """
 
+        """
         if copy:
             items = tuple([i.clone() for i in items])
 
@@ -516,10 +542,15 @@ class Sketch(Feature, FaceEntityConvertible):
 
     def translate[
         T: SketchItem
-    ](self, items: Sequence[T], x: float = 0, y: float = 0, copy: bool = False) -> list[
-        T
-    ]:
-        """Translates sketch items in a cartesian system
+    ](
+        self,
+        items: Sequence[T],
+        x: float = 0,
+        y: float = 0,
+        *,
+        copy: bool = False,
+    ) -> list[T]:
+        """Translate sketch items in a cartesian system.
 
         Args:
             items: Any number of sketch items to translate
@@ -530,11 +561,10 @@ class Sketch(Feature, FaceEntityConvertible):
 
         Returns:
             A list of the new items added
-        """
 
+        """
         if copy:
             items = tuple([i.clone() for i in items])
-            # self._items.update(items)
 
         return [i.translate(x, y) for i in items]
 
@@ -547,18 +577,19 @@ class Sketch(Feature, FaceEntityConvertible):
         num_steps: int,
         theta: float,
     ) -> list[T]:
-        """Creates a circular pattern of sketch items
+        """Create a circular pattern of sketch items.
 
         Args:
             items: Any number of sketch items to include in the pattern
+            origin: The point to center the circular pattern about.
             num_steps: The number of steps to take. Does not include original position
             theta: The degrees to rotate per step
 
         Returns:
             A list of the entities that compose the circular pattern, including the
             original items.
-        """
 
+        """
         new_items = []
 
         for item in items:
@@ -570,7 +601,7 @@ class Sketch(Feature, FaceEntityConvertible):
     def linear_pattern[
         T: SketchItem
     ](self, items: Sequence[T], num_steps: int, x: float = 0, y: float = 0) -> list[T]:
-        """Creates a linear pattern of sketch items
+        """Create a linear pattern of sketch items.
 
         Args:
             items: Any number of sketch items to include in the pattern
@@ -581,6 +612,7 @@ class Sketch(Feature, FaceEntityConvertible):
         Returns:
             A list of the entities that compose the linear pattern, including the
             original item.
+
         """
         new_items = []
 
@@ -591,7 +623,9 @@ class Sketch(Feature, FaceEntityConvertible):
         return new_items
 
     def __str__(self) -> str:
+        """Pretty string representation of the sketch."""
         return repr(self)
 
     def __repr__(self) -> str:
+        """Printable representation of the sketch."""
         return f'Sketch("{self.name}")'

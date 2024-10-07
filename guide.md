@@ -393,7 +393,7 @@ the objects it contains. The signatures are shown:
 def intersects(
         self, origin: tuple[float, float, float], direction: tuple[float, float, float]
     ) -> "EntityFilter":
-    """Gets the queries that intersect an infinite line
+    """Get the queries that intersect an infinite line
 
     Args:
         origin: The origin on the line. This can be any point that lays on
@@ -403,15 +403,15 @@ def intersects(
     ...
 
 def smallest(self) -> "EntityFilter":
-    """Gets the smallest entity"""
+    """Get the smallest entity"""
     ...
 
 def largest(self) -> "EntityFilter":
-    """Gets the largest entity"""
+    """Get the largest entity"""
     ...
 
 def closest_to(self, point: tuple[float, float, float]) -> "EntityFilter":
-    """Gets the entity closest to the point
+    """Get the entity closest to the point
 
     Args:
         point: The point to use for filtering

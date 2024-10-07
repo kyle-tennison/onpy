@@ -1,6 +1,4 @@
-"""
-
-Various items that can belong to a sketch
+"""Various items that can belong to a sketch.
 
 As a user builds a sketch, they are adding sketch items. This is importantly
 different from adding entities--which they are also adding. Sketch items
@@ -15,13 +13,15 @@ OnPy - May 2024 - Kyle Tennison
 import copy
 import math
 import uuid
-from loguru import logger
-import numpy as np
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Self, override
 
-import onpy.api.model as model
-from onpy.util.misc import UnitSystem, Point2D
+import numpy as np
+from loguru import logger
+
+from onpy.api import schema
+from onpy.util.exceptions import OnPyParameterError
+from onpy.util.misc import Point2D, UnitSystem
 
 if TYPE_CHECKING:
     from onpy.features import Sketch
@@ -29,21 +29,22 @@ if TYPE_CHECKING:
 
 class SketchItem(ABC):
     """Represents an item that the user added to the sketch. *Not* the same
-    as an entity."""
+    as an entity.
+    """
 
     @property
     @abstractmethod
     def sketch(self) -> "Sketch":
-        """A reference to the owning sketch"""
+        """A reference to the owning sketch."""
 
     @abstractmethod
-    def to_model(self) -> model.ApiModel:
-        """Converts the item into the corresponding api model"""
+    def to_model(self) -> schema.ApiModel:
+        """Convert the item into the corresponding api schema."""
         ...
 
     @abstractmethod
     def translate(self, x: float = 0, y: float = 0) -> Self:
-        """Linear translation of the entity
+        """Linear translation of the entity.
 
         Args:
             x: The distance to translate along the x-axis
@@ -51,12 +52,13 @@ class SketchItem(ABC):
 
         Returns:
             A new sketch object
+
         """
         ...
 
     @abstractmethod
     def rotate(self, origin: tuple[float, float], theta: float) -> Self:
-        """Rotates the entity about a point
+        """Rotates the entity about a point.
 
         Args:
             origin: The point to rotate about
@@ -64,14 +66,17 @@ class SketchItem(ABC):
 
         Returns:
             A new sketch object
+
         """
         ...
 
     @abstractmethod
     def mirror(
-        self, line_start: tuple[float, float], line_end: tuple[float, float]
+        self,
+        line_start: tuple[float, float],
+        line_end: tuple[float, float],
     ) -> Self:
-        """Mirror the entity about a line
+        """Mirror the entity about a line.
 
         Args:
             line_start: The starting point of the line
@@ -79,14 +84,17 @@ class SketchItem(ABC):
 
         Returns:
             A new entity object
+
         """
         ...
 
     @staticmethod
     def _mirror_point(
-        point: Point2D, line_start: Point2D, line_end: Point2D
+        point: Point2D,
+        line_start: Point2D,
+        line_end: Point2D,
     ) -> Point2D:
-        """Mirrors the point across a line
+        """Mirrors the point across a line.
 
         Args:
             point: The point to mirror
@@ -95,8 +103,8 @@ class SketchItem(ABC):
 
         Returns:
             The mirrored point
-        """
 
+        """
         q_i = np.array(line_start.as_tuple)
         q_j = np.array(line_end.as_tuple)
         p_0 = np.array(point.as_tuple)
@@ -114,7 +122,7 @@ class SketchItem(ABC):
 
     @staticmethod
     def _rotate_point(point: Point2D, pivot: Point2D, degrees: float) -> Point2D:
-        """Rotates a point about another point
+        """Rotates a point about another point.
 
         Args:
             point: The point to rotate
@@ -123,8 +131,8 @@ class SketchItem(ABC):
 
         Returns:
             The rotated point
-        """
 
+        """
         dx = point.x - pivot.x
         dy = point.y - pivot.y
 
@@ -138,19 +146,19 @@ class SketchItem(ABC):
         return Point2D(new_x, new_y)
 
     def _replace_entity(self, new_entity: "SketchItem") -> None:
-        """Replaces the existing entity with a new entity and refreshes the
-        feature
+        """Replace the existing entity with a new entity and refreshes the
+        feature.
 
         Args:
             new_entity: The entity to replace with
-        """
 
+        """
         self.sketch._items.remove(self)
         self.sketch._items.add(new_entity)
         self.sketch._update_feature()
 
     def clone(self) -> Self:
-        """Creates a copy of the entity"""
+        """Create a copy of the entity."""
         logger.debug(f"Created a close of {self}")
 
         new_entity = copy.copy(self)
@@ -158,9 +166,12 @@ class SketchItem(ABC):
         return new_entity
 
     def linear_pattern(
-        self, num_steps: int, x_step: float, y_step: float
+        self,
+        num_steps: int,
+        x_step: float,
+        y_step: float,
     ) -> list[Self]:
-        """Creates a linear pattern of the sketch entity
+        """Create a linear pattern of the sketch entity.
 
         Args:
             num_steps: The number of steps to make. Does not include original entity
@@ -170,6 +181,7 @@ class SketchItem(ABC):
         Returns:
             A list of the entities that compose the linear pattern, including the
             original item.
+
         """
         logger.debug(f"Creating a linear pattern of {self} for {num_steps}")
 
@@ -181,9 +193,12 @@ class SketchItem(ABC):
         return entities
 
     def circular_pattern(
-        self, origin: tuple[float, float], num_steps: int, theta: float
+        self,
+        origin: tuple[float, float],
+        num_steps: int,
+        theta: float,
     ) -> list[Self]:
-        """Creates a circular pattern of the sketch entity about a point
+        """Create a circular pattern of the sketch entity about a point.
 
         Args:
             origin: The origin of the circular rotation
@@ -193,6 +208,7 @@ class SketchItem(ABC):
         Returns:
             A list of entities that compose the circular pattern, including the
             original item.
+
         """
         logger.debug(f"Creating a circular pattern of {self} for {num_steps}")
 
@@ -204,18 +220,21 @@ class SketchItem(ABC):
         return entities
 
     def _generate_entity_id(self) -> str:
-        """Generates a random entity id"""
+        """Generate a random entity id."""
         return str(uuid.uuid4()).replace("-", "")
 
     def __str__(self) -> str:
+        """Pretty representation of the sketch item."""
         return repr(self)
 
     @abstractmethod
-    def __repr__(self) -> str: ...
+    def __repr__(self) -> str:
+        """Printable representation of the sketch item."""
+        ...
 
 
 class SketchCircle(SketchItem):
-    """A sketch circle"""
+    """A sketch circle."""
 
     def __init__(
         self,
@@ -223,38 +242,38 @@ class SketchCircle(SketchItem):
         radius: float,
         center: Point2D,
         units: UnitSystem,
-        dir: tuple[float, float] = (1, 0),
+        direction: tuple[float, float] = (1, 0),
+        *,
         clockwise: bool = False,
-    ):
-        """
-        Args:
-            sketch: A reference to the owning sketch
-            radius: The radius of the arc
-            center: The centerpoint of the arc
-            units: The unit system to use
-            dir: An optional dir to specify. Defaults to +x axis
-            clockwise: Whether or not the arc is clockwise. Defaults to false
-        """
+    ) -> None:
+        """Args:
+        sketch: A reference to the owning sketch
+        radius: The radius of the arc
+        center: The centerpoint of the arc
+        units: The unit system to use
+        direction: An optional direction to specify. Defaults to +x axis
+        clockwise: Whether or not the arc is clockwise. Defaults to false.
 
+        """
         self._sketch = sketch
         self.radius = radius
         self.center = center
         self.units = units
-        self.dir = Point2D.from_pair(dir)
+        self.direction = Point2D.from_pair(direction)
         self.clockwise = clockwise
         self.entity_id = self._generate_entity_id()
 
     @override
-    def to_model(self) -> model.SketchCurveEntity:
+    def to_model(self) -> schema.SketchCurveEntity:
 
-        return model.SketchCurveEntity(
+        return schema.SketchCurveEntity(
             geometry={
                 "btType": "BTCurveGeometryCircle-115",
                 "radius": self.radius,
                 "xcenter": self.center.x,
                 "ycenter": self.center.y,
-                "xdir": self.dir.x,
-                "ydir": self.dir.y,
+                "xdir": self.direction.x,
+                "ydir": self.direction.y,
                 "clockwise": self.clockwise,
             },
             centerId=f"{self.entity_id}.center",
@@ -264,6 +283,7 @@ class SketchCircle(SketchItem):
     @property
     @override
     def sketch(self) -> "Sketch":
+        """A reference to the owning sketch."""
         return self._sketch
 
     @override
@@ -274,14 +294,14 @@ class SketchCircle(SketchItem):
             radius=self.radius,
             center=new_center,
             units=self.units,
-            dir=self.dir.as_tuple,
+            direction=self.direction.as_tuple,
             clockwise=self.clockwise,
         )
         self._replace_entity(new_entity)
         return new_entity
 
     @override
-    def translate(self, x: float, y: float) -> "SketchCircle":
+    def translate(self, x: float =0 , y: float =0 ) -> "SketchCircle":
 
         if self._sketch._client.units is UnitSystem.INCH:
             x *= 0.0254
@@ -293,7 +313,7 @@ class SketchCircle(SketchItem):
             radius=self.radius,
             center=new_center,
             units=self.units,
-            dir=self.dir.as_tuple,
+            direction=self.direction.as_tuple,
             clockwise=self.clockwise,
         )
         self._replace_entity(new_entity)
@@ -301,7 +321,9 @@ class SketchCircle(SketchItem):
 
     @override
     def mirror(
-        self, line_start: tuple[float, float], line_end: tuple[float, float]
+        self,
+        line_start: tuple[float, float],
+        line_end: tuple[float, float],
     ) -> "SketchCircle":
         mirror_start = Point2D.from_pair(line_start)
         mirror_end = Point2D.from_pair(line_end)
@@ -317,7 +339,7 @@ class SketchCircle(SketchItem):
             radius=self.radius,
             center=new_center,
             units=self.units,
-            dir=self.dir.as_tuple,
+            direction=self.direction.as_tuple,
             clockwise=self.clockwise,
         )
 
@@ -330,7 +352,7 @@ class SketchCircle(SketchItem):
 
 
 class SketchLine(SketchItem):
-    """A straight sketch line segment"""
+    """A straight sketch line segment."""
 
     def __init__(
         self,
@@ -339,14 +361,13 @@ class SketchLine(SketchItem):
         end_point: Point2D,
         units: UnitSystem,
     ) -> None:
-        """
-        Args:
-            sketch: A reference to the owning sketch
-            start_point: The starting point of the line
-            end_point: The ending point of the line
-            units: The unit system to use
-        """
+        """Args:
+        sketch: A reference to the owning sketch
+        start_point: The starting point of the line
+        end_point: The ending point of the line
+        units: The unit system to use.
 
+        """
         self._sketch = sketch
         self.start = start_point
         self.end = end_point
@@ -355,38 +376,41 @@ class SketchLine(SketchItem):
 
     @property
     def dx(self) -> float:
-        """The x-component of the line"""
+        """The x-component of the line."""
         return self.end.x - self.start.x
 
     @property
     def dy(self) -> float:
-        """The y-component of the line"""
+        """The y-component of the line."""
         return self.end.y - self.start.y
 
     @property
     def length(self) -> float:
-        """The length of the line"""
+        """The length of the line."""
         return abs(math.sqrt(self.dx**2 + self.dy**2))
 
     @property
     def theta(self) -> float:
-        """The angle of the line relative to the x-axis"""
+        """The angle of the line relative to the x-axis."""
         return math.atan2(self.dy, self.dx)
 
     @property
-    def dir(self) -> Point2D:
-        """A vector pointing in the direction of the line"""
+    def direction(self) -> Point2D:
+        """A vector pointing in the direction of the line."""
         return Point2D(math.cos(self.theta), math.sin(self.theta))
 
     @property
     @override
-    def sketch(self):
+    def sketch(self) -> "Sketch":
+        """A reference to the owning sketch."""
         return self._sketch
 
     @override
     def rotate(self, origin: tuple[float, float], theta: float) -> "SketchLine":
         new_start = self._rotate_point(
-            self.start, Point2D.from_pair(origin), degrees=theta
+            self.start,
+            Point2D.from_pair(origin),
+            degrees=theta,
         )
         new_end = self._rotate_point(self.end, Point2D.from_pair(origin), degrees=theta)
 
@@ -401,7 +425,9 @@ class SketchLine(SketchItem):
 
     @override
     def mirror(
-        self, line_start: tuple[float, float], line_end: tuple[float, float]
+        self,
+        line_start: tuple[float, float],
+        line_end: tuple[float, float],
     ) -> "SketchLine":
         mirror_start = Point2D.from_pair(line_start)
         mirror_end = Point2D.from_pair(line_end)
@@ -438,8 +464,8 @@ class SketchLine(SketchItem):
         return new_entity
 
     @override
-    def to_model(self) -> model.SketchCurveSegmentEntity:
-        return model.SketchCurveSegmentEntity(
+    def to_model(self) -> schema.SketchCurveSegmentEntity:
+        return schema.SketchCurveSegmentEntity(
             entityId=self.entity_id,
             startPointId=f"{self.entity_id}.start",
             endPointId=f"{self.entity_id}.end",
@@ -449,8 +475,8 @@ class SketchLine(SketchItem):
                 "btType": "BTCurveGeometryLine-117",
                 "pntX": self.start.x,
                 "pntY": self.start.y,
-                "dirX": self.dir.x,
-                "dirY": self.dir.y,
+                "dirX": self.direction.x,
+                "dirY": self.direction.y,
             },
         )
 
@@ -460,7 +486,7 @@ class SketchLine(SketchItem):
 
 
 class SketchArc(SketchItem):
-    """A sketch arc"""
+    """A sketch arc."""
 
     def __init__(
         self,
@@ -469,37 +495,40 @@ class SketchArc(SketchItem):
         center: Point2D,
         theta_interval: tuple[float, float],
         units: UnitSystem,
-        dir: tuple[float, float] = (1, 0),
+        direction: tuple[float, float] = (1, 0),
+        *,
         clockwise: bool = False,
-    ):
-        """
-        Args:
-            sketch: A reference to the owning sketch
-            radius: The radius of the arc
-            center: The centerpoint of the arc
-            theta_interval: The theta interval, in degrees
-            units: The unit system to use
-            dir: An optional dir to specify. Defaults to +x axis
-            clockwise: Whether or not the arc is clockwise. Defaults to false
-        """
+    ) -> None:
+        """Args:
+        sketch: A reference to the owning sketch
+        radius: The radius of the arc
+        center: The centerpoint of the arc
+        theta_interval: The theta interval, in degrees
+        units: The unit system to use
+        direction: An optional direction to specify. Defaults to +x axis
+        clockwise: Whether or not the arc is clockwise. Defaults to false.
 
+        """
         self._sketch = sketch
         self.radius = radius
         self.center = center
         self.theta_interval = theta_interval
-        self.dir = dir
+        self.direction = direction
         self.clockwise = clockwise
         self.entity_id = self._generate_entity_id()
         self.units = units
 
     @property
     @override
-    def sketch(self):
+    def sketch(self) -> "Sketch":
+        """A reference to the owning sketch."""
         return self._sketch
 
     @override
     def mirror(
-        self, line_start: tuple[float, float], line_end: tuple[float, float]
+        self,
+        line_start: tuple[float, float],
+        line_end: tuple[float, float],
     ) -> "SketchArc":
         mirror_start = Point2D.from_pair(line_start)
         mirror_end = Point2D.from_pair(line_end)
@@ -517,15 +546,15 @@ class SketchArc(SketchItem):
         new_center = self._mirror_point(self.center, mirror_start, mirror_end)
 
         arc_start_vector = np.array(
-            [start_point.x - new_center.x, start_point.y - new_center.y]
+            [start_point.x - new_center.x, start_point.y - new_center.y],
         )
         mirror_line_vector = np.array(
-            [mirror_end.x - mirror_start.x, mirror_end.y - mirror_start.y]
+            [mirror_end.x - mirror_start.x, mirror_end.y - mirror_start.y],
         )
 
         angle_offset = 2 * math.acos(
             np.dot(arc_start_vector, mirror_line_vector)
-            / (np.linalg.norm(arc_start_vector) * np.linalg.norm(mirror_line_vector))
+            / (np.linalg.norm(arc_start_vector) * np.linalg.norm(mirror_line_vector)),
         )
 
         d_theta = self.theta_interval[1] - self.theta_interval[0]
@@ -541,7 +570,7 @@ class SketchArc(SketchItem):
             center=new_center,
             theta_interval=new_theta,
             units=self.units,
-            dir=self.dir,
+            direction=self.direction,
             clockwise=self.clockwise,
         )
         self._replace_entity(new_entity)
@@ -561,7 +590,7 @@ class SketchArc(SketchItem):
             center=new_center,
             theta_interval=self.theta_interval,
             units=self.units,
-            dir=self.dir,
+            direction=self.direction,
             clockwise=self.clockwise,
         )
         self._replace_entity(new_entity)
@@ -591,7 +620,7 @@ class SketchArc(SketchItem):
             endpoint_1=start_point,
             endpoint_2=end_point,
             units=self.units,
-            dir=self.dir,
+            direction=self.direction,
             clockwise=self.clockwise,
         )
 
@@ -599,8 +628,8 @@ class SketchArc(SketchItem):
         return new_entity
 
     @override
-    def to_model(self) -> model.SketchCurveSegmentEntity:
-        return model.SketchCurveSegmentEntity(
+    def to_model(self) -> schema.SketchCurveSegmentEntity:
+        return schema.SketchCurveSegmentEntity(
             startPointId=f"{self.entity_id}.start",
             endPointId=f"{self.entity_id}.end",
             startParam=self.theta_interval[0],
@@ -612,8 +641,8 @@ class SketchArc(SketchItem):
                 "radius": self.radius,
                 "xcenter": self.center.x,
                 "ycenter": self.center.y,
-                "xdir": self.dir[0],
-                "ydir": self.dir[1],
+                "xdir": self.direction[0],
+                "ydir": self.direction[1],
             },
         )
 
@@ -626,11 +655,12 @@ class SketchArc(SketchItem):
         endpoint_1: Point2D,
         endpoint_2: Point2D,
         units: UnitSystem,
-        dir: tuple[float, float] = (1, 0),
+        direction: tuple[float, float] = (1, 0),
+        *,
         clockwise: bool = False,
     ) -> "SketchArc":
-        """Constructs a new instance of a SketchArc using endpoints instead
-        of a theta interval
+        """Construct a new instance of a SketchArc using endpoints instead
+        of a theta interval.
 
         Args:
             sketch: A reference to the owning sketch
@@ -639,29 +669,30 @@ class SketchArc(SketchItem):
             endpoint_1: One of the endpoints of the arc
             endpoint_2: The other endpoint of the arc
             units: The unit system to use
-            dir: An optional dir to specify. Defaults to +x axis
+            direction: An optional direction to specify. Defaults to +x axis
             clockwise: Whether or not the arc is clockwise. Defaults to false
 
         Returns:
             A new SketchArc instance
-        """
 
+        """
         # verify that a valid arc can be found
-        assert math.isclose(
+        if not math.isclose(
             math.sqrt((center.x - endpoint_1.x) ** 2 + (center.y - endpoint_1.y) ** 2),
             math.sqrt((center.x - endpoint_2.x) ** 2 + (center.y - endpoint_2.y) ** 2),
-        ), "No valid arc can be created from provided endpoints"
+        ):
+            msg = "No valid arc can be created from provided endpoints"
+            raise OnPyParameterError(msg)
 
         # find radius
         radius_from_endpoints = math.sqrt(
-            (center.x - endpoint_1.x) ** 2 + (center.y - endpoint_1.y) ** 2
+            (center.x - endpoint_1.x) ** 2 + (center.y - endpoint_1.y) ** 2,
         )
         if radius is None:
             radius = radius_from_endpoints
-        else:
-            assert math.isclose(
-                radius, radius_from_endpoints
-            ), "Endpoints do not match the provided radius"
+        elif not math.isclose(radius, radius_from_endpoints):
+            msg = "Endpoints do not match the provided radius"
+            raise OnPyParameterError(msg)
 
         # create line vectors from center to endpoints
         vec_1 = Point2D(endpoint_1.x - center.x, endpoint_1.y - center.y)
@@ -682,19 +713,19 @@ class SketchArc(SketchItem):
                 theta_start = max(theta_1, theta_2)
                 theta_end = min(theta_1, theta_2)
             else:
-                # for counterclockwise arcs, choose the smaller angle as the starting point
+                # for counterclockwise arcs, choose the smaller angle as the
+                # starting point
                 theta_start = min(theta_1, theta_2)
                 theta_end = max(theta_1, theta_2)
+        elif clockwise:
+            # for clockwise arcs, choose the smaller angle as the starting point
+            theta_start = min(theta_1, theta_2)
+            theta_end = max(theta_1, theta_2)
         else:
-            # if the difference is greater than pi, choose the larger arc
-            if clockwise:
-                # for clockwise arcs, choose the smaller angle as the starting point
-                theta_start = min(theta_1, theta_2)
-                theta_end = max(theta_1, theta_2)
-            else:
-                # for counterclockwise arcs, choose the larger angle as the starting point
-                theta_start = max(theta_1, theta_2)
-                theta_end = min(theta_1, theta_2)
+            # for counterclockwise arcs, choose the larger angle as the
+            # starting point
+            theta_start = max(theta_1, theta_2)
+            theta_end = min(theta_1, theta_2)
 
         # create theta interval
         theta_interval = (theta_start, theta_end)
@@ -706,10 +737,13 @@ class SketchArc(SketchItem):
             center=center,
             theta_interval=theta_interval,
             units=units,
-            dir=dir,
+            direction=direction,
             clockwise=clockwise,
         )
 
     @override
     def __repr__(self) -> str:
-        return f"Arc(center={self.center}, radius={self.radius}, interval={self.theta_interval[0]}<θ<{self.theta_interval[1]})"
+        return (
+            f"Arc(center={self.center}, radius={self.radius}, "
+            f"interval={self.theta_interval[0]}<θ<{self.theta_interval[1]})"
+        )

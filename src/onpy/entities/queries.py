@@ -1,6 +1,4 @@
-"""
-
-Python wrappings of OnShape queries
+"""Python wrappings of OnShape queries.
 
 The queries used by entities.py are defined here. They are used to filter
 entities.
@@ -9,29 +7,30 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-from typing import override
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import override
 
 from onpy.entities import Entity
 from onpy.util.misc import UnitSystem
 
 
 class QueryType(ABC):
-    """Used to represent the type of a query"""
+    """Used to represent the type of a query."""
 
     @abstractmethod
     def inject_featurescript(self, q_to_filter: str) -> str:
-        """The featurescript to inject to create a Query object of this type
+        """Generate featurescript that will create a Query object of this type.
 
         Args:
             q_to_filter: The internal query to filter
+
         """
         ...
 
     @staticmethod
     def make_point_vector(point: tuple[float, float, float], units: UnitSystem) -> str:
-        """Makes a point into a dimensioned Featurescript vector
+        """Make a point into a dimensioned Featurescript vector.
 
         Args:
             point: The point to convert
@@ -39,6 +38,7 @@ class QueryType(ABC):
 
         Returns:
             The Featurescript expression for the point with units
+
         """
         return f"(vector([{point[0]}, {point[1]}, {point[2]}]) * {units.fs_name})"
 
@@ -49,7 +49,7 @@ class QueryType(ABC):
         direction: tuple[float, float, float],
         units: UnitSystem,
     ) -> str:
-        """Makes a Featurescript line
+        """Make a Featurescript line.
 
         Args:
             origin: The origin of the line
@@ -58,12 +58,13 @@ class QueryType(ABC):
 
         Returns:
             The Featurescript expression for the point with units
+
         """
-        return f'({{"origin": {cls.make_point_vector(origin, units)}, "direction": vector([{direction[0]}, {direction[1]}, {direction[2]}]) }} as Line)'
+        return f'({{"origin": {cls.make_point_vector(origin, units)}, "direction": vector([{direction[0]}, {direction[1]}, {direction[2]}]) }} as Line)'  # noqa: E501
 
     @staticmethod
-    def add_units(value: int | float, units: UnitSystem) -> str:
-        """Adds units to a number for Featurescript
+    def add_units(value: float, units: UnitSystem) -> str:
+        """Add units to a number for Featurescript.
 
         Args:
             value: The value to add units to
@@ -71,13 +72,14 @@ class QueryType(ABC):
 
         Returns:
             The Featurescript expression for the value with units
+
         """
         return f"({value}*{units.fs_name})"
 
 
 @dataclass
 class qContainsPoint(QueryType):
-    """Wraps the OnShape qContainsPoint query"""
+    """Wrap the OnShape qContainsPoint query."""
 
     point: tuple[float, float, float]
     units: UnitSystem
@@ -89,7 +91,7 @@ class qContainsPoint(QueryType):
 
 @dataclass
 class qClosestTo(QueryType):
-    """Wraps the OnShape qClosestTo query"""
+    """Wrap the OnShape qClosestTo query."""
 
     point: tuple[float, float, float]
     units: UnitSystem
@@ -101,7 +103,7 @@ class qClosestTo(QueryType):
 
 @dataclass
 class qLargest(QueryType):
-    """Wraps the OnShape qLargest query"""
+    """Wrap the OnShape qLargest query."""
 
     @override
     def inject_featurescript(self, q_to_filter: str) -> str:
@@ -110,7 +112,7 @@ class qLargest(QueryType):
 
 @dataclass
 class qSmallest(QueryType):
-    """Wraps the OnShape qSmallest query"""
+    """Wrap the OnShape qSmallest query."""
 
     @override
     def inject_featurescript(self, q_to_filter: str) -> str:
@@ -119,7 +121,7 @@ class qSmallest(QueryType):
 
 @dataclass
 class qWithinRadius(QueryType):
-    """Wraps the OnShape qWithinRadius query"""
+    """Wrap the OnShape qWithinRadius query."""
 
     point: tuple[float, float, float]
     radius: float
@@ -132,7 +134,7 @@ class qWithinRadius(QueryType):
 
 @dataclass
 class qIntersectsLine(QueryType):
-    """Wraps the OnShape qIntersectsLine query"""
+    """Wrap the OnShape qIntersectsLine query."""
 
     line_origin: tuple[float, float, float]
     line_direction: tuple[float, float, float]
@@ -140,12 +142,12 @@ class qIntersectsLine(QueryType):
 
     @override
     def inject_featurescript(self, q_to_filter: str) -> str:
-        return f"qIntersectsLine({q_to_filter}, {self.make_line(self.line_origin, self.line_direction, self.units)})"
+        return f"qIntersectsLine({q_to_filter}, {self.make_line(self.line_origin, self.line_direction, self.units)})"  # noqa: E501
 
 
 @dataclass
 class qEntityType(QueryType):
-    """Wraps the OnShape qEntityType query"""
+    """Wrap the OnShape qEntityType query."""
 
     entity_type: type[Entity]
 

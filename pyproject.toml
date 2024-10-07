@@ -28,5 +28,26 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "black",
-    "pytest"
+    "pytest",
+    "ruff"
 ]
+
+[tool.ruff]
+include = ["src/*"]
+line-length = 100
+
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "D205", # overly verbose to make docstrings like this
+  "SLF001", # private apis are only used internally, which is okay
+  "PLR0913", # complexity is unavoidable for math-intensive methods
+  "PLR0912", # complexity is unavoidable for math-intensive methods
+  "PLR0915", # complexity is unavoidable for math-intensive methods
+  "C901", # complexity is unavoidable for math-intensive methods
+  "FIX002", # allow TODO notes
+  "TD003", # don't require tickets for TODO notes
+  "N815", # onshape api schma is not controlled by onpy
+]
+per-file-ignores = {"src/onpy/entities/queries.py" = ["N801"]}

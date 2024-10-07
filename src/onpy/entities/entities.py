@@ -1,6 +1,4 @@
-"""
-
-Interface to OnShape Entities
+"""Interface to OnShape Entities.
 
 In OnShape, there are four types of entities:
  - Vertex Entities
@@ -19,42 +17,31 @@ OnPy - May 2024 - Kyle Tennison
 from typing import override
 
 from onpy.entities.protocols import (
-    FaceEntityConvertible,
-    VertexEntityConvertible,
     BodyEntityConvertible,
     EdgeEntityConvertible,
+    FaceEntityConvertible,
+    VertexEntityConvertible,
 )
 
 
 class Entity:
-    """A generic OnShape entity"""
+    """A generic OnShape entity."""
 
-    def __init__(self, transient_id: str):
+    def __init__(self, transient_id: str) -> None:
+        """Construct an entity from its transient id."""
         self.transient_id = transient_id
 
     @classmethod
     def as_featurescript(cls) -> str:
-        """Converts the EntityType variant into a Featurescript expression"""
+        """Convert the EntityType variant into a Featurescript expression."""
+        msg = "An entity of unknown type should never be parsed into featurescript"
         raise NotImplementedError(
-            "An entity of unknown type should never be parsed into featurescript"
+            msg,
         )
-
-    # @property
-    # def as_query(self) -> str:
-    #     """Featurescript expression to convert into query of self"""
-    #     return '{ "queryType" : QueryType.TRANSIENT, "transientId" : "TRANSIENT_ID" } as Query'.replace(
-    #         "TRANSIENT_ID", self.transient_id
-    #     )
-
-    # @property
-    # def as_entity(self) -> str:
-    #     """Featurescript expression to get a reference to this entity"""
-    #     return f"evaluateQuery(context, {self.as_query})[0] "
 
     @staticmethod
     def match_string_type(string: str) -> type["Entity"]:
-        """Matches a string to the corresponding entity class"""
-
+        """Match a string to the corresponding entity class."""
         match = {
             "VERTEX": VertexEntity,
             "EDGE": EdgeEntity,
@@ -63,20 +50,22 @@ class Entity:
         }.get(string.upper())
 
         if match is None:
-            raise TypeError(f"'{string}' is not a valid entity type")
+            msg = f"'{string}' is not a valid entity type"
+            raise TypeError(msg)
 
         return match
 
     def __str__(self) -> str:
+        """Pretty string representation of the entity."""
         return repr(self)
 
     def __repr__(self) -> str:
-        """NOTE: for debugging purposes"""
+        """Printable representation of the entity."""
         return f"{self.__class__.__name__}({self.transient_id})"
 
 
 class VertexEntity(Entity, VertexEntityConvertible):
-    """An entity that is a vertex"""
+    """An entity that is a vertex."""
 
     @classmethod
     @override
@@ -89,7 +78,7 @@ class VertexEntity(Entity, VertexEntityConvertible):
 
 
 class EdgeEntity(Entity, EdgeEntityConvertible):
-    """An entity that is an edge"""
+    """An entity that is an edge."""
 
     @classmethod
     @override
@@ -102,7 +91,7 @@ class EdgeEntity(Entity, EdgeEntityConvertible):
 
 
 class FaceEntity(Entity, FaceEntityConvertible):
-    """An entity that is a face"""
+    """An entity that is a face."""
 
     @classmethod
     @override
@@ -115,7 +104,7 @@ class FaceEntity(Entity, FaceEntityConvertible):
 
 
 class BodyEntity(Entity, BodyEntityConvertible):
-    """An entity that is a body"""
+    """An entity that is a body."""
 
     @classmethod
     @override
