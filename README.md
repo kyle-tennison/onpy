@@ -1,9 +1,9 @@
 # OnPy
+
 [![CI Tests](https://github.com/kyle-tennison/onpy/actions/workflows/validate.yml/badge.svg)](https://github.com/kyle-tennison/onpy/actions/workflows/validate.yml)
 [![MIT License](https://img.shields.io/github/license/kyle-tennison/onpy?color=yellow)](https://opensource.org/license/mit)
 [![PyPi Version](https://img.shields.io/pypi/v/onpy?color=blue)](https://pypi.org/project/onpy/)
 [![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)
-
 
 ## Overview
 

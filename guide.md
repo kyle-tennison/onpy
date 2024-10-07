@@ -274,13 +274,13 @@ def linear_pattern[T: SketchItem](
         self, items: Sequence[T], num_steps: int, x: float = 0, y: float =0
 ) -> list[T]:
     """Creates a linear pattern of sketch items
-    
-    Args: 
+
+    Args:
         items: Any number of sketch items to include in the pattern
         num_steps: THe number of steps to take. Does not include original position
         x: The x distance to travel each step. Defaults to zero
         y: The y distance to travel each step. Defaults to zero
-    
+
     Returns:
         A list of the entities that compose the linear pattern, including the
         original item.
@@ -295,8 +295,8 @@ the operation on the copy), or if it should modify the original item.
 
 Consider the following examples:
 
-1) Here, we use the `translate`, and `mirror` operations on SketchItems
-created by `add_centerpoint_arc` and `add_line` to create two hearts.
+1. Here, we use the `translate`, and `mirror` operations on SketchItems
+   created by `add_centerpoint_arc` and `add_line` to create two hearts.
 
 ```python
 sketch = partstudio.add_sketch(plane=partstudio.features.top_plane, name="Heart Sketch")
@@ -320,9 +320,9 @@ sketch.translate(
 heart_extrude = partstudio.add_extrude(sketch.faces.closest_to((0,0,0)), distance=1, name="Heart extrude")
 ```
 
-2) In this next example, we use the `circular_pattern` tool so create a hexagon,
-and then we use the `add_fillet` method to add fillets on the corners of the
-hexagon.
+2. In this next example, we use the `circular_pattern` tool so create a hexagon,
+   and then we use the `add_fillet` method to add fillets on the corners of the
+   hexagon.
 
 ```python
 import math
@@ -539,9 +539,9 @@ to create a 3D shape.
 
 OnShape supports three types of extrusions:
 
-1) New Extrusion
-2) Add Extrusions
-3) Subtract Extrusions
+1. New Extrusion
+2. Add Extrusions
+3. Subtract Extrusions
 
 New extrusions _always_ create a new part. Parts will be discussed in more
 detail later.
@@ -606,7 +606,7 @@ sketch_on_part = partstudio.add_sketch(
     name="Sketch on part"
 )
 
-# draw a slot 
+# draw a slot
 sketch_on_part.add_corner_rectangle((-5, 0.25), (5, -0.25))
 
 # cut extrude this slot into the existing slot
