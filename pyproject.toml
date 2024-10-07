@@ -31,7 +31,8 @@ dev = [
     "pytest",
     "ruff",
     "mypy",
-    "types-requests"
+    "types-requests",
+    "nbconvert",
 ]
 
 [tool.ruff]
