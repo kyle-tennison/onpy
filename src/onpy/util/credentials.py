@@ -67,10 +67,14 @@ class CredentialManager:
 
         # look in file if no env var set
         if dev_secret and dev_access:
-            if not os.path.exists(p:=CredentialManager.credential_path):
-                logger.warning(f"Credentials are set in both '{p}' and in env vars. "
-                               "Using the env vars; ignoring config file.")
-            logger.trace(f"Using tokens from environment vars:\n{dev_access}, {dev_secret}")
+            if not os.path.exists(p := CredentialManager.credential_path):
+                logger.warning(
+                    f"Credentials are set in both '{p}' and in env vars. "
+                    "Using the env vars; ignoring config file."
+                )
+            logger.trace(
+                f"Using tokens from environment vars:\n{dev_access}, {dev_secret}"
+            )
 
         else:
             logger.trace("Using tokens from environment vars.")
@@ -82,7 +86,6 @@ class CredentialManager:
                 data = json.load(f)
                 dev_secret = str(data["dev_secret"])
                 dev_access = str(data["dev_access"])
-            
 
         if not CredentialManager.is_access_key(dev_access):
             raise OnPyAuthError("Dev access key does not follow expected pattern")
