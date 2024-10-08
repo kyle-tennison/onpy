@@ -1,6 +1,6 @@
 """
 
-In this example, we draw a circle, then extrude it. Simple enough.
+In this example, we draw a circle, then extrude it.
 
 """
 
