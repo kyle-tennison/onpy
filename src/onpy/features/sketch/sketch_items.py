@@ -265,7 +265,6 @@ class SketchCircle(SketchItem):
 
     @override
     def to_model(self) -> schema.SketchCurveEntity:
-
         return schema.SketchCurveEntity(
             geometry={
                 "btType": "BTCurveGeometryCircle-115",
@@ -302,7 +301,6 @@ class SketchCircle(SketchItem):
 
     @override
     def translate(self, x: float = 0, y: float = 0) -> "SketchCircle":
-
         if self._sketch._client.units is UnitSystem.INCH:
             x *= 0.0254
             y *= 0.0254
@@ -446,7 +444,6 @@ class SketchLine(SketchItem):
 
     @override
     def translate(self, x: float = 0, y: float = 0) -> "SketchLine":
-
         if self._sketch._client.units is UnitSystem.INCH:
             x *= 0.0254
             y *= 0.0254
@@ -578,7 +575,6 @@ class SketchArc(SketchItem):
 
     @override
     def translate(self, x: float = 0, y: float = 0) -> "SketchArc":
-
         if self._sketch._client.units is UnitSystem.INCH:
             x *= 0.0254
             y *= 0.0254

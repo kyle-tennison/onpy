@@ -193,9 +193,7 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
         """
         query = qtypes.qEntityType(entity_type=entity_type)
 
-        available: list[E] = [
-            entity_type(e.transient_id) for e in self._apply_query(query)
-        ]
+        available: list[E] = [entity_type(e.transient_id) for e in self._apply_query(query)]
 
         return EntityFilter[E](partstudio=self._partstudio, available=available)
 

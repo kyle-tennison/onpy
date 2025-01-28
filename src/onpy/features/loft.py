@@ -80,7 +80,6 @@ class Loft(Feature):
 
     @override
     def _to_model(self) -> schema.Loft:
-
         return schema.Loft(
             name=self.name,
             suppressed=False,

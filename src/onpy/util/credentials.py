@@ -111,16 +111,10 @@ class CredentialManager:
         """
         # verify before adding
         if not CredentialManager.is_access_key(access_token):
-            msg = (
-                f"Cannot add token {access_token} to credentials file. "
-                "Not a valid access key."
-            )
+            msg = f"Cannot add token {access_token} to credentials file. Not a valid access key."
             raise OnPyAuthError(msg)
         if not CredentialManager.is_secret_key(secret_token):
-            msg = (
-                f"Cannot add token {secret_token} to credentials file. "
-                "Not a valid secret key."
-            )
+            msg = f"Cannot add token {secret_token} to credentials file. Not a valid secret key."
             raise OnPyAuthError(msg)
 
         CredentialManager.credential_path.parent.mkdir(exist_ok=True)
@@ -144,7 +138,6 @@ class CredentialManager:
         )
 
         while True:
-
             secret_key = input("secret key: ")
 
             if not CredentialManager.is_secret_key(secret_key):

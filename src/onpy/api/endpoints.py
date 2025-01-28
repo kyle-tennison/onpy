@@ -56,9 +56,7 @@ class EndpointContainer:
             response_type=schema.Element,
         )
 
-    def eval_featurescript[
-        T: str | schema.ApiModel
-    ](
+    def eval_featurescript[T: str | schema.ApiModel](
         self,
         document_id: str,
         version: VersionTarget,

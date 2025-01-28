@@ -46,9 +46,7 @@ class RestApi:
         access_key, secret_key = self.client._credentials
         return HTTPBasicAuth(access_key, secret_key)
 
-    def http_wrap[
-        T: ApiModel | str
-    ](
+    def http_wrap[T: ApiModel | str](
         self,
         http_method: HttpMethod,
         endpoint: str,
@@ -78,9 +76,7 @@ class RestApi:
             HttpMethod.Get: requests.get,
             HttpMethod.Delete: requests.delete,
             HttpMethod.Put: requests.put,
-        }[
-            http_method
-        ]
+        }[http_method]
 
         payload_json = None
 
@@ -90,11 +86,7 @@ class RestApi:
         logger.debug(f"{http_method.name} {endpoint}")
         logger.trace(
             f"Calling {http_method.name} {endpoint}"
-            + (
-                f" with payload:\n{json.dumps(payload_json, indent=4)}"
-                if payload
-                else ""
-            ),
+            + (f" with payload:\n{json.dumps(payload_json, indent=4)}" if payload else ""),
         )
 
         # TODO @kyle-tennison: wrap this in a try/except to catch timeouts
@@ -131,9 +123,7 @@ class RestApi:
         msg = f"Illegal response type: {response_type.__name__}"
         raise OnPyInternalError(msg)
 
-    def http_wrap_list[
-        T: ApiModel | str
-    ](
+    def http_wrap_list[T: ApiModel | str](
         self,
         http_method: HttpMethod,
         endpoint: str,
@@ -162,9 +152,9 @@ class RestApi:
 
         return [cast(T, response_type(**i)) for i in response_list]
 
-    def post[
-        T: ApiModel | str
-    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> T:
+    def post[T: ApiModel | str](
+        self, endpoint: str, response_type: type[T], payload: ApiModel
+    ) -> T:
         """Run a POST request to the specified endpoint. Deserializes into response_type type.
 
         Args:
@@ -178,9 +168,7 @@ class RestApi:
         """
         return self.http_wrap(HttpMethod.Post, endpoint, response_type, payload)
 
-    def get[
-        T: ApiModel | str
-    ](
+    def get[T: ApiModel | str](
         self,
         endpoint: str,
         response_type: type[T],
@@ -199,9 +187,7 @@ class RestApi:
         """
         return self.http_wrap(HttpMethod.Get, endpoint, response_type, payload)
 
-    def put[
-        T: ApiModel | str
-    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> T:
+    def put[T: ApiModel | str](self, endpoint: str, response_type: type[T], payload: ApiModel) -> T:
         """Run a PUT request to the specified endpoint. Deserializes into response_type type.
 
         Args:
@@ -215,9 +201,7 @@ class RestApi:
         """
         return self.http_wrap(HttpMethod.Put, endpoint, response_type, payload)
 
-    def delete[
-        T: ApiModel | str
-    ](
+    def delete[T: ApiModel | str](
         self,
         endpoint: str,
         response_type: type[T],
@@ -236,9 +220,9 @@ class RestApi:
         """
         return self.http_wrap(HttpMethod.Delete, endpoint, response_type, payload)
 
-    def list_post[
-        T: ApiModel | str
-    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> list[T]:
+    def list_post[T: ApiModel | str](
+        self, endpoint: str, response_type: type[T], payload: ApiModel
+    ) -> list[T]:
         """Run a POST request to the specified endpoint. Deserializes into
         a list of the response_type type.
 
@@ -253,9 +237,7 @@ class RestApi:
         """
         return self.http_wrap_list(HttpMethod.Post, endpoint, response_type, payload)
 
-    def list_get[
-        T: ApiModel | str
-    ](
+    def list_get[T: ApiModel | str](
         self,
         endpoint: str,
         response_type: type[T],
@@ -275,9 +257,9 @@ class RestApi:
         """
         return self.http_wrap_list(HttpMethod.Get, endpoint, response_type, payload)
 
-    def list_put[
-        T: ApiModel | str
-    ](self, endpoint: str, response_type: type[T], payload: ApiModel) -> list[T]:
+    def list_put[T: ApiModel | str](
+        self, endpoint: str, response_type: type[T], payload: ApiModel
+    ) -> list[T]:
         """Run a PUT request to the specified endpoint. Deserializes into
         a list of the response_type type.
 
@@ -292,9 +274,7 @@ class RestApi:
         """
         return self.http_wrap_list(HttpMethod.Put, endpoint, response_type, payload)
 
-    def list_delete[
-        T: ApiModel | str
-    ](
+    def list_delete[T: ApiModel | str](
         self,
         endpoint: str,
         response_type: type[T],

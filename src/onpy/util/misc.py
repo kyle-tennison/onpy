@@ -15,9 +15,9 @@ from onpy.api.schema import NameIdFetchable
 from onpy.util.exceptions import OnPyParameterError
 
 
-def find_by_name_or_id[
-    T: NameIdFetchable
-](target_id: str | None, name: str | None, items: list[T]) -> T | None:
+def find_by_name_or_id[T: NameIdFetchable](
+    target_id: str | None, name: str | None, items: list[T]
+) -> T | None:
     """Given a list of values and a name & id, find the first match.
 
     Only the name or id needs to be provided.
@@ -67,15 +67,12 @@ def unwrap_type[T](target: object, expected_type: type[T]) -> T:
     if isinstance(target, expected_type):
         return target
     msg = (
-        f"Failed to unwrap type. Got {type(target).__name__}, "
-        f"expected {expected_type.__name__}",
+        f"Failed to unwrap type. Got {type(target).__name__}, expected {expected_type.__name__}",
     )
     raise TypeError(msg)
 
 
-def unwrap[
-    T
-](target: T | None, message: str | None = None, default: T | None = None) -> T:
+def unwrap[T](target: T | None, message: str | None = None, default: T | None = None) -> T:
     """Take the object out of an Option[T].
 
     Args:

@@ -41,10 +41,7 @@ class Client:
         try:
             self.list_documents()
         except OnPyApiError as e:
-            if (
-                e.response is not None
-                and e.response.status_code == requests.codes.unauthorized
-            ):
+            if e.response is not None and e.response.status_code == requests.codes.unauthorized:
                 msg = (
                     "The provided API token is not valid or is no longer valid. "
                     "Run onpy.configure() to update your API tokens."
@@ -82,8 +79,7 @@ class Client:
 
         if candidate is None:
             raise OnPyParameterError(
-                "Unable to find a document with "
-                + (f"name {name}" if name else f"id {id}"),
+                "Unable to find a document with " + (f"name {name}" if name else f"id {id}"),
             )
 
         return candidate
