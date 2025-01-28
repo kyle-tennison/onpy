@@ -30,7 +30,7 @@ dev = [
     "black",
     "pytest",
     "ruff",
-    "mypy",
+    "pyright",
     "types-requests",
     "nbconvert",
 ]

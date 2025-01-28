@@ -7,7 +7,6 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-import functools
 from abc import abstractmethod
 from enum import Enum
 from textwrap import dedent
