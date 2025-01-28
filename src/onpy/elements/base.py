@@ -61,6 +61,6 @@ class Element(ABC, schema.NameIdFetchable):
 
     def __eq__(self, other: object) -> bool:
         """Check if two elements are equal."""
-        if hasattr(other, "id"):
+        if isinstance(other, type(self)):
             return other.id == self.id and type(other) is type(self)
         return False

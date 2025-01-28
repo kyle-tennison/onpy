@@ -106,7 +106,6 @@ class Extrude(Feature):
 
     @override
     def _to_model(self) -> schema.Extrude:
-
         return schema.Extrude(
             name=self.name,
             featureId=self._id,

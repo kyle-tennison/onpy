@@ -145,13 +145,13 @@ class SketchCurveEntity(FeatureEntity):
 
     geometry: dict
     centerId: str
-    btType: str = "BTMSketchCurve-4"
+    btType: str | None = "BTMSketchCurve-4"
 
 
 class SketchCurveSegmentEntity(FeatureEntity):
     """Represents a sketch curve segment."""
 
-    btType: str = "BTMSketchCurveSegment-155"
+    btType: str | None = "BTMSketchCurveSegment-155"
     startPointId: str
     endPointId: str
     startParam: float

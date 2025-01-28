@@ -63,7 +63,6 @@ class Document(schema.NameIdFetchable):
 
         element_objects: list[PartStudio | Assembly] = []
         for element in elements_model_list:
-
             if element.elementType == "PARTSTUDIO":
                 element_objects.append(PartStudio(self, element))
 
@@ -125,7 +124,7 @@ class Document(schema.NameIdFetchable):
                 pattern = r"^V(\d+)$"
                 match = re.match(pattern, version.name)
                 if match:
-                    name = f"V{int(match.group(1))+1}"
+                    name = f"V{int(match.group(1)) + 1}"
                     break
 
             if name is None:

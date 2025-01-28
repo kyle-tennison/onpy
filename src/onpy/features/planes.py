@@ -7,7 +7,6 @@ OnPy - May 2024 - Kyle Tennison
 
 """
 
-import functools
 from abc import abstractmethod
 from enum import Enum
 from textwrap import dedent
@@ -91,7 +90,7 @@ class DefaultPlane(Plane):
     def id(self) -> str:
         return self.transient_id  # we don't need the feature id of the default plane
 
-    @functools.cached_property
+    @property
     @override
     def transient_id(self) -> str:
         return self._load_plane_id()

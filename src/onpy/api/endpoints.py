@@ -56,15 +56,13 @@ class EndpointContainer:
             response_type=schema.Element,
         )
 
-    def eval_featurescript[
-        T: str | schema.ApiModel
-    ](
+    def eval_featurescript[T: str | schema.ApiModel](
         self,
         document_id: str,
         version: VersionTarget,
         element_id: str,
         script: str,
-        return_type: type[T] = str,  # type: ignore[assignment]
+        return_type: type[T] = str,
     ) -> T:
         """Evaluate a snipit of featurescript."""
         return self.api.post(

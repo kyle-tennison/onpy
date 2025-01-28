@@ -70,9 +70,7 @@ class PartStudio(Element):
 
     def _get_default_planes(self) -> list[DefaultPlane]:
         """Get the default planes from the PartStudio."""
-        return [
-            DefaultPlane(self, orientation) for orientation in DefaultPlaneOrientation
-        ]
+        return [DefaultPlane(self, orientation) for orientation in DefaultPlaneOrientation]
 
     def add_sketch(
         self,

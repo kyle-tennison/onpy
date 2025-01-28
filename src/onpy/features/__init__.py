@@ -6,10 +6,10 @@ from onpy.features.planes import DefaultPlane, OffsetPlane, Plane
 from onpy.features.sketch.sketch import Sketch
 
 __all__ = [
-    "Extrude",
-    "Sketch",
-    "Plane",
-    "OffsetPlane",
     "DefaultPlane",
+    "Extrude",
     "Loft",
+    "OffsetPlane",
+    "Plane",
+    "Sketch",
 ]

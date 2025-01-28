@@ -165,11 +165,7 @@ class Feature(ABC):
             element_id=self.partstudio.id,
         )
 
-        return [
-            Part(self.partstudio, part)
-            for part in available_parts
-            if part.partId in part_ids
-        ]
+        return [Part(self.partstudio, part) for part in available_parts if part.partId in part_ids]
 
 
 class FeatureList:

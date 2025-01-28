@@ -13,20 +13,18 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Python 3.12
-        uses: actions/setup-python@v3
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.12
+          python-version: "3.12"
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e '.[dev]'
+        run: uv pip install -e '.[dev]'
 
       - name: Check Linting
         run: |
-          python -m black --check .
-          ruff check src/
-          mypy src/ --enable-incomplete-feature=NewGenericSyntax
+          ruff format --check
+          ruff check .
+          pyright .
 
       - name: Run Pytest
         run: pytest -s tests/

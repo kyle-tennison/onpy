@@ -10,10 +10,10 @@ from onpy.entities.entities import (
 from onpy.entities.filter import EntityFilter
 
 __all__ = [
-    "EntityFilter",
-    "Entity",
-    "VertexEntity",
-    "EdgeEntity",
-    "FaceEntity",
     "BodyEntity",
+    "EdgeEntity",
+    "Entity",
+    "EntityFilter",
+    "FaceEntity",
+    "VertexEntity",
 ]

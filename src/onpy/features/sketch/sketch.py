@@ -159,7 +159,6 @@ class Sketch(Feature, FaceEntityConvertible):
         segments: list[tuple[Point2D, Point2D]] = []
 
         for idx in range(1, len(points)):
-
             p1 = Point2D.from_pair(points[idx - 1])
             p2 = Point2D.from_pair(points[idx])
 
@@ -388,7 +387,6 @@ class Sketch(Feature, FaceEntityConvertible):
 
     @override
     def _to_model(self) -> schema.Sketch:
-
         if isinstance(self.plane, FaceEntityConvertible):
             transient_ids = [e.transient_id for e in self.plane._face_entities()]
         else:
@@ -486,9 +484,7 @@ class Sketch(Feature, FaceEntityConvertible):
             available=self.entities.is_type(FaceEntity)._available,
         )
 
-    def mirror[
-        T: SketchItem
-    ](
+    def mirror[T: SketchItem](
         self,
         items: Sequence[T],
         line_point: tuple[float, float],
@@ -514,9 +510,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
         return [i.mirror(line_point, line_dir) for i in items]
 
-    def rotate[
-        T: SketchItem
-    ](
+    def rotate[T: SketchItem](
         self,
         items: Sequence[T],
         origin: tuple[float, float],
@@ -542,9 +536,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
         return [i.rotate(origin, theta) for i in items]
 
-    def translate[
-        T: SketchItem
-    ](
+    def translate[T: SketchItem](
         self,
         items: Sequence[T],
         x: float = 0,
@@ -570,9 +562,7 @@ class Sketch(Feature, FaceEntityConvertible):
 
         return [i.translate(x, y) for i in items]
 
-    def circular_pattern[
-        T: SketchItem
-    ](
+    def circular_pattern[T: SketchItem](
         self,
         items: Sequence[T],
         origin: tuple[float, float],
@@ -600,9 +590,9 @@ class Sketch(Feature, FaceEntityConvertible):
         self._items.update(new_items)
         return new_items
 
-    def linear_pattern[
-        T: SketchItem
-    ](self, items: Sequence[T], num_steps: int, x: float = 0, y: float = 0) -> list[T]:
+    def linear_pattern[T: SketchItem](
+        self, items: Sequence[T], num_steps: int, x: float = 0, y: float = 0
+    ) -> list[T]:
         """Create a linear pattern of sketch items.
 
         Args:
