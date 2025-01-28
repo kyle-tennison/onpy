@@ -64,7 +64,7 @@ class EndpointContainer:
         version: VersionTarget,
         element_id: str,
         script: str,
-        return_type: type[T] = str,  # type: ignore[assignment]
+        return_type: type[T] = str,
     ) -> T:
         """Evaluate a snipit of featurescript."""
         return self.api.post(

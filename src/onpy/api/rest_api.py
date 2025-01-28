@@ -80,7 +80,7 @@ class RestApi:
             HttpMethod.Put: requests.put,
         }[
             http_method
-        ]  # type: ignore[assignment]
+        ]
 
         payload_json = None
 
