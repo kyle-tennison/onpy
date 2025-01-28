@@ -24,9 +24,9 @@ jobs:
 
       - name: Check Linting
         run: |
-          python -m black --check .
-          ruff check src/
-          mypy src/ --enable-incomplete-feature=NewGenericSyntax
+          ruff format --check
+          ruff check .
+          pyright .
 
       - name: Run Pytest
         run: pytest -s tests/
