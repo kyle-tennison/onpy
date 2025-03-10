@@ -269,10 +269,10 @@ class SketchCircle(SketchItem):
             geometry={
                 "btType": "BTCurveGeometryCircle-115",
                 "radius": self.radius,
-                "pntX": self.center.x,
-                "pntY": self.center.y,
-                "dirX": self.direction.x,
-                "dirY": self.direction.y,
+                "xCenter": self.center.x,
+                "yCenter": self.center.y,
+                "xDir": self.direction.x,
+                "yDir": self.direction.y,
                 "clockwise": self.clockwise,
             },
             centerId=f"{self.entity_id}.center",
@@ -625,9 +625,6 @@ class SketchArc(SketchItem):
 
     @override
     def to_model(self) -> schema.SketchCurveSegmentEntity:
-        if self.direction == (0, 0):
-            self.direction = (1, 0)
-
         return schema.SketchCurveSegmentEntity(
             startPointId=f"{self.entity_id}.start",
             endPointId=f"{self.entity_id}.end",
