@@ -625,9 +625,8 @@ class SketchArc(SketchItem):
 
     @override
     def to_model(self) -> schema.SketchCurveSegmentEntity:
-
-        if self.direction == (0,0):
-            self.direction = (1,0)
+        if self.direction == (0, 0):
+            self.direction = (1, 0)
 
         return schema.SketchCurveSegmentEntity(
             startPointId=f"{self.entity_id}.start",
