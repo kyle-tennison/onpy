@@ -10,6 +10,7 @@ OnPy - May 2024 - Kyle Tennison
 """
 
 import json
+import time
 from typing import TYPE_CHECKING, cast
 
 import requests
@@ -52,6 +53,7 @@ class RestApi:
         endpoint: str,
         response_type: type[T],
         payload: ApiModel | None,
+        retry_delay: int = 1,
     ) -> T:
         """Wrap requests' POST/GET/DELETE with pydantic serializations & deserializations.
 
@@ -60,6 +62,8 @@ class RestApi:
             endpoint: The endpoint to target. e.g., /documents/
             response_type: The ApiModel to deserialize the response into.
             payload: The optional payload to send with the request
+            retry_delay: Set internally when recursing on too many requests (429)
+                HTTP error.
 
         Returns:
             The response deserialized into the response_type type
@@ -97,6 +101,13 @@ class RestApi:
         )
 
         if not r.ok:
+            if r.status_code == requests.codes.too_many_requests:
+                logger.warn(f"Hit request throttle, retrying in {retry_delay * 2} seconds")
+                time.sleep(retry_delay * 2)
+                return self.http_wrap(
+                    http_method, endpoint, response_type, payload, retry_delay * 2
+                )
+
             msg = f"Bad response {r.status_code}"
             raise OnPyApiError(msg, r)
 
