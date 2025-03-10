@@ -273,7 +273,7 @@ class SketchCircle(SketchItem):
                 "pntY": self.center.y,
                 "dirX": self.direction.x,
                 "dirY": self.direction.y,
-                # "clockwise": self.clockwise,
+                "clockwise": self.clockwise,
             },
             centerId=f"{self.entity_id}.center",
             entityId=f"{self.entity_id}",
