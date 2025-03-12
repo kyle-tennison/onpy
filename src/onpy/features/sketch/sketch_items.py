@@ -635,10 +635,10 @@ class SketchArc(SketchItem):
             geometry={
                 "btType": "BTCurveGeometryCircle-115",
                 "radius": self.radius,
-                "xcenter": self.center.x,
-                "ycenter": self.center.y,
-                "xdir": self.direction[0],
-                "ydir": self.direction[1],
+                "xCenter": self.center.x,
+                "yCenter": self.center.y,
+                "xDir": self.direction[0],
+                "yDir": self.direction[1],
             },
         )
 
