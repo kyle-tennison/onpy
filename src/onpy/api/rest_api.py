@@ -126,10 +126,10 @@ class RestApi:
             raise OnPyApiError(msg, r) from e
 
         if issubclass(response_type, ApiModel):
-            return cast(T, response_type(**response_dict))
+            return cast("T", response_type(**response_dict))
 
         if issubclass(response_type, str):
-            return cast(T, response_type(r.text))
+            return cast("T", response_type(r.text))
 
         msg = f"Illegal response type: {response_type.__name__}"
         raise OnPyInternalError(msg)
@@ -161,7 +161,7 @@ class RestApi:
             msg = f"Endpoint {endpoint} expected list response"
             raise OnPyApiError(msg)
 
-        return [cast(T, response_type(**i)) for i in response_list]
+        return [cast("T", response_type(**i)) for i in response_list]
 
     def post[T: ApiModel | str](
         self, endpoint: str, response_type: type[T], payload: ApiModel

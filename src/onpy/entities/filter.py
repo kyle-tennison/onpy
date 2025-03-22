@@ -45,7 +45,7 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
         """The class of the generic type T."""
         orig_class = getattr(self, "__orig__class__", None)
 
-        etype = cast(T, orig_class.__args__[0]) if orig_class else Entity
+        etype = cast("T", orig_class.__args__[0]) if orig_class else Entity
 
         if not callable(etype):
             etype = Entity  # default to generic entity
@@ -54,7 +54,7 @@ class EntityFilter[T: Entity](FaceEntityConvertible):
             msg = f"Found illegal etype: {etype}"
             raise OnPyInternalError(msg)
 
-        return cast(type[T], etype)
+        return cast("type[T]", etype)
 
     @override
     def _face_entities(self) -> list[FaceEntity]:

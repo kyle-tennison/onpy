@@ -150,7 +150,7 @@ def handle_exception(
     """
     if issubclass(exc_type, OnPyError):
         logger.trace(str(exc_traceback))
-        exc_value = cast(OnPyError, exc_value)
+        exc_value = cast("OnPyError", exc_value)
         logger.error(exc_value.display())
         maybe_exit(1)
         return
