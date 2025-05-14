@@ -120,6 +120,36 @@ class PartStudio(Element):
             subtract_from=subtract_from,
         )
 
+    def add_translate(
+        self,
+        name: str = "New Extrude",
+        move_x: float,
+        move_y: float,
+        move_z: float,
+        copy_part: bool,
+    ) -> Translate:
+        """Add a new transform of type translate_xyz feature to the partstudio.
+
+        Args:
+            name: The name of the extrusion feature
+            move_x: The distance to move in x direction
+            move_y: The distance to move in y direction
+            move_z: The distance to move in z direction
+            copy_part: Bool to indicate part should be copied
+
+        Returns:
+            An Translated object
+
+        """
+        return Translate(
+            partstudio = self,
+            name = name,
+            move_x = move_x,
+            move_y = move_y,
+            move_z = move_z,
+            copy_part = copy_part,
+        )
+
     def add_loft(
         self,
         start: FaceEntityConvertible,

@@ -8,6 +8,7 @@ from onpy.features.sketch.sketch import Sketch
 __all__ = [
     "DefaultPlane",
     "Extrude",
+    "Translate",
     "Loft",
     "OffsetPlane",
     "Plane",
