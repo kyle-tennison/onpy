@@ -224,7 +224,7 @@ class Sketch(Feature):
     entities: list[dict] | None  # dict is FeatureEntity
 
 class Extrude(Feature):
-    """Represents an Translate Feature."""
+    """Represents an Extrude Feature."""
 
     btType: str = "BTMFeature-134"
     featureType: str = "extrude"
