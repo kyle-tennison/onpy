@@ -168,3 +168,21 @@ def test_part_query():
     print(partstudio.parts)
 
     document.delete()
+
+def test_part_translate():
+    """Tests the ability to translate (move and copy) a part"""
+
+    document = onpy.create_document("test_features::test_part_translate")
+    partstudio = document.get_partstudio()
+    partstudio.wipe()
+
+    sketch1 = partstudio.add_sketch(partstudio.features.top_plane)
+    sketch1.add_circle((0, 0), radius=1)
+
+    extrude = partstudio.add_extrude(sketch1, distance=3)
+
+    new_part = extrude.get_created_parts()[0]
+
+    partstudio.add_translate(new_part, x=10, y=80, z=30, copy=True)
+
+    document.delete()
