@@ -25,6 +25,7 @@ class Translate(Feature):
 
     def __init__(
         self,
+        part_id: str,
         partstudio: "PartStudio",
         move_x: float,
         move_y: float,
@@ -36,6 +37,7 @@ class Translate(Feature):
 
         Args:
             partstudio: The owning partstudio
+            part_id: The ID of the part to be tranlsated
             name: The name of the translation feature
             move_x: The distance to move in x direction
             move_y: The distance to move in y direction
@@ -44,6 +46,7 @@ class Translate(Feature):
 
         """
         self._id: str | None = None
+        self.part_id = part_id
         self._partstudio = partstudio
         self._name = name
         self.move_x = move_x
