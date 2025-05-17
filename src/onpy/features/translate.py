@@ -80,38 +80,47 @@ class Translate(Feature):
         return schema.Translate(
             name=self.name,
             featureId=self._id,
+            featureType="transform",
             suppressed=False,
             parameters=[
 
-
                 {
-                "btType": "BTMParameterQuantity-147",
-                "isInteger": false,
-                "value": self.move_,
-                "units": "",
-                "parameterId": "dx",
+                    "btType": "BTMParameterQueryList-148",
+                    "parameterId": "entities",
+                    "queries": [
+                    {
+                        "btType": "BTMIndividualQuery-138",
+                        "deterministicIds": [self.part_id]
+                    }
+                    ]
                 },
                 {
-                "btType": "BTMParameterQuantity-147",
-                "isInteger": false,
-                "value": self.move_y,
-                "units": "",
-                "parameterId": "dy",
+                    "btType": "BTMParameterEnum-145",
+                    "namespace": "",
+                    "enumName": "TransformType",
+                    "value": "TRANSLATION_3D",
+                    "parameterId": "transformType"
                 },
                 {
-                "btType": "BTMParameterQuantity-147",
-                "isInteger": false,
-                "value": self.move_z,
-                "units": "",
-                "parameterId": "dz",
+                    "btType": "BTMParameterQuantity-147",
+                    "value": self.move_x,
+                    "parameterId": "dx"
+                },
+                {
+                    "btType": "BTMParameterQuantity-147",
+                    "value": self.move_y,
+                    "parameterId": "dy"
+                },
+                {
+                    "btType": "BTMParameterQuantity-147",
+                    "value": self.move_z,
+                    "parameterId": "dz"
                 },
                 {
                     "btType": "BTMParameterBoolean-144",
                     "value": self.make_copy,
                     "parameterId": "makeCopy"
                 }
-
-
 
             ],
         )
