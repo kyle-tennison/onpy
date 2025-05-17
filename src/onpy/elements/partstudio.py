@@ -123,7 +123,7 @@ class PartStudio(Element):
     def add_translate(
         self,
         part_id: str,
-        name: str = "New Extrude",
+        name: str = "New Translate",
         move_x: float = 0,
         move_y: float = 0,
         move_z: float = 0,

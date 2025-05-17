@@ -50,9 +50,9 @@ class Translate(Feature):
         self._partstudio = partstudio
         self._name = name
         self.move_x = move_x
-        self._move_y = move_y
-        self._move_z = move_z
-        self._copy_part = copy_part
+        self.move_y = move_y
+        self.move_z = move_z
+        self.copy_part = copy_part
 
         self._upload_feature()
 
@@ -121,7 +121,7 @@ class Translate(Feature):
                 },
                 {
                     "btType": "BTMParameterBoolean-144",
-                    "value": self.make_copy,
+                    "value": self.copy_part,
                     "parameterId": "makeCopy"
                 }
 
