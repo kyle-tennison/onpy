@@ -122,7 +122,7 @@ class PartStudio(Element):
 
     def add_translate(
         self,
-        part_id: str,
+        part: Part,
         name: str = "New Translate",
         move_x: float = 0,
         move_y: float = 0,
@@ -132,7 +132,7 @@ class PartStudio(Element):
         """Add a new transform of type translate_xyz feature to the partstudio.
 
         Args:
-            part_id: The id of the part to be translated
+            part: The part to be translated
             name: The name of the extrusion feature
             move_x: The distance to move in x direction
             move_y: The distance to move in y direction
@@ -145,7 +145,7 @@ class PartStudio(Element):
         """
         return Translate(
             partstudio = self,
-            part_id = part_id,
+            part = part,
             name = name,
             move_x = move_x,
             move_y = move_y,
