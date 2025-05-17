@@ -124,20 +124,20 @@ class PartStudio(Element):
         self,
         part: Part,
         name: str = "New Translate",
-        move_x: float = 0,
-        move_y: float = 0,
-        move_z: float = 0,
-        copy_part: bool = False,
+        x: float = 0,
+        y: float = 0,
+        z: float = 0,
+        copy: bool = False,
     ) -> Translate:
         """Add a new transform of type translate_xyz feature to the partstudio.
 
         Args:
             part: The part to be translated
             name: The name of the extrusion feature
-            move_x: The distance to move in x direction
-            move_y: The distance to move in y direction
-            move_z: The distance to move in z direction
-            copy_part: Bool to indicate part should be copied
+            x: The distance to move in x direction
+            y: The distance to move in y direction
+            z: The distance to move in z direction
+            copy: Bool to indicate part should be copied
 
         Returns:
             An Translated object
@@ -147,10 +147,10 @@ class PartStudio(Element):
             partstudio = self,
             part = part,
             name = name,
-            move_x = move_x,
-            move_y = move_y,
-            move_z = move_z,
-            copy_part = copy_part,
+            x = x,
+            y = y,
+            z = z,
+            copy = copy,
         )
 
     def add_loft(

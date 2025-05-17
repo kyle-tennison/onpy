@@ -27,10 +27,10 @@ class Translate(Feature):
         self,
         part: Part,
         partstudio: "PartStudio",
-        move_x: float,
-        move_y: float,
-        move_z: float,
-        copy_part: bool,
+        x: float,
+        y: float,
+        z: float,
+        copy: bool,
         name: str = "Translation",
     ) -> None:
         """Construct an translate feature.
@@ -39,20 +39,20 @@ class Translate(Feature):
             partstudio: The owning partstudio
             part: The part to be tranlsated
             name: The name of the translation feature
-            move_x: The distance to move in x direction
-            move_y: The distance to move in y direction
-            move_z: The distance to move in z direction
-            copy_part: Bool to indicate part should be copied
+            x: The distance to move in x direction
+            y: The distance to move in y direction
+            z: The distance to move in z direction
+            copy: Bool to indicate part should be copied
 
         """
         self._id: str | None = None
         self.part = part
         self._partstudio = partstudio
         self._name = name
-        self.move_x = move_x
-        self.move_y = move_y
-        self.move_z = move_z
-        self.copy_part = copy_part
+        self.x = x
+        self.y = y
+        self.z = z
+        self.copy = copy
 
         self._upload_feature()
 
@@ -106,22 +106,22 @@ class Translate(Feature):
                 },
                 {
                     "btType": "BTMParameterQuantity-147",
-                    "value": self.move_x,
+                    "value": self.x,
                     "parameterId": "dx"
                 },
                 {
                     "btType": "BTMParameterQuantity-147",
-                    "value": self.move_y,
+                    "value": self.y,
                     "parameterId": "dy"
                 },
                 {
                     "btType": "BTMParameterQuantity-147",
-                    "value": self.move_z,
+                    "value": self.z,
                     "parameterId": "dz"
                 },
                 {
                     "btType": "BTMParameterBoolean-144",
-                    "value": self.copy_part,
+                    "value": self.copy,
                     "parameterId": "makeCopy"
                 }
 
