@@ -186,3 +186,25 @@ def test_part_translate():
     partstudio.add_translate(new_part, x=10, y=80, z=30, copy=True)
 
     document.delete()
+
+def test_part_boolean_union():
+    """Tests the ability to union two intersecting parts"""
+
+    document = onpy.create_document("test_features::test_part_boolean_union")
+    partstudio = document.get_partstudio()
+    partstudio.wipe()
+
+    sketch1 = partstudio.add_sketch(partstudio.features.top_plane)
+    sketch1.add_circle((0, 0), radius=60)
+
+    extrude = partstudio.add_extrude(sketch1, distance=60)
+
+    first_part = extrude.get_created_parts()[0]
+
+    partstudio.add_translate(new_part, x=10, y=0, z=0, copy=True)
+
+    second_part = partstudio.parts[-1]
+
+    partstudio.add_boolean_union(parts=[first_part,second_part],keep_tools=False)
+
+    document.delete()
