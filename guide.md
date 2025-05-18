@@ -53,7 +53,7 @@ Depending on the circumstance, you can move sketches to other planes using offse
 
 After you have created a sketch, perform some 3D operation on it. Currently, OnPy only supports extrusions and lofts, but these are powerful in their own right. If your sketch has multiple regions, you can query them based on their properties. Queries will be discussed later.
 
-After you have created a 3D object, also known as a Part, you can perform additional queries and operations on it, such as translate (Transform/Translate by XYZ). You can reference part faces, edges, vertices, etc. in order to define additional sketches.
+After you have created a 3D object, also known as a Part, you can perform additional queries and operations on it, such as translate (Transform/Translate by XYZ) or boolean union. You can reference part faces, edges, vertices, etc. in order to define additional sketches.
 
 ## Defining a Sketch
 
@@ -511,6 +511,24 @@ def add_translate(
 
     """
 
+def add_boolean_union(
+    self,
+    parts: Part,
+    name: str = "New Boolean Union",
+    keep_tools: bool = False,
+) -> BooleanUnion:
+    """Add a new boolean of type union feature to the partstudio.
+
+    Args:
+        parts: An array of parts to be unioned
+        name: The name of the extrusion feature
+        keep_tools: Bool to indicate if tools should be kept (same as GUI checkbox)
+
+    Returns:
+        An Unioned object
+
+    """
+
 def add_loft(
     self,
     start: FaceEntityConvertible,
@@ -702,6 +720,19 @@ part = partstudio.parts.get('triangle')
 partstudio.add_translate(part,x=10,y=80,z=30,copy=True)
 ```
 
+### Boolean Union
+
+This function does a boolean union of two or more intersecting parts with a "keep_tools" option like the checkbox in the GUI.
+
+```python
+# identify two parts
+part1 = partstudio.parts.get('triangle')
+part2 = partstudio.parts.get('square')
+
+# Union them together
+partstudio.add_boolean_union(name="My perfect union",parts=[part1,part2],keep_tools=False)
+```
+
 ## Parts
 
 Sometimes, features will result in a new part. For instance, when you extrude a sketch for the first time, a new part is made.
@@ -726,7 +757,7 @@ with parts. If you want to get an idea of what parts are available, you can run:
 This will display the parts available. Then, you can access the parts by index (`partstudio.parts[0]`),
 name (`partstudio.parts.get("Housing")`), or id (`partstudio.parts.get_id("JKD")`)
 
-You can use the partudio `add_translate` function to move or copy the part.
+You can use the partudio `add_translate` function to move or copy the part or `add_boolean_union` to union two or more parts.
 
 If you want to manually iterate over a list of parts, you can call `partstudio.list_parts()`
 and this will return a plain list of Part objects.
