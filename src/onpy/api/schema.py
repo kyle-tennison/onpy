@@ -235,6 +235,12 @@ class Translate(Feature):
     btType: str = "BTMFeature-134"
     featureType: str = "transform"
 
+class BooleanUnion(Feature):
+    """Represents an Boolean Union Feature."""
+
+    btType: str = "BTMFeature-134"
+    featureType: str = "booleanBodies"
+
 class Plane(Feature):
     """Represents a Plane Feature."""
 
