@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, override
 from onpy.api import schema
 from onpy.api.schema import FeatureAddResponse
 from onpy.entities import EntityFilter
-from onpy.entities.protocols import BodyEntityConvertible, FaceEntityConvertible
 from onpy.features.base import Feature
 from onpy.part import Part
 from onpy.util.misc import unwrap
@@ -30,6 +29,7 @@ class Translate(Feature):
         x: float,
         y: float,
         z: float,
+        *,
         copy: bool,
         name: str = "Translation",
     ) -> None:
@@ -55,7 +55,6 @@ class Translate(Feature):
         self.copy = copy
 
         self._upload_feature()
-
 
     @property
     @override
@@ -86,45 +85,28 @@ class Translate(Feature):
             featureType="transform",
             suppressed=False,
             parameters=[
-
                 {
                     "btType": "BTMParameterQueryList-148",
                     "parameterId": "entities",
                     "queries": [
-                    {
-                        "btType": "BTMIndividualQuery-138",
-                        "deterministicIds": [self.part.id]
-                    }
-                    ]
+                        {"btType": "BTMIndividualQuery-138", "deterministicIds": [self.part.id]}
+                    ],
                 },
                 {
                     "btType": "BTMParameterEnum-145",
                     "namespace": "",
                     "enumName": "TransformType",
                     "value": "TRANSLATION_3D",
-                    "parameterId": "transformType"
+                    "parameterId": "transformType",
                 },
-                {
-                    "btType": "BTMParameterQuantity-147",
-                    "value": self.x,
-                    "parameterId": "dx"
-                },
-                {
-                    "btType": "BTMParameterQuantity-147",
-                    "value": self.y,
-                    "parameterId": "dy"
-                },
-                {
-                    "btType": "BTMParameterQuantity-147",
-                    "value": self.z,
-                    "parameterId": "dz"
-                },
+                {"btType": "BTMParameterQuantity-147", "value": self.x, "parameterId": "dx"},
+                {"btType": "BTMParameterQuantity-147", "value": self.y, "parameterId": "dy"},
+                {"btType": "BTMParameterQuantity-147", "value": self.z, "parameterId": "dz"},
                 {
                     "btType": "BTMParameterBoolean-144",
                     "value": self.copy,
-                    "parameterId": "makeCopy"
-                }
-
+                    "parameterId": "makeCopy",
+                },
             ],
         )
 
