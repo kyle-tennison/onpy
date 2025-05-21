@@ -137,7 +137,7 @@ class PartStudio(Element):
             x: The distance to move in x direction
             y: The distance to move in y direction
             z: The distance to move in z direction
-            copy: Bool to indicate part should be copied
+            copy: Bool to indicate if part should be copied
 
         Returns:
             An Translated object
