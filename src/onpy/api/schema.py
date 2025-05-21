@@ -231,6 +231,13 @@ class Extrude(Feature):
     featureType: str = "extrude"
 
 
+class Translate(Feature):
+    """Represents an Translate Feature."""
+
+    btType: str = "BTMFeature-134"
+    featureType: str = "transform"
+
+
 class Plane(Feature):
     """Represents a Plane Feature."""
 

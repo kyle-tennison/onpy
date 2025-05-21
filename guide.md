@@ -53,7 +53,7 @@ Depending on the circumstance, you can move sketches to other planes using offse
 
 After you have created a sketch, perform some 3D operation on it. Currently, OnPy only supports extrusions and lofts, but these are powerful in their own right. If your sketch has multiple regions, you can query them based on their properties. Queries will be discussed later.
 
-After you have created a 3D object, also known as a Part, you can perform additional queries and operations on it. You can reference part faces, edges, vertices, etc. in order to define additional sketches.
+After you have created a 3D object, also known as a Part, you can perform additional queries and operations on it, such as translate (Transform/Translate by XYZ). You can reference part faces, edges, vertices, etc. in order to define additional sketches.
 
 ## Defining a Sketch
 
@@ -487,6 +487,30 @@ def add_extrude(
     """
     ...
 
+def add_translate(
+    self,
+    part: Part,
+    name: str = "New Translate",
+    x: float = 0,
+    y: float = 0,
+    z: float = 0,
+    copy: bool = False,
+) -> Translate:
+    """Add a new transform of type translate_xyz feature to the partstudio.
+
+    Args:
+        part: The part to be translated
+        name: The name of the extrusion feature
+        x: The distance to move in x direction
+        y: The distance to move in y direction
+        z: The distance to move in z direction
+        copy: Bool to indicate part should be copied
+
+    Returns:
+        A Translated object
+
+    """
+
 def add_loft(
     self,
     start: FaceEntityConvertible,
@@ -661,6 +685,22 @@ often leads to feature errors.
 
 Lofts take two parameters, start and end, with a third, optional name parameter.
 The example above in the "Offset Plane" section exemplifies how to use lofts.
+
+### Translate
+
+A translate operates on an existing part (an object in part studio).  This is the "Transform" function of type
+"Translate by XYZ" present in the GUI.
+
+This will esentially move a part by the specified x,y,z units (uses default units of the document), with an option
+to "copy" the part (same as "Copy Part" checkbox in GUI)
+
+```python
+# get the part from part studio with the name of "triangle"
+part = partstudio.parts.get('triangle')
+
+# create a copy of the part and move it 10,80,30 in the x,y,z directions
+partstudio.add_translate(part,x=10,y=80,z=30,copy=True)
+```
 
 ## Parts
 
