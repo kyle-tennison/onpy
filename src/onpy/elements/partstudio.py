@@ -133,7 +133,7 @@ class PartStudio(Element):
 
         Args:
             part: The part to be translated
-            name: The name of the extrusion feature
+            name: The name of the translation feature
             x: The distance to move in x direction
             y: The distance to move in y direction
             z: The distance to move in z direction
