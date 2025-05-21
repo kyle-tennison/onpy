@@ -698,7 +698,7 @@ to "copy" the part (same as "Copy Part" checkbox in GUI)
 # get the part from part studio with the name of "triangle"
 part = partstudio.parts.get('triangle')
 
-# Create a copy of the part and move it 10,80,30 in the x,y,z directions
+# create a copy of the part and move it 10,80,30 in the x,y,z directions
 partstudio.add_translate(part,x=10,y=80,z=30,copy=True)
 ```
 
