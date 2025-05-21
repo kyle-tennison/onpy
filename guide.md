@@ -507,7 +507,7 @@ def add_translate(
         copy: Bool to indicate part should be copied
 
     Returns:
-        An Translated object
+        A Translated object
 
     """
 
