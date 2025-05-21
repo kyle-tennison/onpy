@@ -184,5 +184,8 @@ def test_part_translate():
     new_part = extrude.get_created_parts()[0]
 
     partstudio.add_translate(new_part, x=10, y=80, z=30, copy=True)
+    partstudio.add_translate(new_part, x=-10, y=-80, z=-30, copy=False)
+
+    assert len(partstudio.parts.parts) == 2
 
     document.delete()
