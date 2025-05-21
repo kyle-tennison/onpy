@@ -726,8 +726,6 @@ with parts. If you want to get an idea of what parts are available, you can run:
 This will display the parts available. Then, you can access the parts by index (`partstudio.parts[0]`),
 name (`partstudio.parts.get("Housing")`), or id (`partstudio.parts.get_id("JKD")`)
 
-You can use the partudio `add_translate` function to move or copy the part.
-
 If you want to manually iterate over a list of parts, you can call `partstudio.list_parts()`
 and this will return a plain list of Part objects.
 
