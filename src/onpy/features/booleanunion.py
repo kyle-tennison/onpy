@@ -27,6 +27,7 @@ class BooleanUnion(Feature):
         self,
         parts: Part,
         partstudio: "PartStudio",
+        *,
         keep_tools: bool,
         name: str = "BooleanUnion",
     ) -> None:
