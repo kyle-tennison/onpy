@@ -15,7 +15,7 @@ from onpy.api import schema
 from onpy.api.versioning import WorkspaceWVM
 from onpy.elements.base import Element
 from onpy.entities.protocols import BodyEntityConvertible, FaceEntityConvertible
-from onpy.features import Extrude, Translate, Loft, OffsetPlane, Plane, Sketch, BooleanUnion
+from onpy.features import Extrude, Translate, BooleanUnion, Loft, OffsetPlane, Plane, Sketch
 from onpy.features.base import Feature, FeatureList
 from onpy.features.planes import DefaultPlane, DefaultPlaneOrientation
 from onpy.part import Part, PartList
@@ -127,17 +127,18 @@ class PartStudio(Element):
         x: float = 0,
         y: float = 0,
         z: float = 0,
+        *,
         copy: bool = False,
     ) -> Translate:
         """Add a new transform of type translate_xyz feature to the partstudio.
 
         Args:
             part: The part to be translated
-            name: The name of the extrusion feature
+            name: The name of the translation feature
             x: The distance to move in x direction
             y: The distance to move in y direction
             z: The distance to move in z direction
-            copy: Bool to indicate part should be copied
+            copy: Bool to indicate if part should be copied
 
         Returns:
             An Translated object

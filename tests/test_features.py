@@ -185,6 +185,8 @@ def test_part_translate():
 
     partstudio.add_translate(new_part, x=10, y=80, z=30, copy=True)
 
+    assert len(partstudio.parts.parts) == 2
+
     document.delete()
 
 def test_part_boolean_union():
@@ -206,5 +208,7 @@ def test_part_boolean_union():
     second_part = partstudio.parts[-1]
 
     partstudio.add_boolean_union(parts=[first_part,second_part],keep_tools=False)
+
+    assert len(partstudio.parts.parts) == 1
 
     document.delete()

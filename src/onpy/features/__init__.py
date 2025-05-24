@@ -6,6 +6,7 @@ from onpy.features.booleanunion import BooleanUnion
 from onpy.features.loft import Loft
 from onpy.features.planes import DefaultPlane, OffsetPlane, Plane
 from onpy.features.sketch.sketch import Sketch
+from onpy.features.translate import Translate
 
 __all__ = [
     "DefaultPlane",
@@ -16,4 +17,5 @@ __all__ = [
     "OffsetPlane",
     "Plane",
     "Sketch",
+    "Translate",
 ]
