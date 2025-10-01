@@ -15,7 +15,7 @@ from onpy.api import schema
 from onpy.api.versioning import WorkspaceWVM
 from onpy.elements.base import Element
 from onpy.entities.protocols import BodyEntityConvertible, FaceEntityConvertible
-from onpy.features import Extrude, Loft, OffsetPlane, Plane, Sketch, Translate
+from onpy.features import Extrude, Translate, BooleanUnion, Loft, OffsetPlane, Plane, Sketch
 from onpy.features.base import Feature, FeatureList
 from onpy.features.planes import DefaultPlane, DefaultPlaneOrientation
 from onpy.part import Part, PartList
@@ -145,13 +145,37 @@ class PartStudio(Element):
 
         """
         return Translate(
-            partstudio=self,
-            part=part,
-            name=name,
-            x=x,
-            y=y,
-            z=z,
-            copy=copy,
+            partstudio = self,
+            part = part,
+            name = name,
+            x = x,
+            y = y,
+            z = z,
+            copy = copy,
+        )
+
+    def add_boolean_union(
+        self,
+        parts: Part,
+        name: str = "New Boolean Union",
+        keep_tools: bool = False,
+    ) -> BooleanUnion:
+        """Add a new boolean of type union feature to the partstudio.
+
+        Args:
+            parts: An array of parts to be unioned
+            name: The name of the extrusion feature
+            keep_tools: Bool to indicate if tools should be kept (same as GUI checkbox)
+
+        Returns:
+            An Unioned object
+
+        """
+        return BooleanUnion(
+            partstudio = self,
+            parts = parts,
+            name = name,
+            keep_tools = keep_tools,
         )
 
     def add_loft(

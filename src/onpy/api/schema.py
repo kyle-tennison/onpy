@@ -223,13 +223,17 @@ class Sketch(Feature):
     constraints: list[dict] | None = []
     entities: list[dict] | None  # dict is FeatureEntity
 
-
 class Extrude(Feature):
     """Represents an Extrude Feature."""
 
     btType: str = "BTMFeature-134"
     featureType: str = "extrude"
 
+class BooleanUnion(Feature):
+    """Represents an Boolean Union Feature."""
+
+    btType: str = "BTMFeature-134"
+    featureType: str = "booleanBodies"
 
 class Translate(Feature):
     """Represents an Translate Feature."""
