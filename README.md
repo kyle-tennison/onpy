@@ -5,6 +5,14 @@
 [![PyPi Version](https://img.shields.io/pypi/v/onpy?color=blue)](https://pypi.org/project/onpy/)
 [![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)
 
+## ⚠️ Important Note on Archive
+
+This project is no longer maintained, though some may still find it useful. 
+
+In 2025, Onshape introduced rate limits to encourage users to limit their API traffic. This project, along with many others, was built before these rate limits were put in place. As a consequence, it makes few efforts to cache/limit API invocations, meaning that using **this package will likely cause the user to reach their daily or annual quota of API calls very quickly.**
+
+For small tasks, this library may still be useful, but for larger tasks, a more diligent, conservative pipeline is necessary. To learn more about Onshape's new rate limits, read [this article](https://onshape-public.github.io/docs/auth/limits/). You can view your annual usage and how it compares to your quota for [personal](https://cad.onshape.com/help/Content/Plans/developer-myaccount.htm) or [enterprise](https://cad.onshape.com/help/Content/Plans/developer.htm?) accounts here. 
+
 ## Overview
 
 **OnPy is an unofficial Python API for building 3D models in [Onshape](https://onshape.com).**
