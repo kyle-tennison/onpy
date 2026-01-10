@@ -96,9 +96,3 @@ After running the above code, you’ll see a new document in your browser, aptly
 ## User Guide
 
 For a more in-depth guide on how to use OnPy, refer to the [user guide](/guide.md). It provides a detailed explanation of all of OnPy's features.
-
-## Contributing
-
-OnPy is still in its earliest stages, and all contributions are welcome.
-
-This module is designed to be as idiomatic as possible while following some of Onshape's layout quirks. There are no strict rules for contributing, but it’s a good idea to align with the existing structure.
