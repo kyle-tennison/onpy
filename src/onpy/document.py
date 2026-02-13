@@ -141,3 +141,7 @@ class Document(schema.NameIdFetchable):
     def __eq__(self, other: object) -> bool:
         """Check if two documents are the same."""
         return type(other) is type(self) and self.id == getattr(other, "id", None)
+
+    def __hash__(self) -> int:
+        """Generate a unique hash for the document."""
+        return hash(self.id)

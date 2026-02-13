@@ -156,6 +156,10 @@ class Point2D:
             return self.x == other.x and self.y == other.y
         return False
 
+    def __hash__(self) -> int:
+        """Generate a unique hash for the point."""
+        return hash((self.x, self.y))
+
     @classmethod
     def from_pair(cls, pair: tuple[float, float]) -> Self:
         """Create a point from an ordered pair."""

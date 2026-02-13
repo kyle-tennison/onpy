@@ -64,3 +64,7 @@ class Element(ABC, schema.NameIdFetchable):
         if isinstance(other, type(self)):
             return other.id == self.id and type(other) is type(self)
         return False
+
+    def __hash__(self) -> int:
+        """Generate a unique hash for the element."""
+        return hash(self.id)

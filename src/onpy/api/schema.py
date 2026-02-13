@@ -39,6 +39,10 @@ class NameIdFetchable(Protocol):
         """The ID of the item."""
         ...
 
+    def __hash__(self) -> int:
+        """Generate a unique hash for the object."""
+        return hash(self.id)
+
 
 class ApiModel(BaseModel):
     """Base model for OnShape APIs."""
@@ -229,6 +233,13 @@ class Extrude(Feature):
 
     btType: str = "BTMFeature-134"
     featureType: str = "extrude"
+
+
+class BooleanUnion(Feature):
+    """Represents an Boolean Union Feature."""
+
+    btType: str = "BTMFeature-134"
+    featureType: str = "booleanBodies"
 
 
 class Translate(Feature):
